@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build",
+        "command": "dotnet build",
+        "type": "shell",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "reveal": "always"
+        },
+        "problemMatcher": "$msCompile"
+      },
+      {
+        "label": "Run Functions Host",
+        "identifier": "runFunctionsHost",
+        "type": "shell",
+        "dependsOn": "build",
+        "options": {
+          "cwd": "${workspaceFolder}/ExampleFunction/bin/Debug/netstandard2.0"
+        },
+        "command": "func host start",
+        "isBackground": true,
+        "presentation": {
+          "reveal": "always"
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+  
