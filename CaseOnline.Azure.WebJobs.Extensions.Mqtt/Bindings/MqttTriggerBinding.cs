@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
-    internal class MqttTriggerBinding : ITriggerBinding
+    public class MqttTriggerBinding : ITriggerBinding
     {
         private readonly ParameterInfo _parameter;
         private readonly MqttTriggerAttribute _mqttTriggerAttribute;

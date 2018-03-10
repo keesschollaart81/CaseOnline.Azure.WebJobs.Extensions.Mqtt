@@ -12,7 +12,7 @@ using uPLibrary.Networking.M2Mqtt.Messages;
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
     [Singleton(Mode = SingletonMode.Listener)]
-    sealed class MqttListener : IListener
+    public sealed class MqttListener : IListener
     {
         private readonly ITriggeredFunctionExecutor _executor;
         private readonly ILogger _logger;

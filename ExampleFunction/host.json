@@ -1,2 +1,6 @@
 {
+  "tracing": {
+    "consoleLevel": "verbose"
+    //"fileLoggingMode": "debugOnly"
+  }
 }

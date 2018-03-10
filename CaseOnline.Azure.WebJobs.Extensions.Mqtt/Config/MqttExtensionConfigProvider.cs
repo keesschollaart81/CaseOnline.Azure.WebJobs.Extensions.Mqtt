@@ -7,16 +7,16 @@ using System;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
-    //public class MqttExtensionConfigProvider : IExtensionConfigProvider
-    //{
-    //    public void Initialize(ExtensionConfigContext context)
-    //    {
-    //        Console.WriteLine("test");
-    //        ILogger logger = context.Config.LoggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
-    //        context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(context.Config.NameResolver, logger));
-    //        //var rule2 = context.AddBindingRule<FileTriggerAttribute>();
-    //        //rule2.BindToTrigger(new MqttTriggerAttributeBindingProvider(context.Config.NameResolver, logger));
+    public class MqttExtensionConfigProvider : IExtensionConfigProvider
+    {
+        public void Initialize(ExtensionConfigContext context)
+        {
+            Console.WriteLine("test");
+            ILogger logger = context.Config.LoggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
+            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(context.Config.NameResolver, logger));
+            //var rule2 = context.AddBindingRule<FileTriggerAttribute>();
+            //rule2.BindToTrigger(new MqttTriggerAttributeBindingProvider(context.Config.NameResolver, logger));
 
-    //    }
-    //}
+        }
+    }
 }

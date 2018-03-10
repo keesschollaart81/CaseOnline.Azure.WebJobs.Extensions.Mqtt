@@ -8,6 +8,11 @@
         public byte QosLevel { get; }
         public bool Retain { get; }
 
+        public PublishedMqttMessage()
+        {
+
+        }
+
         public PublishedMqttMessage(string topic, byte[] message, bool dupFlag, byte qosLevel, bool retain)
         {
             Topic = topic;
