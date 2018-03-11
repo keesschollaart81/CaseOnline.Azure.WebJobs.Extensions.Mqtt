@@ -19,7 +19,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private readonly MqttConfiguration _config;
         private readonly string _name;
         private ILogger _logger;
-        private IReadOnlyDictionary<string, Type> _bindingContract;
+        private readonly IReadOnlyDictionary<string, Type> _bindingContract;
 
         public MqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute, MqttConfiguration config, ILogger logger)
         {
@@ -51,7 +51,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             var mqttInfo = value as PublishedMqttMessage;
             if (mqttInfo == null)
             {
-                throw new Exception("huh?");
+                throw new Exception($"Provided value for {_name} invalid");
             }
 
             var valueProvider = new ValueProvider(mqttInfo);

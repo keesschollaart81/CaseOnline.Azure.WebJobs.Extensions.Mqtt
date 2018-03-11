@@ -1,6 +1,23 @@
 {
   "tracing": {
-    "consoleLevel": "verbose"
-    //"fileLoggingMode": "debugOnly"
+    "consoleLevel": "verbose",
+    "fileLoggingMode": "always"
+  },
+  "logger": {
+    
+    // Filtering for logs written by an ILogger object.
+    "categoryFilter": {
+      "defaultLevel": "Verbose",
+      // Log level to filter all categories not specified under categoryLevels.
+      "categoryLevels": {
+        // Log level to filter for specific categories.
+        "Host": "Verbose",
+        // Example: Filter categories that begin with "Host" at Error level, except Host.Aggregator.
+        "Function": "Verbose",
+        // Example: Filter categories that begin with "Function" at Error level.
+        "Host.Aggregator": "Verbose"
+        // Example: Overrides the above "Host" item because the category is longer.
+      }
+    }
   }
 }
