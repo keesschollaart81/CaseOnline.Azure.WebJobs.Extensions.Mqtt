@@ -42,7 +42,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             var config = new MqttConfiguration(
                 mqttTriggerAttribute.ServerUrl,
-                mqttTriggerAttribute.Topic,
+                mqttTriggerAttribute.Port,
+                mqttTriggerAttribute.Topics,
                 mqttTriggerAttribute.Username,
                 mqttTriggerAttribute.Password,
                 mqttTriggerAttribute.ClientId

@@ -4,20 +4,22 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
     public class MqttConfiguration : Attribute
     {
-        public string ServerUrl { get; set; }
-        public string Topic { get; set; }
+        public string Server { get; set; }
+        public int Port { get; }
+        public string[] Topics { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
         public string ClientId { get; set; }
 
-        public MqttConfiguration(string serverUrl, string topic, string username, string password) : this(serverUrl, topic, username, password, Guid.NewGuid().ToString())
+        public MqttConfiguration(string server, int port, string[] topics, string username, string password) : this(server, port, topics, username, password, Guid.NewGuid().ToString())
         {
         }
 
-        public MqttConfiguration(string serverUrl, string topic, string username, string password, string clientId)
+        public MqttConfiguration(string server, int port, string[] topics, string username, string password, string clientId)
         {
-            ServerUrl = serverUrl;
-            Topic = topic;
+            Server = server;
+            Port = port;
+            Topics = topics;
             Username = username;
             Password = password;
             ClientId = clientId;

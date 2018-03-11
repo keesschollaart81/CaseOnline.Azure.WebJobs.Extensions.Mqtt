@@ -5,10 +5,12 @@ using Microsoft.Azure.WebJobs.Host.Listeners;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client;
+using MQTTnet.ManagedClient;
 using MQTTnet.Protocol;
 using System;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
@@ -20,7 +22,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly MqttConfiguration _config;
         private bool _disposed;
-        private IMqttClient _client;
+        private IManagedMqttClient _client;
         private IMqttClientOptions _options;
 
         public MqttListener(MqttConfiguration config, ITriggeredFunctionExecutor executor, ILogger logger)
@@ -52,7 +54,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
             _cancellationTokenSource.Cancel();
 
-            _client.DisconnectAsync().Wait();
+            _client.StopAsync().Wait();
             _client.Dispose();
             _client = null;
 
@@ -75,7 +77,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
                 if (_client != null)
                 {
-                    _client.DisconnectAsync().Wait();
+                    _client.StopAsync().Wait();
                     _client.Dispose();
                     _client = null;
                 }
@@ -91,57 +93,35 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
                 return;
             }
 
-            var factory = new MqttFactory();
-            _client = factory.CreateMqttClient();
-            _options = new MqttClientOptionsBuilder()
-                .WithClientId(Guid.NewGuid().ToString())
-                .WithTcpServer(_config.ServerUrl)
-                .WithCredentials(_config.Username, _config.Password)
-                //.WithTls()
-                //.WithCleanSession()
+            var options = new ManagedMqttClientOptionsBuilder()
+                .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
+                .WithClientOptions(new MqttClientOptionsBuilder()
+                    .WithClientId(_config.ClientId)
+                    .WithTcpServer(_config.Server, _config.Port)
+                    .WithCredentials(_config.Username, _config.Password)
+                    .WithCleanSession()
+                    //.WithTls()
+                    .Build())
                 .Build();
-            _client.ApplicationMessageReceived += _client_ApplicationMessageReceived; 
-            _client.Disconnected += client_Disconnected;
-            _client.Connected += _client_Connected; 
-            await _client.ConnectAsync(_options);
-             
-            if (!_client.IsConnected) throw new Exception("Not able to connect to Mqtt server");
-        }
 
-        private async void client_Disconnected(object sender, MqttClientDisconnectedEventArgs e)
-        {
-            _logger.LogWarning("MqttDisconnected");
-
-            await Task.Delay(TimeSpan.FromSeconds(1));
-
-            try
-            {
-                await _client.ConnectAsync(_options);
-            }
-            catch
-            {
-                _logger.LogWarning("Reconnecting failed");
-            }
-        }
-
-        private async void _client_Connected(object sender, MqttClientConnectedEventArgs e)
-        {
-            await _client.SubscribeAsync(new TopicFilter[] { new TopicFilter(_config.Topic, MqttQualityOfServiceLevel.AtLeastOnce) });
-        }
+            _client = new MqttFactory().CreateManagedMqttClient();
+            _client.ApplicationMessageReceived += _client_ApplicationMessageReceived;
+            await _client.SubscribeAsync(_config.Topics.Select(x => new TopicFilter(x, MqttQualityOfServiceLevel.AtLeastOnce)));
+            await _client.StartAsync(options); 
+        } 
 
         private void _client_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
             _logger.LogTrace("Mqtt client receiving message");
             InvokeJobFunction(e).Wait();
-        } 
-         
+        }
 
         private async Task InvokeJobFunction(MqttApplicationMessageReceivedEventArgs mqttApplicationMessageReceivedEventArgs)
         {
             var token = _cancellationTokenSource.Token;
 
             var MqttInfo = new PublishedMqttMessage(
-                mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Topic, 
+                mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Topic,
                 mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Payload,
                 mqttApplicationMessageReceivedEventArgs.ApplicationMessage.QualityOfServiceLevel.ToString(),
                 mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Retain);
