@@ -12,9 +12,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     public class MqttTriggerAttributeBindingProvider : ITriggerBindingProvider
     {
         private readonly INameResolver _nameResolver;
-        private readonly ILogger _logger;
+        private readonly TraceWriter _logger;
 
-        public MqttTriggerAttributeBindingProvider(INameResolver nameResolver, ILogger logger)
+        public MqttTriggerAttributeBindingProvider(INameResolver nameResolver, TraceWriter logger)
         {
             _nameResolver = nameResolver;
             _logger = logger;
@@ -22,6 +22,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         public Task<ITriggerBinding> TryCreateAsync(TriggerBindingProviderContext context)
         {
+            _logger.Info("MqttTriggerAttributeBindingProvider.TryCreateAsync");
+
             if (context == null)
             {
                 throw new ArgumentNullException("context");

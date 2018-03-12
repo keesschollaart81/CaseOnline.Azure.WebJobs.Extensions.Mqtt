@@ -1,5 +1,6 @@
 ﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
+using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Azure.WebJobs.Host.Listeners;
 using Microsoft.Azure.WebJobs.Host.Protocols;
@@ -18,10 +19,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private readonly MqttTriggerAttribute _mqttTriggerAttribute;
         private readonly MqttConfiguration _config;
         private readonly string _name;
-        private ILogger _logger;
+        private TraceWriter _logger;
         private readonly IReadOnlyDictionary<string, Type> _bindingContract;
 
-        public MqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute, MqttConfiguration config, ILogger logger)
+        public MqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute, MqttConfiguration config, TraceWriter logger)
         {
             _parameter = parameter;
             _mqttTriggerAttribute = mqttTriggerAttribute;
@@ -48,6 +49,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         public async Task<ITriggerData> BindAsync(object value, ValueBindingContext context)
         {
+            _logger.Info("MqttTriggerBinding.BindAsync");
             var mqttInfo = value as PublishedMqttMessage;
             if (mqttInfo == null)
             {
@@ -62,6 +64,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         public Task<IListener> CreateListenerAsync(ListenerFactoryContext context)
         {
+            _logger.Info("MqttTriggerBinding.CreateListenerAsync");
             if (context == null)
             {
                 throw new ArgumentNullException("context");

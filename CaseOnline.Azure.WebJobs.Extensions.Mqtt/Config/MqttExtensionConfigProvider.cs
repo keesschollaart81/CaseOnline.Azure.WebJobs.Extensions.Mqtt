@@ -12,8 +12,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
         public void Initialize(ExtensionConfigContext context)
         {
             context.Trace.Info("MqttExtensionConfigProvider.Initialize() called!");
-            ILogger logger = context.Config.LoggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
-            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(context.Config.NameResolver, logger));
-        }
-    }
+            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(context.Config.NameResolver, context.Trace));
+        } 
+    } 
 }
