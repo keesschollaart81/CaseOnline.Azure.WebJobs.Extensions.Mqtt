@@ -25,6 +25,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private bool _disposed;
         private IManagedMqttClient _client;
         private IMqttClientOptions _options;
+        private readonly Timer _timer;
 
         public MqttListener(MqttConfiguration config, ITriggeredFunctionExecutor executor, TraceWriter logger)
         {
@@ -32,6 +33,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             _executor = executor;
             _logger = logger;
             _cancellationTokenSource = new CancellationTokenSource();
+            _timer = new Timer(Execute, null, 30000, Timeout.Infinite);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -111,15 +113,20 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
                 _client.Connected += _client_Connected;
                 _client.Disconnected += _client_Disconnected;
                 await _client.SubscribeAsync(_config.Topics.Select(x => new TopicFilter(x, MqttQualityOfServiceLevel.AtLeastOnce)));
-                await _client.StartAsync(options); 
+                await _client.StartAsync(options);
             }
             catch (Exception e)
             {
                 _logger.Error("Unhandled exception while connectin to Mqtt server", e);
                 throw new Exception("Unhandled exception while connectin to Mqtt server", e);
             }
+ 
         }
-
+        public void Execute(System.Object stateInfo)
+        {
+            _logger.Info($"Timer: {_client?.IsConnected}"); 
+            _timer.Change(30000, Timeout.Infinite);
+        }
         private void _client_Disconnected(object sender, MqttClientDisconnectedEventArgs e)
         {
             _logger.Error($"MqttListener._client_Disconnected, was :{e.ClientWasConnected} ", e.Exception);
