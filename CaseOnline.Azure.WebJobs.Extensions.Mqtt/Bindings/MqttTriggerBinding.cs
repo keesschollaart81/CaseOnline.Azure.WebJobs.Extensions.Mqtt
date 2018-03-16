@@ -47,7 +47,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             get { return _bindingContract; }
         }
 
-        public async Task<ITriggerData> BindAsync(object value, ValueBindingContext context)
+        public Task<ITriggerData> BindAsync(object value, ValueBindingContext context)
         {
             _logger.Info("MqttTriggerBinding.BindAsync");
             var mqttInfo = value as PublishedMqttMessage;
@@ -59,7 +59,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             var valueProvider = new ValueProvider(mqttInfo);
             var bindingData = CreateBindingData();
 
-            return new TriggerData(valueProvider, bindingData);
+            return Task.FromResult<ITriggerData>(new TriggerData(valueProvider, bindingData));
         }
 
         public Task<IListener> CreateListenerAsync(ListenerFactoryContext context)

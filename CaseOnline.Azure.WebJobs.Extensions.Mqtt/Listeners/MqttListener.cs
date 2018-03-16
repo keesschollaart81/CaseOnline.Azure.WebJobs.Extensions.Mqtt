@@ -23,8 +23,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly MqttConfiguration _config;
         private bool _disposed;
-        private IManagedMqttClient _client;
-        private IMqttClientOptions _options;
+        private IManagedMqttClient _client; 
         private readonly Timer _timer;
 
         public MqttListener(MqttConfiguration config, ITriggeredFunctionExecutor executor, TraceWriter logger)
@@ -124,7 +123,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         }
         public void Execute(System.Object stateInfo)
         {
-            _logger.Info($"Timer: {_client?.IsConnected}"); 
+            _logger.Info($"Timer: {_client?.IsConnected} {DateTime.Now:g}"); 
             _timer.Change(30000, Timeout.Infinite);
         }
         private void _client_Disconnected(object sender, MqttClientDisconnectedEventArgs e)
