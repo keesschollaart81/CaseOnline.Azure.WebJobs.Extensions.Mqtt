@@ -7,11 +7,11 @@ using Newtonsoft.Json;
 
 namespace ExampleFunction
 {
-    public static class ExampleFunction
+    public static class ExampleFunctions
     {
-        [FunctionName("ExampleFunction")]
-        public static void Run(
-            [MqttTrigger("server.duckdns.org", 1883, new[] { "topic/one", "topic/two" }, "username", "password")]PublishedMqttMessage message,
+        [FunctionName("SimpleFunction")]
+        public static void SimpleFunction(
+            [MqttTrigger(new[] { "owntracks/kees/kees01", "owntracks/marleen/marleen01" })]PublishedMqttMessage message,
             ILogger log,
             [Table("Locations", Connection = "StorageConnectionAppSetting")] out Trail trail)
         {

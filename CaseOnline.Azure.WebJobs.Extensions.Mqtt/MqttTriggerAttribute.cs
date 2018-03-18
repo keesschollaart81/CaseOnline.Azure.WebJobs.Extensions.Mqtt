@@ -1,5 +1,10 @@
-﻿using Microsoft.Azure.WebJobs.Description;
+﻿using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Description;
+using MQTTnet;
+using MQTTnet.ManagedClient;
+using MQTTnet.Protocol;
 using System;
+using System.Linq;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
 {
@@ -8,25 +13,48 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
     [Binding]
     public class MqttTriggerAttribute : Attribute
     {
-        public string ServerUrl { get; set; }
-        public int Port { get; }
-        public string[] Topics { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string ClientId { get; set; }
+        public readonly IManagedMqttClientOptions ManagedMqttClientOptions;
 
-        public MqttTriggerAttribute(string serverUrl, int port, string[] topics, string username, string password) : this(serverUrl, port, topics, username, password, Guid.NewGuid().ToString())
+        public readonly TopicFilter[] Topics;
+
+        public bool UseManagedMqttClient => ManagedMqttClientOptions != null;
+
+        [AppSetting]
+        public string ServerName { get; set; }
+
+        [AppSetting]
+        public string PortName { get; set; }
+
+        [AppSetting]
+        public string UsernameName { get; set; }
+
+        [AppSetting]
+        public string PasswordName { get; set; }
+
+        [AppSetting]
+        public string ClientIdName { get; set; }
+
+        public TimeSpan ReconnectDelay { get; }
+
+        public IManagedMqttClientOptions ManagedMqttSettings => ManagedMqttClientOptions;
+
+        public MqttTriggerAttribute(string[] topics) : this(topics, TimeSpan.FromSeconds(5))
         {
         }
 
-        public MqttTriggerAttribute(string serverUrl, int port, string[] topics, string username, string password, string clientId)
+        public MqttTriggerAttribute(string[] topics, TimeSpan reconnectDelay)
         {
-            ServerUrl = serverUrl;
-            Port = port;
+            Topics = topics.Select(x => new TopicFilter(x, MqttQualityOfServiceLevel.AtLeastOnce)).ToArray();
+            ReconnectDelay = reconnectDelay;
+        }
+
+        public MqttTriggerAttribute(IManagedMqttClientOptions managedMqttClientOptions, TopicFilter[] topics)
+        {
+            ManagedMqttClientOptions = managedMqttClientOptions;
             Topics = topics;
-            Username = username;
-            Password = password;
-            ClientId = clientId;
+        }
+        public MqttTriggerAttribute(Type type)
+        { 
         }
     }
 }

@@ -22,13 +22,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private readonly TraceWriter _logger;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly MqttConfiguration _config;
+        private readonly IMqttClientFactory _mqttClientFactory;
         private bool _disposed;
-        private IManagedMqttClient _client; 
+        private IManagedMqttClient _client;
         private readonly Timer _timer;
 
-        public MqttListener(MqttConfiguration config, ITriggeredFunctionExecutor executor, TraceWriter logger)
+        public MqttListener(IMqttClientFactory mqttClientFactory, MqttConfiguration config, ITriggeredFunctionExecutor executor, TraceWriter logger)
         {
             _config = config;
+            _mqttClientFactory = mqttClientFactory;
             _executor = executor;
             _logger = logger;
             _cancellationTokenSource = new CancellationTokenSource();
@@ -95,35 +97,24 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
                 return;
             }
             try
-            {
-                var options = new ManagedMqttClientOptionsBuilder()
-                    .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
-                    .WithClientOptions(new MqttClientOptionsBuilder()
-                        .WithClientId(_config.ClientId)
-                        .WithTcpServer(_config.Server, _config.Port)
-                        .WithCredentials(_config.Username, _config.Password)
-                        .WithCleanSession()
-                        //.WithTls()
-                        .Build())
-                    .Build();
-
-                _client = new MqttFactory().CreateManagedMqttClient();
+            { 
+                _client = _mqttClientFactory.CreateManagedMqttClient();
                 _client.ApplicationMessageReceived += _client_ApplicationMessageReceived;
                 _client.Connected += _client_Connected;
                 _client.Disconnected += _client_Disconnected;
-                await _client.SubscribeAsync(_config.Topics.Select(x => new TopicFilter(x, MqttQualityOfServiceLevel.AtLeastOnce)));
-                await _client.StartAsync(options);
+                await _client.SubscribeAsync(_config.Topics);
+                await _client.StartAsync(_config.Options);
             }
             catch (Exception e)
             {
                 _logger.Error("Unhandled exception while connectin to Mqtt server", e);
                 throw new Exception("Unhandled exception while connectin to Mqtt server", e);
-            }
- 
+            } 
         }
+
         public void Execute(System.Object stateInfo)
         {
-            _logger.Info($"Timer: {_client?.IsConnected} {DateTime.Now:g}"); 
+            _logger.Info($"Timer: {_client?.IsConnected} {DateTime.Now:g}");
             _timer.Change(30000, Timeout.Infinite);
         }
         private void _client_Disconnected(object sender, MqttClientDisconnectedEventArgs e)
@@ -151,14 +142,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
                 mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Payload,
                 mqttApplicationMessageReceivedEventArgs.ApplicationMessage.QualityOfServiceLevel.ToString(),
                 mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Retain);
-            var input = new TriggeredFunctionData
+
+            var triggeredFunctionData = new TriggeredFunctionData
             {
                 TriggerValue = MqttInfo
             };
 
             try
             {
-                FunctionResult result = await _executor.TryExecuteAsync(input, token);
+                FunctionResult result = await _executor.TryExecuteAsync(triggeredFunctionData, token);
                 if (!result.Succeeded)
                 {
                     token.ThrowIfCancellationRequested();
