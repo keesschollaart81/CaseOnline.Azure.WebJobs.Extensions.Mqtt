@@ -19,7 +19,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
     public sealed class MqttListener : IListener
     {
         private readonly ITriggeredFunctionExecutor _executor;
-        private readonly TraceWriter _logger;
+        private readonly ILogger _logger;
+        private readonly TraceWriter _traceWriter; 
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly MqttConfiguration _config;
         private readonly IMqttClientFactory _mqttClientFactory;
@@ -27,19 +28,20 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private IManagedMqttClient _client;
         private readonly Timer _timer;
 
-        public MqttListener(IMqttClientFactory mqttClientFactory, MqttConfiguration config, ITriggeredFunctionExecutor executor, TraceWriter logger)
+        public MqttListener(IMqttClientFactory mqttClientFactory, MqttConfiguration config, ITriggeredFunctionExecutor executor, ILogger logger, TraceWriter traceWriter)
         {
             _config = config;
             _mqttClientFactory = mqttClientFactory;
             _executor = executor;
             _logger = logger;
+            _traceWriter = traceWriter; 
             _cancellationTokenSource = new CancellationTokenSource();
             _timer = new Timer(Execute, null, 30000, Timeout.Infinite);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.Info("Starting MqttListener");
+            _traceWriter.Info("Starting MqttListener");
             ThrowIfDisposed();
 
             await StartMqtt();
@@ -47,7 +49,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.Warning("Stopping MqttListener");
+            _traceWriter.Warning("Stopping MqttListener");
 
             ThrowIfDisposed();
 
@@ -67,7 +69,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         public void Cancel()
         {
-            _logger.Info("MqttListener canceled");
+            _traceWriter.Info("MqttListener canceled");
 
             ThrowIfDisposed();
             _cancellationTokenSource.Cancel();
@@ -107,29 +109,29 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             }
             catch (Exception e)
             {
-                _logger.Error("Unhandled exception while connectin to Mqtt server", e);
+                _traceWriter.Error("Unhandled exception while connectin to Mqtt server", e);
                 throw new Exception("Unhandled exception while connectin to Mqtt server", e);
             } 
         }
 
         public void Execute(System.Object stateInfo)
         {
-            _logger.Info($"Timer: {_client?.IsConnected} {DateTime.Now:g}");
+            _traceWriter.Info($"Timer: {_client?.IsConnected} {DateTime.Now:g}");
             _timer.Change(30000, Timeout.Infinite);
         }
         private void _client_Disconnected(object sender, MqttClientDisconnectedEventArgs e)
         {
-            _logger.Error($"MqttListener._client_Disconnected, was :{e.ClientWasConnected} ", e.Exception);
+            _traceWriter.Error($"MqttListener._client_Disconnected, was :{e.ClientWasConnected} ", e.Exception);
         }
 
         private void _client_Connected(object sender, MqttClientConnectedEventArgs e)
         {
-            _logger.Info($"MqttListener._client_Connected {e.IsSessionPresent}");
+            _traceWriter.Info($"MqttListener._client_Connected {e.IsSessionPresent}");
         }
 
         private void _client_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
-            _logger.Info("Mqtt client receiving message");
+            _traceWriter.Info("Mqtt client receiving message");
             InvokeJobFunction(e).Wait();
         }
 
@@ -158,7 +160,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             }
             catch (Exception e)
             {
-                _logger.Error("Error firing function", e);
+                _traceWriter.Error("Error firing function", e);
                 // We don't want any function errors to stop the execution. Errors will be logged to Dashboard already.
             }
         }

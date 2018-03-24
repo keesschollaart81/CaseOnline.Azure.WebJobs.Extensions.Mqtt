@@ -13,15 +13,19 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
     public class MqttExtensionConfigProvider : IExtensionConfigProvider
     {
-        private INameResolver _nameResolver; 
-        
+        private INameResolver _nameResolver;
+
         public void Initialize(ExtensionConfigContext context)
         {
             context.Trace.Info("MqttExtensionConfigProvider.Initialize() called!");
+            //Thread.Sleep(4000);
 
-            _nameResolver = context.Config.GetService<INameResolver>();
+            var logger = context.Config.LoggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
+            logger.LogWarning("Logger not working?");
             
-            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(_nameResolver, context.Trace));
+            _nameResolver = context.Config.GetService<INameResolver>();
+
+            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(_nameResolver, logger, context.Trace));
         }
     }
 }

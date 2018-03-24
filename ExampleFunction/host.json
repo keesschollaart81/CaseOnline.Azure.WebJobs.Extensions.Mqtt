@@ -1,2 +1,9 @@
-{ 
+{
+    "logger": {
+        "categoryFilter": {
+            "categoryLevels": {
+                "Host.Triggers.Mqtt": "Trace"
+            }
+        }
+    }
 }

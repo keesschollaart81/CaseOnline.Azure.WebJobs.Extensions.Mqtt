@@ -19,17 +19,19 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     {
         private readonly ParameterInfo _parameter;
         private readonly IMqttClientFactory _mqttClientFactory;
-        private readonly MqttConfiguration _config; 
-        private TraceWriter _logger;
+        private readonly MqttConfiguration _config;
+        private readonly ILogger _logger;
+        private readonly TraceWriter _traceWriter;
         private readonly IReadOnlyDictionary<string, Type> _emptyBindingContract = new Dictionary<string, Type>();
         private readonly IReadOnlyDictionary<string, object> _emptyBindingData = new Dictionary<string, object>();
 
-        public MqttTriggerBinding(ParameterInfo parameter, IMqttClientFactory mqttClientFactory, MqttConfiguration config, TraceWriter logger)
+        public MqttTriggerBinding(ParameterInfo parameter, IMqttClientFactory mqttClientFactory, MqttConfiguration config, ILogger logger, TraceWriter traceWriter)
         {
             _parameter = parameter;
             _mqttClientFactory = mqttClientFactory;
             _config = config;
-            _logger = logger; 
+            _logger = logger;
+            _traceWriter = traceWriter;
         }
 
         public Type TriggerValueType
@@ -47,19 +49,20 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         public Task<ITriggerData> BindAsync(object value, ValueBindingContext context)
         {
-            _logger.Info("MqttTriggerBinding.BindAsync");
-            return Task.FromResult<ITriggerData>(new TriggerData(null, _emptyBindingData));
+            _traceWriter.Info("MqttTriggerBinding.BindAsync");
+            var valueProvider = new ValueProvider(value);
+            return Task.FromResult<ITriggerData>(new TriggerData(valueProvider, _emptyBindingData));
         }
 
         public Task<IListener> CreateListenerAsync(ListenerFactoryContext context)
         {
-            _logger.Info("MqttTriggerBinding.CreateListenerAsync");
+            _traceWriter.Info("MqttTriggerBinding.CreateListenerAsync");
             if (context == null)
             {
                 throw new ArgumentNullException("context");
             }
-           
-            return Task.FromResult<IListener>(new MqttListener(_mqttClientFactory, _config, context.Executor, _logger));
+
+            return Task.FromResult<IListener>(new MqttListener(_mqttClientFactory, _config, context.Executor, _logger, _traceWriter));
         }
 
         public ParameterDescriptor ToParameterDescriptor()
@@ -80,6 +83,32 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             public override string GetTriggerReason(IDictionary<string, string> arguments)
             {
                 return string.Format("Mqtt fired at {0}", DateTime.Now.ToString("o"));
+            }
+        }
+
+
+        private class ValueProvider : IValueProvider
+        {
+            private readonly object _value;
+
+            public ValueProvider(object value)
+            {
+                _value = value;
+            }
+
+            public Type Type
+            {
+                get { return typeof(PublishedMqttMessage); }
+            }
+
+            public Task<object> GetValueAsync()
+            {
+                return Task.FromResult(_value);
+            }
+
+            public string ToInvokeString()
+            {
+                return string.Empty;
             }
         }
     }
