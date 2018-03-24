@@ -9,7 +9,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         public void DummyTest()
         {
            
-            Assert.True(etrue);
+            Assert.True(true);
         }
     }
 }
