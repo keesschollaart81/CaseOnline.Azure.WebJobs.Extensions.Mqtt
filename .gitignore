@@ -288,3 +288,4 @@ __pycache__/
 *.xsd.cs
 
 local.settings.json
+ExampleFunctions/local.settings.json
