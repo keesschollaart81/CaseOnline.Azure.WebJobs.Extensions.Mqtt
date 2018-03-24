@@ -13,7 +13,7 @@ The code currently works as it is but I have to make it better configurable befo
 - Install the [CaseOnline.Azure.WebJobs.Extensions.Mqtt](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/) NuGet package in you Functions Project
 - Add an [extensions.json](./ExampleFunctions/extensions.json) to your Functions project root directory and [make sure it is copied to the build/publish folder](./ExampleFunctions/ExampleFunctions.csproj#L23-L25)
     - This is temporary for now. This should not be needed, monitor [issue/bug here](https://github.com/Azure/Azure-Functions/issues/624)) 
-- Add the Mqtt server settings to your 'local.settings.json during development time or to the appsettings when running on Azure:
+- Add the Mqtt server settings to your 'local.settings.json' during development time or to the appsettings when running on Azure:
     - MqttServer
     - MqttUsername
     - MqttPassword
@@ -37,9 +37,9 @@ Internally the [MQTTnet](https://github.com/chkr1011/MQTTnet) is used for the Mq
 
 To do this, implemented a custom ```ICreateMqttConfig``` and provide this Type as parameter to the ```MqttTrigger``` like this:
     
-     ```
-     public static void MyFunction([MqttTrigger(typeof(MyMqttConfigProvider))]PublishedMqttMessage message)
-     ```
+```
+public static void MyFunction([MqttTrigger(typeof(MyMqttConfigProvider))]PublishedMqttMessage message)
+```
      
 In your implementation of ```ICreateMqttConfig``` you need to return an instance of abstract class ```MqttConfig``` which requires you to implement a property of type ```IManagedMqttClientOptions```. Examples on how to build an instance of ```IManagedMqttClientOptions``` are available in the  [ManagedClient wiki of MQTTnet](https://github.com/chkr1011/MQTTnet/wiki/Client).
 
