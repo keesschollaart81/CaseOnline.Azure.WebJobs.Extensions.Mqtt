@@ -13,7 +13,7 @@ The code currently works as it is but I have to make it better configurable befo
 ## How to use
 - Create an Azure Function using [Visual Studio](https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs) or using [Visual Studio Code](https://code.visualstudio.com/tutorials/functions-extension/getting-started)
 - Install the [CaseOnline.Azure.WebJobs.Extensions.Mqtt](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/) NuGet package in you Functions Project
-- Add an [extensions.json](./ExampleFunctions/extensions.json) to your Functions project root directory and [make sure it is copied to the build/publish folder](./ExampleFunctions/ExampleFunctions.csproj#L23-L25)
+- Add an [extensions.json](./src/ExampleFunctions/extensions.json) to your Functions project root directory and [make sure it is copied to the build/publish folder](./src/ExampleFunctions/ExampleFunctions.csproj#L23-L25)
     - This is temporary for now. This should not be needed, monitor [issue/bug here](https://github.com/Azure/Azure-Functions/issues/624)) 
 - Add the Mqtt server settings to your 'local.settings.json' during development time or to the appsettings when running on Azure:
     - MqttServer
@@ -45,10 +45,10 @@ public static void MyFunction([MqttTrigger(typeof(MyMqttConfigProvider))]Publish
      
 In your implementation of ```ICreateMqttConfig``` you need to return an instance of abstract class ```MqttConfig``` which requires you to implement a property of type ```IManagedMqttClientOptions```. Examples on how to build an instance of ```IManagedMqttClientOptions``` are available in the  [ManagedClient wiki of MQTTnet](https://github.com/chkr1011/MQTTnet/wiki/Client).
 
-An example of this custom client configuration is implemented in [this function](./ExampleFunctions/ExampleFunctions.cs#L34). 
+An example of this custom client configuration is implemented in [this function](./src/ExampleFunctions/ExampleFunctions.cs#L34). 
 
 ## Examples
-Please find some samples here in the [sample project](./ExampleFunctions/). The simple example subscribes to a topic where [Owntracks](http://owntracks.org/) publishes location information.
+Please find some samples here in the [sample project](./src/ExampleFunctions/). The simple example subscribes to a topic where [Owntracks](http://owntracks.org/) publishes location information.
 
 ## References
 - [MQTTnet](https://github.com/chkr1011/MQTTnet)

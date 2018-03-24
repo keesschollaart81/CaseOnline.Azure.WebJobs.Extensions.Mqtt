@@ -1,16 +1,22 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaseOnline.Azure.WebJobs.Extensions.Mqtt", "CaseOnline.Azure.WebJobs.Extensions.Mqtt\CaseOnline.Azure.WebJobs.Extensions.Mqtt.csproj", "{EA475418-65F6-49A1-A99C-EAC1031A3457}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaseOnline.Azure.WebJobs.Extensions.Mqtt", "src\CaseOnline.Azure.WebJobs.Extensions.Mqtt\CaseOnline.Azure.WebJobs.Extensions.Mqtt.csproj", "{EA475418-65F6-49A1-A99C-EAC1031A3457}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleFunctions", "ExampleFunctions\ExampleFunctions.csproj", "{B8C8DF7D-9439-4111-AEA1-A0837125F8AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleFunctions", "src\ExampleFunctions\ExampleFunctions.csproj", "{B8C8DF7D-9439-4111-AEA1-A0837125F8AB}"
+EndProject 
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests", "test\CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests\CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.csproj", "{51601B5F-5429-4A18-A3A4-CC31BB705FB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EA475418-65F6-49A1-A99C-EAC1031A3457}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -21,6 +27,18 @@ Global
 		{B8C8DF7D-9439-4111-AEA1-A0837125F8AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8C8DF7D-9439-4111-AEA1-A0837125F8AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8C8DF7D-9439-4111-AEA1-A0837125F8AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Debug|x64.ActiveCfg = Debug|x64
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Debug|x64.Build.0 = Debug|x64
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Debug|x86.ActiveCfg = Debug|x86
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Debug|x86.Build.0 = Debug|x86
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Release|x64.ActiveCfg = Release|x64
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Release|x64.Build.0 = Release|x64
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Release|x86.ActiveCfg = Release|x86
+		{51601B5F-5429-4A18-A3A4-CC31BB705FB3}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
