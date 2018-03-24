@@ -6,12 +6,15 @@ namespace ExampleFunction.AdvancedConfig
 {
     public class MqttConfigExample : MqttConfig
     {
-        public override IManagedMqttClientOptions Options { get;   }
-        
+        public override IManagedMqttClientOptions Options { get; }
+
         public override TopicFilter[] Topics { get; }
 
-        public MqttConfigExample(IManagedMqttClientOptions options, TopicFilter[] topics )
+        public override string ServerUrl { get; }
+
+        public MqttConfigExample(string serverUrl, IManagedMqttClientOptions options, TopicFilter[] topics)
         {
+            ServerUrl = serverUrl;
             Options = options;
             Topics = topics;
         }

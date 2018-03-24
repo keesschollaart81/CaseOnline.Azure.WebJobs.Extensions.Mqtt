@@ -38,7 +38,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             MqttTriggerAttribute mqttTriggerAttribute = parameter.GetCustomAttribute<MqttTriggerAttribute>(inherit: false);
 
             if (mqttTriggerAttribute == null)
-            { 
+            {
                 return Task.FromResult<ITriggerBinding>(null);
             }
 
@@ -47,11 +47,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 throw new InvalidOperationException(string.Format("Can't bind MqttTriggerAttribute to type '{0}'.", parameter.ParameterType));
             }
 
-            _traceWriter.Info($"Creating binding for parameter '{parameter.Name}', using custom config creator is '{mqttTriggerAttribute.UseCustomConfigCreator}'");
-            
+            _traceWriter.Verbose($"Creating binding for parameter '{parameter.Name}', using custom config creator is '{mqttTriggerAttribute.UseCustomConfigCreator}'");
 
-            IManagedMqttClientOptions options;
-            TopicFilter[] topics;
+
+            MqttConfiguration mqttConfiguration;
             if (!mqttTriggerAttribute.UseCustomConfigCreator)
             {
                 var port = _nameResolver.Resolve(mqttTriggerAttribute.PortName ?? "MqttPort");
@@ -64,7 +63,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 var username = _nameResolver.Resolve(mqttTriggerAttribute.UsernameName ?? "MqttUsername");
                 var password = _nameResolver.Resolve(mqttTriggerAttribute.PasswordName ?? "MqttPassword");
 
-                options = new ManagedMqttClientOptionsBuilder()
+                var options = new ManagedMqttClientOptionsBuilder()
                    .WithAutoReconnectDelay(mqttTriggerAttribute.ReconnectDelay)
                    .WithClientOptions(new MqttClientOptionsBuilder()
                        .WithClientId(clientId)
@@ -73,7 +72,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                        .Build())
                    .Build();
 
-                topics = mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MqttQualityOfServiceLevel.AtLeastOnce)).ToArray();
+                var topics = mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MqttQualityOfServiceLevel.AtLeastOnce)).ToArray();
+
+                mqttConfiguration = new MqttConfiguration(server, options, topics);
             }
             else
             {
@@ -98,17 +99,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                     _traceWriter.Error($"Enexpected exception while getting creating a config via type {mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
                     throw;
                 }
-                options = customConfig.Options;
-                topics = customConfig.Topics;
-            }
 
-            var config = new MqttConfiguration(options, topics);
+                mqttConfiguration = new MqttConfiguration(customConfig.ServerUrl, customConfig.Options, customConfig.Topics);
+            }
 
             var client = new MqttFactory();
 
-            _traceWriter.Info($"Succesfully created binding for parameter '{parameter.Name}'");
+            _traceWriter.Verbose($"Succesfully created binding for parameter '{parameter.Name}'");
 
-            return Task.FromResult<ITriggerBinding>(new MqttTriggerBinding(parameter, client, config, _logger, _traceWriter));
+            return Task.FromResult<ITriggerBinding>(new MqttTriggerBinding(parameter, client, mqttConfiguration, _logger, _traceWriter));
         }
     }
 }
