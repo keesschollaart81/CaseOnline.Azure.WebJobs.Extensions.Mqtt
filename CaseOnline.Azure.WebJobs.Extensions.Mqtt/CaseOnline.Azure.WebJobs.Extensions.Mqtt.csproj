@@ -16,14 +16,15 @@
     <PackageId>CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageId>
     <Description>This package contains the runtime assemblies for CaseOnline.Azure.WebJobs.Extensions.Mqtt. For more information, please visit https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt.</Description>
     <PackageIconUrl>https://raw.githubusercontent.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/master/logo.png</PackageIconUrl>
-    <CodeAnalysisRuleSet>$(SolutionDir)\CaseOnline.Azure.WebJobs.Extensions.Mqtt\analyzers.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <CodeAnalysisRuleSet>analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-
   <ItemGroup>
-    <AdditionalFiles Include="$(SolutionDir)\CaseOnline.Azure.WebJobs.Extensions.Mqtt\stylecop.json" Link="stylecop.json" />
+    <AdditionalFiles Include="stylecop.json" Link="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta006" >
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta006">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>

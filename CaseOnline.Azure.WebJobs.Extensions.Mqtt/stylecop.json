@@ -2,8 +2,8 @@
   "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
   "settings": {
     "documentationRules": {
-      "companyName": ".NET Foundation",
-      "copyrightText": "Copyright (c) .NET Foundation. All rights reserved.\r\nLicensed under the MIT License. See License.txt in the project root for license information.",
+      "companyName": "Case Online",
+      "copyrightText": "Copyright (c) Case Online. All rights reserved.\r\nLicensed under the MIT License. See License.txt in the project root for license information.",
       "xmlHeader": false,
       "documentInterfaces": false,
       "documentInternalElements": false,
@@ -16,6 +16,9 @@
     },
     "orderingRules": {
       "usingDirectivesPlacement": "outsideNamespace"
+    },
+    "layoutRules": {
+      "newlineAtEndOfFile": "require"
     }
   }
 }
