@@ -56,7 +56,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 var port = _nameResolver.Resolve(mqttTriggerAttribute.PortName ?? "MqttPort");
                 int portInt = (port != null) ? int.Parse(port) : 1883;
 
-                var clientId = _nameResolver.Resolve(mqttTriggerAttribute.ClientIdName ?? "ClientId");
+                var clientId = _nameResolver.Resolve(mqttTriggerAttribute.ClientIdName ?? "MqttClientId");
                 if (string.IsNullOrEmpty(clientId)) clientId = Guid.NewGuid().ToString();
 
                 var server = _nameResolver.Resolve(mqttTriggerAttribute.ServerName ?? "MqttServer");

@@ -8,7 +8,7 @@ using MQTTnet;
 using MQTTnet.Protocol;
 using ExampleFunction.AdvancedConfig;
 
-namespace ExampleFunction
+namespace ExampleFunctions
 {
     public static class ExampleFunctions
     {

@@ -1,4 +1,4 @@
-namespace ExampleFunction
+namespace ExampleFunctions
 {
     public class Owntracks
     {
