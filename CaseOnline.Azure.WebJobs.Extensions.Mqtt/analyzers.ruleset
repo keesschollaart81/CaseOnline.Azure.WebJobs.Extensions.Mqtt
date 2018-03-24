@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="CaseOnline.Azure.WebJobs.Extensions.Mqtt" Description="This rule set contains the rules that applies to sources" ToolsVersion="12.0">
+  <IncludeAll Action="Error" />
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed"> 
+  </Rules>
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers"> 
+  </Rules>
+  <Rules AnalyzerId="xunit.analyzers" RuleNamespace="xunit.analyzers"> 
+  </Rules>
+</RuleSet>

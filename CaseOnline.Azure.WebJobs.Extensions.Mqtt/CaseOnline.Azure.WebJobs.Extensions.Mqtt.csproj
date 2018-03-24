@@ -1,22 +1,37 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Kees Schollaart</Authors>
     <Company>Case Online</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Product>Mqtt Trigger Binding for Azure Functions</Product>
     <PackageProjectUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/blob/master/LICENSE</PackageLicenseUrl>
-    <Copyright />
+    <Version>1.0.0-beta1$(VersionSuffix)</Version>
     <PackageTags>azure functions mqtt</PackageTags>
+    <AssemblyName>CaseOnline.Azure.WebJobs.Extensions.Mqtt</AssemblyName>
+    <RootNamespace>CaseOnline.Azure.WebJobs.Extensions.Mqtt</RootNamespace>
+    <PackageId>CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageId>
+    <Description>This package contains the runtime assemblies for CaseOnline.Azure.WebJobs.Extensions.Mqtt. For more information, please visit https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt.</Description>
+    <PackageIconUrl>https://raw.githubusercontent.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/master/logo.png</PackageIconUrl>
+    <CodeAnalysisRuleSet>$(SolutionDir)\CaseOnline.Azure.WebJobs.Extensions.Mqtt\analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="$(SolutionDir)\CaseOnline.Azure.WebJobs.Extensions.Mqtt\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta006" >
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="3.0.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.0-beta4" />
     <PackageReference Include="System.Threading.Timer" version="4.3.0"/>
-    <PackageReference Include="MQTTnet" Version="2.7.1" /> 
+    <PackageReference Include="MQTTnet" Version="2.7.1" />
   </ItemGroup>
-
 </Project>

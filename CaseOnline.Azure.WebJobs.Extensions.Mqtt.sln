@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CaseOnline.Azure.WebJobs.Extensions.Mqtt", "CaseOnline.Azure.WebJobs.Extensions.Mqtt\CaseOnline.Azure.WebJobs.Extensions.Mqtt.csproj", "{EA475418-65F6-49A1-A99C-EAC1031A3457}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleFunction", "ExampleFunction\ExampleFunction.csproj", "{B8C8DF7D-9439-4111-AEA1-A0837125F8AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleFunctions", "ExampleFunctions\ExampleFunctions.csproj", "{B8C8DF7D-9439-4111-AEA1-A0837125F8AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
