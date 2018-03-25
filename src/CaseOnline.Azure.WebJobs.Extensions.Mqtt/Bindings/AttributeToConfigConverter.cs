@@ -57,7 +57,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 clientId = Guid.NewGuid().ToString();
             }
 
-            var server = _nameResolver.Resolve(_mqttTriggerAttribute.ServerName ?? SettingsKeyForServer);           
+            var server = _nameResolver.Resolve(_mqttTriggerAttribute.ServerName ?? SettingsKeyForServer);      
+            if (string.IsNullOrEmpty(server)) throw new Exception("No server hostname configured, please set the server via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json");     
 
             var username = _nameResolver.Resolve(_mqttTriggerAttribute.UsernameName ?? SettingsKeyForUsername);
             var password = _nameResolver.Resolve(_mqttTriggerAttribute.PasswordName ?? SettingsKeyForPassword);

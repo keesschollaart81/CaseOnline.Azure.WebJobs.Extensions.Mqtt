@@ -122,17 +122,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         private void ManagedMqttClientDisconnected(object sender, MqttClientDisconnectedEventArgs e)
         {
-            _traceWriter.Error($"MqttListener._client_Disconnected, was :{e.ClientWasConnected} for {Descriptor}", e.Exception);
+            _traceWriter.Error($"MqttListener Disconnected, previous connectivity state '{e.ClientWasConnected}' for {Descriptor}", e.Exception);
         }
 
         private void ManagedMqttClientConnected(object sender, MqttClientConnectedEventArgs e)
         {
-            _traceWriter.Info($"MqttListener._client_Connected {e.IsSessionPresent} for {Descriptor}");
+            _traceWriter.Info($"MqttListener Connected {e.IsSessionPresent} for {Descriptor}");
         }
 
         private void ManagedMqttClientApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
-            _traceWriter.Info("Mqtt client receiving message for {descriptor}");
+            _traceWriter.Info($"MqttListener receiving message for {Descriptor}");
             InvokeJobFunction(e).Wait();
         }
 

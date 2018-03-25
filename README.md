@@ -3,10 +3,11 @@
 This is a work-in-progress of a Mqtt Trigger for Azure Functions.
 
 The code currently works as it is but I have to make it better configurable before I publish it as a NuGet Package. Things that have to be done:
-- Unit Tests & Integration tests
-- extensions.json is now manually created, which should not be needed
-- Use ILogger instead of TraceWriter which currently does not output for some reason?
-- Figure out if this is stable in the long run, will the connection persist days (currently tested for hours)
+- Create more Unit Tests & Integration tests and get code coverage to >80%
+- Use ILogger instead of TraceWriter which currently does not output on dev machine for some reason? 
+- Create demos for integrations with CloudMqtt.net and Azure IoT Hub
+
+Expect a NuGet package halfway April '18.
 
 [![Build Status](https://caseonline.visualstudio.com/_apis/public/build/definitions/4df87c38-5691-4d04-8373-46c830209b7e/11/badge)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_build/index?definitionId=1) 
 [![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)](https://bettercodehub.com/)
@@ -15,14 +16,13 @@ The code currently works as it is but I have to make it better configurable befo
 - Create an Azure Function using [Visual Studio](https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs) or using [Visual Studio Code](https://code.visualstudio.com/tutorials/functions-extension/getting-started)
 - Make sure your ```Microsoft.NET.Sdk.Functions``` package version is 1.0.7 or higher
 - Install the [CaseOnline.Azure.WebJobs.Extensions.Mqtt](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/) NuGet package in you Functions Project
-- Add an [extensions.json](./src/ExampleFunctions/extensions.json) to your Functions project root directory and [make sure it is copied to the build/publish folder](./src/ExampleFunctions/ExampleFunctions.csproj#L23-L25)
-    - This is temporary for now. This should not be needed, monitor [issue/bug here](https://github.com/Azure/Azure-Functions/issues/624)) 
 - Add the Mqtt server settings to your 'local.settings.json' during development time or to your appsettings when running on Azure:
     - MqttServer (just the dns/hostname)
     - MqttUsername
     - MqttPassword
     - MqttPort (optional, defaults to 1883)
     - MqttClientId (optional, defaults to a random Guid)
+- When deploying/running on Azure set/ad the application-setting ```FUNCTIONS_EXTENSION_VERSION``` to ```beta```
 - Add a ```MqttTrigger``` attribute to your function parameters:
 
     ```
@@ -54,6 +54,10 @@ Please find some samples here in the [sample project](./src/ExampleFunctions/). 
 
 ## References
 - [MQTTnet](https://github.com/chkr1011/MQTTnet)
+
+## Roadmap
+- 1.0.0 Initial release, april 2018
+- 1.5.0 Output binding for publishing messages june 2018
 
 ## MIT License
 Copyright (c) 2018 Kees Schollaart

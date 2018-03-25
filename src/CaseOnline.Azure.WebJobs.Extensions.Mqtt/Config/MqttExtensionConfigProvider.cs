@@ -15,7 +15,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
             context.Trace.Info("MqttExtensionConfigProvider.Initialize() called!");
 
             var logger = context.Config.LoggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
-            logger.LogWarning("Logger not working?");
 
             _nameResolver = context.Config.GetService<INameResolver>();
 
