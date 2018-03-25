@@ -9,6 +9,8 @@ The code currently works as it is but I have to make it better configurable befo
 - Figure out if this is stable in the long run, will the connection persist days (currently tested for hours)
 
 [![Build Status](https://caseonline.visualstudio.com/_apis/public/build/definitions/4df87c38-5691-4d04-8373-46c830209b7e/11/badge)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_build/index?definitionId=1) 
+[![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)](https://bettercodehub.com/)
+[![Coverage Status](https://coveralls.io/repos/github/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/badge.svg?branch=master)](https://coveralls.io/github/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)
 
 ## How to use
 - Create an Azure Function using [Visual Studio](https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs) or using [Visual Studio Code](https://code.visualstudio.com/tutorials/functions-extension/getting-started)
