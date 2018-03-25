@@ -17,6 +17,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private readonly ILogger _logger;
 
         private const int DetaultMqttPort = 1883;
+        private TimeSpan DetaultReconnectTime = TimeSpan.FromSeconds(5);
         private const string SettingsKeyForPort = "MqttPort";
         private const string SettingsKeyForClientId = "MqttClientId";
         private const string SettingsKeyForServer = "MqttServer";
@@ -62,7 +63,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             var password = _nameResolver.Resolve(_mqttTriggerAttribute.PasswordName ?? SettingsKeyForPassword);
 
             var options = new ManagedMqttClientOptionsBuilder()
-               .WithAutoReconnectDelay(_mqttTriggerAttribute.ReconnectDelay)
+               .WithAutoReconnectDelay(DetaultReconnectTime)
                .WithClientOptions(new MqttClientOptionsBuilder()
                    .WithClientId(clientId)
                    .WithTcpServer(server, portInt)
