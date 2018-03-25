@@ -43,7 +43,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 .Setup(m => m.CreateManagedMqttClient())
                 .Returns(mockManagedMqttClient.Object);
 
-            var mqttListener = new MqttListener(mockMqttClientFactory.Object, mqttConfiguration, mockTriggeredFunctionExecutor.Object, _mockLogger.Object, mockraceWriter.Object);
+            var mqttListener = new MqttListener(mockMqttClientFactory.Object, mqttConfiguration, mockTriggeredFunctionExecutor.Object, mockraceWriter.Object);
 
             // Act
             await mqttListener.StartAsync(cancellationToken).ConfigureAwait(false);
