@@ -16,9 +16,12 @@
     <PackageId>CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageId>
     <Description>This package contains the runtime assemblies for CaseOnline.Azure.WebJobs.Extensions.Mqtt. For more information, please visit https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt.</Description>
     <PackageIconUrl>https://raw.githubusercontent.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/master/logo.png</PackageIconUrl>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <!--<RunCodeAnalysis>true</RunCodeAnalysis>-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>analyzers.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1705</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" Link="stylecop.json" />
@@ -32,7 +35,8 @@
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="3.0.0-beta4" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.0-beta4" />
-    <PackageReference Include="System.Threading.Timer" version="4.3.0"/>
+    <PackageReference Include="System.Threading.Timer" version="4.3.0" />
     <PackageReference Include="MQTTnet" Version="2.7.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.0" />
   </ItemGroup>
 </Project>

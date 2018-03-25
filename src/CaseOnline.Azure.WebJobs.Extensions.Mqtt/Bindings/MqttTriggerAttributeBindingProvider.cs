@@ -1,4 +1,8 @@
-﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Azure.WebJobs.Host.Triggers;
@@ -7,10 +11,6 @@ using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.ManagedClient;
 using MQTTnet.Protocol;
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
@@ -31,7 +31,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         {
             if (context == null)
             {
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException(nameof(context));
             }
 
             ParameterInfo parameter = context.Parameter;
@@ -49,7 +49,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             _traceWriter.Verbose($"Creating binding for parameter '{parameter.Name}', using custom config creator is '{mqttTriggerAttribute.UseCustomConfigCreator}'");
 
-
             MqttConfiguration mqttConfiguration;
             if (!mqttTriggerAttribute.UseCustomConfigCreator)
             {
@@ -57,9 +56,22 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 int portInt = (port != null) ? int.Parse(port) : 1883;
 
                 var clientId = _nameResolver.Resolve(mqttTriggerAttribute.ClientIdName ?? "MqttClientId");
-                if (string.IsNullOrEmpty(clientId)) clientId = Guid.NewGuid().ToString();
+                if (string.IsNullOrEmpty(clientId))
+                {
+                    clientId = Guid.NewGuid().ToString();
+                }
 
                 var server = _nameResolver.Resolve(mqttTriggerAttribute.ServerName ?? "MqttServer");
+                Uri serverUrl;
+                try
+                {
+                    serverUrl = new Uri(server);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Could not parse ServerUri {server} to a Uri", ex);
+                }
+
                 var username = _nameResolver.Resolve(mqttTriggerAttribute.UsernameName ?? "MqttUsername");
                 var password = _nameResolver.Resolve(mqttTriggerAttribute.PasswordName ?? "MqttPassword");
 
@@ -74,7 +86,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
                 var topics = mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MqttQualityOfServiceLevel.AtLeastOnce)).ToArray();
 
-                mqttConfiguration = new MqttConfiguration(server, options, topics);
+                mqttConfiguration = new MqttConfiguration(serverUrl, options, topics);
             }
             else
             {

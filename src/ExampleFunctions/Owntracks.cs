@@ -2,6 +2,7 @@ namespace ExampleFunctions
 {
     public class Owntracks
     {
+#pragma warning disable CA1707 // Identifiers should not contain underscores
         public string _type { get; set; }
         public string tid { get; set; }
         public string acc { get; set; }
@@ -14,6 +15,6 @@ namespace ExampleFunctions
         public string alt { get; set; }
         public string vac { get; set; }
         public string t { get; set; }
-
+#pragma warning restore CA1707 // Identifiers should not contain underscores
     }
 }

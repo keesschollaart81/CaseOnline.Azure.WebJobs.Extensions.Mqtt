@@ -18,19 +18,20 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 {
     public class MqttListenerTests
     {
+        private readonly Mock<ILogger> _mockLogger = new Mock<ILogger>();
+
         [Fact]
-        public async Task StartAsync_Subscribes_To_Topics()
+        public async Task StartAsyncSubscribesToTopics()
         {
             // Arrange
             var mockManagedMqttClient = new Mock<IManagedMqttClient>();
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
-            var mqttConfiguration = new MqttConfiguration("http://testserver", mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MqttQualityOfServiceLevel.AtLeastOnce) });
+            var mqttConfiguration = new MqttConfiguration(new Uri("http://testserver"), mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MqttQualityOfServiceLevel.AtLeastOnce) });
             var mockMqttClientFactory = new Mock<IMqttClientFactory>();
             var mockTriggeredFunctionExecutor = new Mock<ITriggeredFunctionExecutor>();
-            var mockLogger = new Mock<ILogger>();
             var mockraceWriter = new Mock<TraceWriter>(TraceLevel.Verbose);
             var cancellationToken = new CancellationTokenSource().Token;
- 
+
             mockManagedMqttClient
                 .Setup(m => m.SubscribeAsync(It.Is<TopicFilter[]>(y => y == mqttConfiguration.Topics)))
                 .Returns(Task.CompletedTask);
@@ -40,12 +41,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 
             mockMqttClientFactory
                 .Setup(m => m.CreateManagedMqttClient())
-                .Returns(mockManagedMqttClient.Object); 
+                .Returns(mockManagedMqttClient.Object);
 
-            var mqttListener = new MqttListener(mockMqttClientFactory.Object, mqttConfiguration, mockTriggeredFunctionExecutor.Object, mockLogger.Object, mockraceWriter.Object);
+            var mqttListener = new MqttListener(mockMqttClientFactory.Object, mqttConfiguration, mockTriggeredFunctionExecutor.Object, _mockLogger.Object, mockraceWriter.Object);
 
             // Act
-            await mqttListener.StartAsync(cancellationToken);
+            await mqttListener.StartAsync(cancellationToken).ConfigureAwait(false);
 
             // Assert 
             mockMqttClientFactory.Verify(x => x.CreateManagedMqttClient(), Times.Once());

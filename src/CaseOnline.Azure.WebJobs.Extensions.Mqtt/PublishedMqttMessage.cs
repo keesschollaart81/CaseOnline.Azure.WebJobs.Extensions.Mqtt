@@ -2,22 +2,29 @@
 {
     public class PublishedMqttMessage
     {
-        public string Topic { get; }
-        public byte[] Message { get; } 
-        public string QosLevel { get; }
-        public bool Retain { get; }
+        private readonly byte[] _message;
 
         public PublishedMqttMessage()
         {
-
         }
 
         public PublishedMqttMessage(string topic, byte[] message, string qosLevel, bool retain)
         {
             Topic = topic;
-            Message = message; 
+            _message = message;
             QosLevel = qosLevel;
             Retain = retain;
+        }
+
+        public string Topic { get; }
+
+        public string QosLevel { get; }
+
+        public bool Retain { get; }
+
+        public byte[] GetMessage()
+        {
+            return _message;
         }
     }
 }

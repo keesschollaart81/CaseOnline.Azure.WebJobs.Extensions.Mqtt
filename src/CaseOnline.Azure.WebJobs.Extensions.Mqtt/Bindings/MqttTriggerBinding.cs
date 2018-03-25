@@ -1,4 +1,8 @@
-﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading.Tasks;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Azure.WebJobs.Host.Bindings;
@@ -7,11 +11,6 @@ using Microsoft.Azure.WebJobs.Host.Protocols;
 using Microsoft.Azure.WebJobs.Host.Triggers;
 using Microsoft.Extensions.Logging;
 using MQTTnet.Client;
-using MQTTnet.ManagedClient;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
@@ -58,10 +57,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         public Task<IListener> CreateListenerAsync(ListenerFactoryContext context)
         {
             _traceWriter.Verbose("MqttTriggerBinding.CreateListenerAsync");
-            
+
             if (context == null)
             {
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException(nameof(context));
             }
 
             return Task.FromResult<IListener>(new MqttListener(_mqttClientFactory, _config, context.Executor, _logger, _traceWriter));
@@ -87,7 +86,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 return string.Format("Mqtt fired at {0}", DateTime.Now.ToString("o"));
             }
         }
-
 
         private class ValueProvider : IValueProvider
         {

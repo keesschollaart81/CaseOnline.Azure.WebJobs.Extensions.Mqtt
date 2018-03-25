@@ -1,6 +1,8 @@
 using MQTTnet.ManagedClient;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using MQTTnet;
+using System;
+using System.Collections.Generic;
 
 namespace ExampleFunction.AdvancedConfig
 {
@@ -8,11 +10,11 @@ namespace ExampleFunction.AdvancedConfig
     {
         public override IManagedMqttClientOptions Options { get; }
 
-        public override TopicFilter[] Topics { get; }
+        public override IEnumerable<TopicFilter> Topics { get; }
 
-        public override string ServerUrl { get; }
+        public override Uri ServerUrl { get; }
 
-        public MqttConfigExample(string serverUrl, IManagedMqttClientOptions options, TopicFilter[] topics)
+        public MqttConfigExample(Uri serverUrl, IManagedMqttClientOptions options, IEnumerable<TopicFilter> topics)
         {
             ServerUrl = serverUrl;
             Options = options;

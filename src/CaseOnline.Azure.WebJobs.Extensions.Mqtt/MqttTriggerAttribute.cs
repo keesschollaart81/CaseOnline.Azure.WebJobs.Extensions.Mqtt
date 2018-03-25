@@ -1,9 +1,6 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using System;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Description;
-using MQTTnet;
-using MQTTnet.Protocol;
-using System;
-using System.Linq;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
 {
@@ -11,9 +8,28 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
     [Binding]
     public class MqttTriggerAttribute : Attribute
     {
-        public readonly Type MqttConfigCreatorType;
+        public MqttTriggerAttribute()
+        {
+        }
 
-        public readonly string[] Topics;
+        public MqttTriggerAttribute(string[] topics) : this(topics, TimeSpan.FromSeconds(5))
+        {
+        }
+
+        public MqttTriggerAttribute(string[] topics, TimeSpan reconnectDelay)
+        {
+            Topics = topics;
+            ReconnectDelay = reconnectDelay;
+        }
+
+        public MqttTriggerAttribute(Type mqttConfigCreatorType)
+        {
+            MqttConfigCreatorType = mqttConfigCreatorType;
+        }
+
+        public Type MqttConfigCreatorType { get; }
+
+        public string[] Topics { get; }
 
         public bool UseCustomConfigCreator => MqttConfigCreatorType != null;
 
@@ -33,26 +49,5 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
         public string ClientIdName { get; set; }
 
         public TimeSpan ReconnectDelay { get; }
-
-
-
-        public MqttTriggerAttribute()
-        {
-        }
-
-        public MqttTriggerAttribute(string[] topics) : this(topics, TimeSpan.FromSeconds(5))
-        {
-        }
-
-        public MqttTriggerAttribute(string[] topics, TimeSpan reconnectDelay)
-        {
-            Topics = topics;
-            ReconnectDelay = reconnectDelay;
-        }
-
-        public MqttTriggerAttribute(Type mqttConfigCreatorType)
-        {
-            MqttConfigCreatorType = mqttConfigCreatorType;
-        }
     }
 }

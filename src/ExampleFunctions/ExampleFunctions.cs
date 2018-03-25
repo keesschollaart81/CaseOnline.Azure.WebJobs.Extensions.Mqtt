@@ -4,9 +4,8 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt;
 using Newtonsoft.Json;
-using MQTTnet;
-using MQTTnet.Protocol;
 using ExampleFunction.AdvancedConfig;
+using System.Globalization;
 
 namespace ExampleFunctions
 {
@@ -18,14 +17,14 @@ namespace ExampleFunctions
             ILogger log,
             [Table("Locations", Connection = "StorageConnectionAppSetting")] out Trail trail)
         {
-            var body = Encoding.UTF8.GetString(message.Message);
+            var body = Encoding.UTF8.GetString(message.GetMessage());
 
             log.LogInformation($"Simple: message from topic {message.Topic} body: {body}");
 
             trail = JsonConvert.DeserializeObject<Trail>(body);
             trail.PartitionKey = message.Topic.Replace("/", "_");
-            trail.RowKey = DateTime.Now.Ticks.ToString();
-            trail.QosLevel = message.QosLevel.ToString();
+            trail.RowKey = DateTime.Now.Ticks.ToString(CultureInfo.CurrentCulture);
+            trail.QosLevel = message.QosLevel;
             trail.Retain = message.Retain;
         }
 
@@ -34,7 +33,7 @@ namespace ExampleFunctions
             [MqttTrigger(typeof(ExampleMqttConfigProvider))]PublishedMqttMessage message,
             ILogger log)
         {
-            var body = Encoding.UTF8.GetString(message.Message);
+            var body = Encoding.UTF8.GetString(message.GetMessage());
 
             log.LogInformation($"Advanced: message from topic {message.Topic} body: {body}"); 
         }
