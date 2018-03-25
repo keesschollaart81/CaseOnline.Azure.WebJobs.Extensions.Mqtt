@@ -10,7 +10,10 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <PackageReference Include="Microsoft.CodeCoverage" Version="1.0.3" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
-  </ItemGroup>
+  </ItemGroup> 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CaseOnline.Azure.WebJobs.Extensions.Mqtt\CaseOnline.Azure.WebJobs.Extensions.Mqtt.csproj" />
+  </ItemGroup>  
   <ItemGroup>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

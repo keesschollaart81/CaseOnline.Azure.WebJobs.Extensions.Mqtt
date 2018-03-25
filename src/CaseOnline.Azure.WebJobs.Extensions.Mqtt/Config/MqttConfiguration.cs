@@ -13,10 +13,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
         public TopicFilter[] Topics { get; }
 
         public MqttConfiguration(string serverUrl, IManagedMqttClientOptions options, TopicFilter[] topics)
-        {
-            ServerUrl = serverUrl;
-            Options = options;
-            Topics = topics;
+        { 
+            ServerUrl = serverUrl ?? throw new ArgumentNullException(nameof(serverUrl));
+            Options = options ?? throw new ArgumentNullException(nameof(options));
+            Topics = topics ?? throw new ArgumentNullException(nameof(topics));
         }
     }
 }
