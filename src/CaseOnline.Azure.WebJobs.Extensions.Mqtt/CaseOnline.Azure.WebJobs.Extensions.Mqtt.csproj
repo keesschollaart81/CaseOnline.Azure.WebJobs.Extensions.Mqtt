@@ -9,14 +9,13 @@
     <RepositoryUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/blob/master/LICENSE</PackageLicenseUrl>
-    <Version>1.0.0-beta1$(VersionSuffix)</Version>
+    <Version>1.0.0-beta1</Version>
     <PackageTags>azure functions mqtt</PackageTags>
     <AssemblyName>CaseOnline.Azure.WebJobs.Extensions.Mqtt</AssemblyName>
     <RootNamespace>CaseOnline.Azure.WebJobs.Extensions.Mqtt</RootNamespace>
     <PackageId>CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageId>
     <Description>This package contains the runtime assemblies for CaseOnline.Azure.WebJobs.Extensions.Mqtt. For more information, please visit https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt.</Description>
     <PackageIconUrl>https://raw.githubusercontent.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/master/logo.png</PackageIconUrl>
-    <!--<RunCodeAnalysis>true</RunCodeAnalysis>-->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
