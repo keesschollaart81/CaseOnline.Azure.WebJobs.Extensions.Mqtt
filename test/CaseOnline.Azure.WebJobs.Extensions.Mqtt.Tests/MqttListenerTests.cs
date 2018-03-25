@@ -26,7 +26,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange
             var mockManagedMqttClient = new Mock<IManagedMqttClient>();
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
-            var mqttConfiguration = new MqttConfiguration(new Uri("http://testserver"), mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MqttQualityOfServiceLevel.AtLeastOnce) });
+            var mqttConfiguration = new MqttConfiguration(mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MqttQualityOfServiceLevel.AtLeastOnce) });
             var mockMqttClientFactory = new Mock<IMqttClientFactory>();
             var mockTriggeredFunctionExecutor = new Mock<ITriggeredFunctionExecutor>();
             var mockraceWriter = new Mock<TraceWriter>(TraceLevel.Verbose);

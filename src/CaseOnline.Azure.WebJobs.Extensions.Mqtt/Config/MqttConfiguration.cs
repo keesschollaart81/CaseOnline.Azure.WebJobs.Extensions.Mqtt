@@ -7,14 +7,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
     public class MqttConfiguration
     {
-        public MqttConfiguration(Uri serverUrl, IManagedMqttClientOptions options, IEnumerable<TopicFilter> topics)
-        {
-            ServerUrl = serverUrl ?? throw new ArgumentNullException(nameof(serverUrl));
+        public MqttConfiguration(IManagedMqttClientOptions options, IEnumerable<TopicFilter> topics)
+        { 
             Options = options ?? throw new ArgumentNullException(nameof(options));
             Topics = topics ?? throw new ArgumentNullException(nameof(topics));
         }
-
-        public Uri ServerUrl { get; }
 
         public IManagedMqttClientOptions Options { get; }
 

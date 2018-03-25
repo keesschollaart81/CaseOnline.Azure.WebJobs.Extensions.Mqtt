@@ -12,11 +12,8 @@ namespace ExampleFunction.AdvancedConfig
 
         public override IEnumerable<TopicFilter> Topics { get; }
 
-        public override Uri ServerUrl { get; }
-
-        public MqttConfigExample(Uri serverUrl, IManagedMqttClientOptions options, IEnumerable<TopicFilter> topics)
+        public MqttConfigExample(IManagedMqttClientOptions options, IEnumerable<TopicFilter> topics)
         {
-            ServerUrl = serverUrl;
             Options = options;
             Topics = topics;
         }

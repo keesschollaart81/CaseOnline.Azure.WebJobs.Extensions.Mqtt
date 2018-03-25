@@ -56,16 +56,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 clientId = Guid.NewGuid().ToString();
             }
 
-            var server = _nameResolver.Resolve(_mqttTriggerAttribute.ServerName ?? SettingsKeyForServer);
-            Uri serverUrl;
-            try
-            {
-                serverUrl = new Uri(server);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Could not parse ServerUri {server} to a Uri", ex);
-            }
+            var server = _nameResolver.Resolve(_mqttTriggerAttribute.ServerName ?? SettingsKeyForServer);           
 
             var username = _nameResolver.Resolve(_mqttTriggerAttribute.UsernameName ?? SettingsKeyForUsername);
             var password = _nameResolver.Resolve(_mqttTriggerAttribute.PasswordName ?? SettingsKeyForPassword);
@@ -81,7 +72,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             var topics = _mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MqttQualityOfServiceLevel.AtLeastOnce));
 
-            return new MqttConfiguration(serverUrl, options, topics);
+            return new MqttConfiguration(options, topics);
         }
 
         private MqttConfiguration GetConfigurationViaCustomConfigCreator()
@@ -106,7 +97,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 throw new Exception($"Enexpected exception while getting creating a config via type {_mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
             }
 
-            return new MqttConfiguration(customConfig.ServerUrl, customConfig.Options, customConfig.Topics);
+            return new MqttConfiguration(customConfig.Options, customConfig.Topics);
         }
     }
 }

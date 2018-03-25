@@ -7,8 +7,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
     public abstract class MqttConfig
     {
-        public abstract Uri ServerUrl { get; }
-
         public abstract IManagedMqttClientOptions Options { get; }
 
         public abstract IEnumerable<TopicFilter> Topics { get; }

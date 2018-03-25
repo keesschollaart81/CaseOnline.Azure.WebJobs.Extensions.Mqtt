@@ -26,7 +26,7 @@ namespace ExampleFunction.AdvancedConfig
                 new TopicFilter("owntracks/kees/kees01", MqttQualityOfServiceLevel.ExactlyOnce)
             };
 
-            return new MqttConfigExample(new Uri(nameResolver.Resolve("MqttServer")), options, topics);
+            return new MqttConfigExample(options, topics);
         }
     }
 }
