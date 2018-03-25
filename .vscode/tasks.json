@@ -20,7 +20,7 @@
         "type": "shell",
         "dependsOn": "build",
         "options": {
-          "cwd": "${workspaceFolder}/ExampleFunction/bin/Debug/netstandard2.0"
+          "cwd": "${workspaceFolder}/src/ExampleFunctions/bin/Debug/netstandard2.0"
         },
         "command": "func host start",
         "isBackground": true,

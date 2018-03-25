@@ -10,7 +10,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/blob/master/LICENSE</PackageLicenseUrl>
     <Version>1.0.0-beta2</Version>
-    <PackageTags>azure functions mqtt</PackageTags>
+    <PackageTags>azure functions mqtt webjobs trigger binding function webjob</PackageTags>
     <AssemblyName>CaseOnline.Azure.WebJobs.Extensions.Mqtt</AssemblyName>
     <RootNamespace>CaseOnline.Azure.WebJobs.Extensions.Mqtt</RootNamespace>
     <PackageId>CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageId>
