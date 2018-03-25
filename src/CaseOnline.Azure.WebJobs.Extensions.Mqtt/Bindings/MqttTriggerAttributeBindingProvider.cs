@@ -78,7 +78,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             var mqttFactory = new MqttFactory();
 
-            return new MqttTriggerBinding(parameter, mqttFactory, mqttConfiguration, _logger, _traceWriter);
+            return new MqttTriggerBinding(parameter, mqttFactory, mqttConfiguration, _traceWriter);
         }
     }
 }

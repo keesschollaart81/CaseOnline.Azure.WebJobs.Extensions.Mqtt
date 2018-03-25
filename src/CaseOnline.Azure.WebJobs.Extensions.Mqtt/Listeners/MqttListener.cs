@@ -17,8 +17,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
     [Singleton(Mode = SingletonMode.Listener)]
     public sealed class MqttListener : IListener
     {
-        private readonly ITriggeredFunctionExecutor _executor;
-        private readonly ILogger _logger;
+        private readonly ITriggeredFunctionExecutor _executor; 
         private readonly TraceWriter _traceWriter;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly MqttConfiguration _config;
@@ -27,12 +26,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private bool _disposed;
         private IManagedMqttClient _managedMqttClient;
 
-        public MqttListener(IMqttClientFactory mqttClientFactory, MqttConfiguration config, ITriggeredFunctionExecutor executor, ILogger logger, TraceWriter traceWriter)
+        public MqttListener(IMqttClientFactory mqttClientFactory, MqttConfiguration config, ITriggeredFunctionExecutor executor, TraceWriter traceWriter)
         {
             _config = config;
             _mqttClientFactory = mqttClientFactory;
-            _executor = executor;
-            _logger = logger;
+            _executor = executor; 
             _traceWriter = traceWriter;
             _cancellationTokenSource = new CancellationTokenSource();
             _timer = new Timer(Execute, null, 30000, Timeout.Infinite);

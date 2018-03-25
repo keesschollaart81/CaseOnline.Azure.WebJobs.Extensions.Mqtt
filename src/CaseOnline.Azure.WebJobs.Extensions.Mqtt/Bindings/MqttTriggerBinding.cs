@@ -19,17 +19,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private readonly ParameterInfo _parameter;
         private readonly IMqttClientFactory _mqttClientFactory;
         private readonly MqttConfiguration _config;
-        private readonly ILogger _logger;
         private readonly TraceWriter _traceWriter;
         private readonly IReadOnlyDictionary<string, Type> _emptyBindingContract = new Dictionary<string, Type>();
         private readonly IReadOnlyDictionary<string, object> _emptyBindingData = new Dictionary<string, object>();
 
-        public MqttTriggerBinding(ParameterInfo parameter, IMqttClientFactory mqttClientFactory, MqttConfiguration config, ILogger logger, TraceWriter traceWriter)
+        public MqttTriggerBinding(ParameterInfo parameter, IMqttClientFactory mqttClientFactory, MqttConfiguration config, TraceWriter traceWriter)
         {
             _parameter = parameter;
             _mqttClientFactory = mqttClientFactory;
             _config = config;
-            _logger = logger;
             _traceWriter = traceWriter;
         }
 
@@ -63,7 +61,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 throw new ArgumentNullException(nameof(context));
             }
 
-            return Task.FromResult<IListener>(new MqttListener(_mqttClientFactory, _config, context.Executor, _logger, _traceWriter));
+            return Task.FromResult<IListener>(new MqttListener(_mqttClientFactory, _config, context.Executor, _traceWriter));
         }
 
         public ParameterDescriptor ToParameterDescriptor()
