@@ -29,7 +29,6 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta006">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-  </ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
