@@ -1,10 +1,7 @@
-using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -28,8 +25,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
             var mqttConfiguration = new MqttConfiguration(mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MqttQualityOfServiceLevel.AtLeastOnce) });
             var mockMqttClientFactory = new Mock<IMqttClientFactory>();
-            var mockTriggeredFunctionExecutor = new Mock<ITriggeredFunctionExecutor>();
-            var mockraceWriter = new Mock<TraceWriter>(TraceLevel.Verbose);
+            var mockTriggeredFunctionExecutor = new Mock<ITriggeredFunctionExecutor>(); 
             var cancellationToken = new CancellationTokenSource().Token;
 
             mockManagedMqttClient
@@ -41,9 +37,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 
             mockMqttClientFactory
                 .Setup(m => m.CreateManagedMqttClient())
-                .Returns(mockManagedMqttClient.Object);
+                .Returns(mockManagedMqttClient.Object); 
 
-            var mqttListener = new MqttListener(mockMqttClientFactory.Object, mqttConfiguration, mockTriggeredFunctionExecutor.Object, mockraceWriter.Object);
+            var mqttListener = new MqttListener(mockMqttClientFactory.Object, mqttConfiguration, mockTriggeredFunctionExecutor.Object, new SimpleTraceWriter());
 
             // Act
             await mqttListener.StartAsync(cancellationToken).ConfigureAwait(false);

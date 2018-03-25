@@ -36,7 +36,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             _timer = new Timer(Execute, null, 30000, Timeout.Infinite); 
         }
 
-        private string Descriptor => $"client {_config.Options.ClientOptions.ClientId} and topics {string.Join(",", _config.Topics.Select(t => t.Topic))}";
+        private string Descriptor => $"client {_config?.Options?.ClientOptions?.ClientId} and topics {string.Join(",", _config?.Topics?.Select(t => t.Topic))}";
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
