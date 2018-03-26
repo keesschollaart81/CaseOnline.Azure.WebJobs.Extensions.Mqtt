@@ -1,16 +1,8 @@
 # Mqtt Trigger Binding for Azure Functions
-
-This is a work-in-progress of a Mqtt Trigger for Azure Functions.
-
-The code currently works as it is but I have to make it better configurable before I publish it as a NuGet Package. Things that have to be done:
-- Create more Unit Tests & Integration tests and get code coverage to >80%
-- Use ILogger instead of TraceWriter which currently does not output on dev machine for some reason? 
-- Create demos for integrations with CloudMqtt.net and Azure IoT Hub
-
-Expect a NuGet package halfway April '18.
-
 [![Build Status](https://caseonline.visualstudio.com/_apis/public/build/definitions/4df87c38-5691-4d04-8373-46c830209b7e/11/badge)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_build/index?definitionId=1) 
 [![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)](https://bettercodehub.com/)
+
+This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mqtt NuGet Package. This package enables you to trigger an Azure Function based on a MQTT Subscription. By binding a MqttTrigger attribute as an input parameter for your function, you'll receive messages of type PublishedMqttMessage. Internally this is wired up using [MQTTnet](https://github.com/chkr1011/MQTTnet).
 
 ## How to use
 - Create an Azure Function using [Visual Studio](https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs) or using [Visual Studio Code](https://code.visualstudio.com/tutorials/functions-extension/getting-started)
@@ -30,6 +22,15 @@ Expect a NuGet package halfway April '18.
     ```
 
 - Deploy / Run your function. Azure function will subscripe to the Mqtt server/topic(s) and trigger your function when messages get published
+
+## Beta - Work in progress!!
+The code currently works as it is but I have to make it better configurable before I publish it as a NuGet Package. Things that have to be done:
+- Have more beta-testers running/using it (please help! 😇)
+- Create more Unit Tests & Integration tests and get code coverage to >80%
+- Use ILogger instead of TraceWriter which currently does not output on dev machine for some reason? 
+- Create demos for integrations with CloudMqtt.net and Azure IoT Hub
+
+Expect a 1.0.0 version of the NuGet package in April '18.
 
 ## Custom MQTT-Client Configuration
 Internally the [MQTTnet](https://github.com/chkr1011/MQTTnet) is used for the Mqtt implementation.  For complexer configurations, for example if you want to 
@@ -57,7 +58,7 @@ Please find some samples here in the [sample project](./src/ExampleFunctions/). 
 
 ## Roadmap
 - 1.0.0 Initial release, april 2018
-- 1.5.0 Output binding for publishing messages june 2018
+- 1.5.0 Output binding for publishing MQTT messages, june 2018
 
 ## MIT License
 Copyright (c) 2018 Kees Schollaart
