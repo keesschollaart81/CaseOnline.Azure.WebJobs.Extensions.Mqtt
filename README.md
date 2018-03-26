@@ -1,6 +1,8 @@
 # Mqtt Trigger Binding for Azure Functions
 [![Build Status](https://caseonline.visualstudio.com/_apis/public/build/definitions/4df87c38-5691-4d04-8373-46c830209b7e/11/badge)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_build/index?definitionId=1) 
 [![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)](https://bettercodehub.com/)
+[![NuGet](https://img.shields.io/nuget/v/CaseOnline.Azure.WebJobs.Extensions.Mqtt.svg)](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/)
+
 
 This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mqtt NuGet Package. This package enables you to trigger an Azure Function based on a MQTT Subscription. By binding a MqttTrigger attribute as an input parameter for your function, you'll receive messages of type PublishedMqttMessage. Internally this is wired up using [MQTTnet](https://github.com/chkr1011/MQTTnet).
 
