@@ -20,7 +20,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         [Fact]
         public async Task StartAsyncSubscribesToTopics()
         {
-            // Arrange
+            // Arrange 
             var mockManagedMqttClient = new Mock<IManagedMqttClient>();
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
             var mqttConfiguration = new MqttConfiguration(mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MqttQualityOfServiceLevel.AtLeastOnce) });
@@ -39,7 +39,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 .Setup(m => m.CreateManagedMqttClient())
                 .Returns(mockManagedMqttClient.Object); 
 
-            var mqttListener = new MqttListener(mockMqttClientFactory.Object, mqttConfiguration, mockTriggeredFunctionExecutor.Object, new SimpleTraceWriter());
+            var mqttListener = new MqttListener(mockMqttClientFactory.Object, mqttConfiguration, mockTriggeredFunctionExecutor.Object, _mockLogger.Object);
 
             // Act
             await mqttListener.StartAsync(cancellationToken).ConfigureAwait(false);

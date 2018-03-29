@@ -14,14 +14,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     public class MqttTriggerAttributeBindingProvider : ITriggerBindingProvider
     {
         private readonly INameResolver _nameResolver;
-        private readonly ILogger _logger;
-        private readonly TraceWriter _traceWriter;
+        private readonly ILogger _logger; 
 
-        public MqttTriggerAttributeBindingProvider(INameResolver nameResolver, ILogger logger, TraceWriter traceWriter)
+        public MqttTriggerAttributeBindingProvider(INameResolver nameResolver, ILogger logger)
         {
             _nameResolver = nameResolver;
-            _logger = logger;
-            _traceWriter = traceWriter;
+            _logger = logger; 
         }
 
         public Task<ITriggerBinding> TryCreateAsync(TriggerBindingProviderContext context)
@@ -37,11 +35,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 return Task.FromResult<ITriggerBinding>(null);
             }
 
-            _traceWriter.Verbose($"Creating binding for parameter '{context.Parameter.Name}', using custom config creator is '{mqttTriggerAttribute.UseCustomConfigCreator}'");
+            _logger.LogDebug($"Creating binding for parameter '{context.Parameter.Name}', using custom config creator is '{mqttTriggerAttribute.UseCustomConfigCreator}'");
 
             var mqttTriggerBinding = GetMqttTriggerBinding(context.Parameter, mqttTriggerAttribute);
 
-            _traceWriter.Verbose($"Succesfully created binding for parameter '{context.Parameter.Name}'");
+            _logger.LogDebug($"Succesfully created binding for parameter '{context.Parameter.Name}'");
 
             return Task.FromResult<ITriggerBinding>(mqttTriggerBinding);
         }
@@ -72,13 +70,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             }
             catch (Exception ex)
             {
-                _traceWriter.Error(ex.Message, ex);
+                _logger.LogError(ex.Message, ex);
                 throw;
             }
 
             var mqttFactory = new MqttFactory();
 
-            return new MqttTriggerBinding(parameter, mqttFactory, mqttConfiguration, _traceWriter);
+            return new MqttTriggerBinding(parameter, mqttFactory, mqttConfiguration, _logger);
         }
     }
 }

@@ -19,16 +19,16 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private readonly ParameterInfo _parameter;
         private readonly IMqttClientFactory _mqttClientFactory;
         private readonly MqttConfiguration _config;
-        private readonly TraceWriter _traceWriter;
+        private readonly ILogger _logger;
         private readonly IReadOnlyDictionary<string, Type> _emptyBindingContract = new Dictionary<string, Type>();
         private readonly IReadOnlyDictionary<string, object> _emptyBindingData = new Dictionary<string, object>();
 
-        public MqttTriggerBinding(ParameterInfo parameter, IMqttClientFactory mqttClientFactory, MqttConfiguration config, TraceWriter traceWriter)
+        public MqttTriggerBinding(ParameterInfo parameter, IMqttClientFactory mqttClientFactory, MqttConfiguration config, ILogger logger)
         {
             _parameter = parameter;
             _mqttClientFactory = mqttClientFactory;
             _config = config;
-            _traceWriter = traceWriter;
+            _logger = logger;
         }
 
         public Type TriggerValueType
@@ -46,7 +46,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         public Task<ITriggerData> BindAsync(object value, ValueBindingContext context)
         {
-            _traceWriter.Verbose("MqttTriggerBinding.BindAsync");
+            _logger.LogDebug("MqttTriggerBinding.BindAsync");
 
             var valueProvider = new ValueProvider(value);
             return Task.FromResult<ITriggerData>(new TriggerData(valueProvider, _emptyBindingData));
@@ -54,14 +54,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         public Task<IListener> CreateListenerAsync(ListenerFactoryContext context)
         {
-            _traceWriter.Verbose("MqttTriggerBinding.CreateListenerAsync");
+            _logger.LogDebug("MqttTriggerBinding.CreateListenerAsync");
 
             if (context == null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            return Task.FromResult<IListener>(new MqttListener(_mqttClientFactory, _config, context.Executor, _traceWriter));
+            return Task.FromResult<IListener>(new MqttListener(_mqttClientFactory, _config, context.Executor, _logger));
         }
 
         public ParameterDescriptor ToParameterDescriptor()

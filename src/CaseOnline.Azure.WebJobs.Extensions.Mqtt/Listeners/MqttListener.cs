@@ -18,7 +18,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
     public sealed class MqttListener : IListener
     {
         private readonly ITriggeredFunctionExecutor _executor; 
-        private readonly TraceWriter _traceWriter;
+        private readonly ILogger _logger;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly MqttConfiguration _config;
         private readonly IMqttClientFactory _mqttClientFactory;
@@ -26,12 +26,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private bool _disposed;
         private IManagedMqttClient _managedMqttClient;
 
-        public MqttListener(IMqttClientFactory mqttClientFactory, MqttConfiguration config, ITriggeredFunctionExecutor executor, TraceWriter traceWriter)
+        public MqttListener(IMqttClientFactory mqttClientFactory, MqttConfiguration config, ITriggeredFunctionExecutor executor, ILogger logger)
         {
             _config = config;
             _mqttClientFactory = mqttClientFactory;
             _executor = executor; 
-            _traceWriter = traceWriter;
+            _logger = logger;
             _cancellationTokenSource = new CancellationTokenSource();
             _timer = new Timer(Execute, null, 30000, Timeout.Infinite); 
         }
@@ -40,7 +40,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _traceWriter.Info($"Starting MqttListener for {Descriptor}");
+            _logger.LogInformation($"Starting MqttListener for {Descriptor}");
             ThrowIfDisposed();
 
             await StartMqtt(cancellationToken).ConfigureAwait(false);
@@ -48,7 +48,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _traceWriter.Info($"Stopping MqttListener for {Descriptor}");
+            _logger.LogInformation($"Stopping MqttListener for {Descriptor}");
 
             ThrowIfDisposed();
 
@@ -68,7 +68,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         public void Cancel()
         {
-            _traceWriter.Info($"Cancelling MqttListener for {Descriptor}");
+            _logger.LogWarning($"Cancelling MqttListener for {Descriptor}");
 
             ThrowIfDisposed();
             _cancellationTokenSource.Cancel();
@@ -109,30 +109,30 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             }
             catch (Exception e)
             {
-                _traceWriter.Error("Unhandled exception while connectin to {descriptor}", e);
+                _logger.LogCritical("Unhandled exception while settingup the mqttclient to {descriptor}", e);
                 throw new Exception("Unhandled exception while connectin to {descriptor}", e);
             }
         }
 
         public void Execute(object stateInfo)
         {
-            _traceWriter.Verbose($"Timer: {_managedMqttClient?.IsConnected} {DateTime.Now:g} {Descriptor}");
+            _logger.LogDebug($"Timer: {_managedMqttClient?.IsConnected} {DateTime.Now:g} {Descriptor}");
             _timer.Change(30000, Timeout.Infinite);
         }
 
         private void ManagedMqttClientDisconnected(object sender, MqttClientDisconnectedEventArgs e)
         {
-            _traceWriter.Error($"MqttListener Disconnected, previous connectivity state '{e.ClientWasConnected}' for {Descriptor}", e.Exception);
+            _logger.LogWarning($"MqttListener Disconnected, previous connectivity state '{e.ClientWasConnected}' for {Descriptor}", e.Exception);
         }
 
         private void ManagedMqttClientConnected(object sender, MqttClientConnectedEventArgs e)
         {
-            _traceWriter.Info($"MqttListener Connected {e.IsSessionPresent} for {Descriptor}");
+            _logger.LogInformation($"MqttListener Connected {e.IsSessionPresent} for {Descriptor}");
         }
 
         private void ManagedMqttClientApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
         {
-            _traceWriter.Info($"MqttListener receiving message for {Descriptor}");
+            _logger.LogDebug($"MqttListener receiving message for {Descriptor}");
             InvokeJobFunction(e).Wait();
         }
 
@@ -161,7 +161,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             }
             catch (Exception e)
             {
-                _traceWriter.Error("Error firing function", e);
+                _logger.LogCritical("Error firing function", e);
 
                 // We don't want any function errors to stop the execution. Errors will be logged to Dashboard already.
             }

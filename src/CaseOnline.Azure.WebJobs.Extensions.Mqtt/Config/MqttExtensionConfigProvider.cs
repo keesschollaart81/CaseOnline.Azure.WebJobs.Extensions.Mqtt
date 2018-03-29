@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host.Config;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
@@ -12,13 +13,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 
         public void Initialize(ExtensionConfigContext context)
         {
-            context.Trace.Info("MqttExtensionConfigProvider.Initialize() called!");
-
             var logger = context.Config.LoggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
 
             _nameResolver = context.Config.GetService<INameResolver>();
 
-            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(_nameResolver, logger, context.Trace));
+            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(_nameResolver, logger));
         }
     }
 }
