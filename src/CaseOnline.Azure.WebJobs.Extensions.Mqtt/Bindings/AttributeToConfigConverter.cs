@@ -12,17 +12,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
     public class AttributeToConfigConverter
     {
-        private readonly MqttTriggerAttribute _mqttTriggerAttribute;
-        private readonly INameResolver _nameResolver;
-        private readonly ILogger _logger;
-
         private const int DetaultMqttPort = 1883;
-        private TimeSpan DetaultReconnectTime = TimeSpan.FromSeconds(5);
         private const string SettingsKeyForPort = "MqttPort";
         private const string SettingsKeyForClientId = "MqttClientId";
         private const string SettingsKeyForServer = "MqttServer";
         private const string SettingsKeyForUsername = "MqttUsername";
         private const string SettingsKeyForPassword = "MqttPassword";
+
+        private readonly TimeSpan _detaultReconnectTime = TimeSpan.FromSeconds(5);
+        private readonly MqttTriggerAttribute _mqttTriggerAttribute;
+        private readonly INameResolver _nameResolver;
+        private readonly ILogger _logger;
 
         public AttributeToConfigConverter(MqttTriggerAttribute source, INameResolver nameResolver, ILogger logger)
         {
@@ -57,14 +57,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 clientId = Guid.NewGuid().ToString();
             }
 
-            var server = _nameResolver.Resolve(_mqttTriggerAttribute.ServerName ?? SettingsKeyForServer);      
-            if (string.IsNullOrEmpty(server)) throw new Exception("No server hostname configured, please set the server via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json");     
+            var server = _nameResolver.Resolve(_mqttTriggerAttribute.ServerName ?? SettingsKeyForServer);
+            if (string.IsNullOrEmpty(server))
+            {
+                throw new Exception("No server hostname configured, please set the server via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json");
+            }
 
             var username = _nameResolver.Resolve(_mqttTriggerAttribute.UsernameName ?? SettingsKeyForUsername);
             var password = _nameResolver.Resolve(_mqttTriggerAttribute.PasswordName ?? SettingsKeyForPassword);
 
             var options = new ManagedMqttClientOptionsBuilder()
-               .WithAutoReconnectDelay(DetaultReconnectTime)
+               .WithAutoReconnectDelay(_detaultReconnectTime)
                .WithClientOptions(new MqttClientOptionsBuilder()
                    .WithClientId(clientId)
                    .WithTcpServer(server, portInt)
@@ -87,7 +90,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             }
             catch (Exception ex)
             {
-                throw new Exception($"Enexpected exception while instantiating custom config creator of type {_mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
+                throw new InvalidCustomConfigCreatorException($"Enexpected exception while instantiating custom config creator of type {_mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
             }
 
             try
@@ -96,7 +99,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             }
             catch (Exception ex)
             {
-                throw new Exception($"Enexpected exception while getting creating a config via type {_mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
+                throw new InvalidCustomConfigCreatorException($"Enexpected exception while getting creating a config via type {_mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
             }
 
             return new MqttConfiguration(customConfig.Options, customConfig.Topics);
