@@ -28,11 +28,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         public IntegrationTests()
         {
             _mqttServer = new MqttFactory().CreateMqttServer();
-            var options = new MqttServerOptions();
-            options.ConnectionValidator = c =>
+            var options = new MqttServerOptions
             {
-
-                c.ReturnCode = MqttConnectReturnCode.ConnectionAccepted;
+                ConnectionValidator = c => { c.ReturnCode = MqttConnectReturnCode.ConnectionAccepted; }
             };
             _mqttServer.StartAsync(options);
 
@@ -59,7 +57,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 DashboardConnectionString = "UseDevelopmentStorage=true"
             };
             ILoggerFactory loggerFactory = new LoggerFactory();
-            TestLoggerProvider provider = new TestLoggerProvider();
+            var provider = new TestLoggerProvider();
             loggerFactory.AddProvider(provider);
 
             config.LoggerFactory = loggerFactory;
@@ -215,7 +213,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
     public class TestNameResolver : INameResolver
     {
         private readonly Dictionary<string, string> _values = new Dictionary<string, string>();
-        private bool _throwException;
+        private readonly bool _throwException;
 
         public TestNameResolver(bool throwNotImplementedException = false)
         {
@@ -223,13 +221,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             _throwException = throwNotImplementedException;
         }
 
-        public Dictionary<string, string> Values
-        {
-            get
-            {
-                return _values;
-            }
-        }
+        public Dictionary<string, string> Values => _values;
 
         public string Resolve(string name)
         {

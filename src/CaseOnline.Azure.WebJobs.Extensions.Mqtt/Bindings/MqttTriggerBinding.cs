@@ -13,15 +13,24 @@ using MQTTnet.Client;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
+    /// <summary>
+    /// Binds an input parameter to the MQTT queue.
+    /// </summary>
     public class MqttTriggerBinding : ITriggerBinding
     {
         private readonly ParameterInfo _parameter;
         private readonly IMqttClientFactory _mqttClientFactory;
         private readonly MqttConfiguration _config;
         private readonly ILogger _logger;
-        private readonly IReadOnlyDictionary<string, Type> _emptyBindingContract = new Dictionary<string, Type>();
         private readonly IReadOnlyDictionary<string, object> _emptyBindingData = new Dictionary<string, object>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MqttTriggerAttribute"/> class.
+        /// </summary>
+        /// <param name="parameter">The parameter to bind to.</param>
+        /// <param name="mqttClientFactory">The MQTT client factory.</param>
+        /// <param name="config">The MQTT configuration.</param>
+        /// <param name="logger">The logger.</param>
         public MqttTriggerBinding(ParameterInfo parameter, IMqttClientFactory mqttClientFactory, MqttConfiguration config, ILogger logger)
         {
             _parameter = parameter;
@@ -30,18 +39,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             _logger = logger;
         }
 
-        public Type TriggerValueType
-        {
-            get
-            {
-                return typeof(PublishedMqttMessage);
-            }
-        }
+        /// <summary>
+        /// Gets the trigger value type.
+        /// </summary>
+        public Type TriggerValueType => typeof(PublishedMqttMessage);
 
-        public IReadOnlyDictionary<string, Type> BindingDataContract
-        {
-            get { return _emptyBindingContract; }
-        }
+        /// <summary>
+        /// Gets the binding data contract.
+        /// </summary>
+        public IReadOnlyDictionary<string, Type> BindingDataContract { get; } = new Dictionary<string, Type>();
 
         public Task<ITriggerData> BindAsync(object value, ValueBindingContext context)
         {
@@ -93,10 +99,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 _value = value;
             }
 
-            public Type Type
-            {
-                get { return typeof(PublishedMqttMessage); }
-            }
+            public Type Type => typeof(PublishedMqttMessage);
 
             public Task<object> GetValueAsync()
             {

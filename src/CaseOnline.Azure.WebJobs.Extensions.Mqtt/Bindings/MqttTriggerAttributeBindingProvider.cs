@@ -9,12 +9,20 @@ using MQTTnet;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
+    /// <summary>
+    /// Provides binding of the <see cref="MqttTriggerAttribute"/>.
+    /// </summary>
     public class MqttTriggerAttributeBindingProvider : ITriggerBindingProvider
     {
         private readonly INameResolver _nameResolver;
         private readonly ILogger _logger; 
 
-        public MqttTriggerAttributeBindingProvider(INameResolver nameResolver, ILogger logger)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MqttTriggerAttribute"/>.
+        /// </summary>
+        /// <param name="nameResolver">The name resolver.</param>
+        /// <param name="logger">The logger.</param>
+        internal MqttTriggerAttributeBindingProvider(INameResolver nameResolver, ILogger logger)
         {
             _nameResolver = nameResolver;
             _logger = logger; 
@@ -53,14 +61,16 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             if (parameter.ParameterType != typeof(PublishedMqttMessage))
             {
-                throw new InvalidOperationException(string.Format("Can't bind MqttTriggerAttribute to type '{0}'.", parameter.ParameterType));
+                throw new InvalidOperationException($"Can't bind MqttTriggerAttribute to type '{parameter.ParameterType}'.");
             }
+
             return mqttTriggerAttribute;
         }
 
         private MqttTriggerBinding GetMqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute)
         {
             var attributeToConfigConverter = new AttributeToConfigConverter(mqttTriggerAttribute, _nameResolver, _logger);
+
             MqttConfiguration mqttConfiguration;
             try
             {
