@@ -15,7 +15,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
     [Singleton(Mode = SingletonMode.Listener)]
     public sealed class MqttListener : IListener
-    {
+    { 
         private readonly ITriggeredFunctionExecutor _executor; 
         private readonly ILogger _logger;
         private readonly CancellationTokenSource _cancellationTokenSource;
@@ -32,6 +32,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             _logger = logger;
             _cancellationTokenSource = new CancellationTokenSource();
         }
+
+        public static bool Connected { get; internal set; }
 
         private string Descriptor => $"client {_config?.Options?.ClientOptions?.ClientId} and topics {string.Join(",", _config?.Topics?.Select(t => t.Topic))}";
 
@@ -113,11 +115,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         
         private void ManagedMqttClientDisconnected(object sender, MqttClientDisconnectedEventArgs e)
         {
+            Connected = false;
             _logger.LogWarning($"MqttListener Disconnected, previous connectivity state '{e.ClientWasConnected}' for {Descriptor}, message: {e.Exception?.Message}", e.Exception);
         }
 
         private void ManagedMqttClientConnected(object sender, MqttClientConnectedEventArgs e)
         {
+            Connected = true;
             _logger.LogInformation($"MqttListener Connected {e.IsSessionPresent} for {Descriptor}");
         }
 

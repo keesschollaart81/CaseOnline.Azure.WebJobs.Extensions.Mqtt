@@ -67,18 +67,29 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             config.UseMqtt();
             var host = new JobHost(config);
             await host.StartAsync();
-            var message = new MqttApplicationMessageBuilder().WithTopic("test/topic").WithPayload("{ \"test\":\"case\" }").Build();
-            await _mqttServer.PublishAsync(message);
+           
             for (var i = 0; i < 50; i++)
             {
+                if (MqttListener.Connected)
+                {
+                    break;
+                }
+                await Task.Delay(200);
+            }
+            var message = new MqttApplicationMessageBuilder().WithTopic("test/topic").WithPayload("{ \"test\":\"case\" }").Build();
+
+            await _mqttServer.PublishAsync(message); 
+
+            for (var i = 0; i < 50; i++)
+            {
+                if (TestFunctions.CallCount > 0)
+                {
+                    break;
+                }
                 await Task.Delay(200);
             }
             await host.StopAsync();
-            var messages = provider.GetAllLogMessages();
-            foreach (var message2 in messages)
-            {
-                Debug.WriteLine(message2.FormattedMessage);
-            }
+            Assert.Equal(1, TestFunctions.CallCount);
         }
     }
 
@@ -99,8 +110,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 
     public static class TestFunctions
     {
+        public static int CallCount = 0;
+
         public static void Testert([MqttTrigger(new[] { "test/topic" })] PublishedMqttMessage timer)
         {
+            CallCount++;
         }
 
     }
@@ -169,6 +183,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 return;
             }
 
+            Debug.WriteLine(formatter(state, exception));
+
             LogMessages.Add(new LogMessage
             {
                 Level = logLevel,
@@ -194,5 +210,37 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         public string FormattedMessage { get; set; }
 
         public string Category { get; set; }
+    }
+
+    public class TestNameResolver : INameResolver
+    {
+        private readonly Dictionary<string, string> _values = new Dictionary<string, string>();
+        private bool _throwException;
+
+        public TestNameResolver(bool throwNotImplementedException = false)
+        {
+            // DefaultNameResolver throws so this helps simulate that for testing
+            _throwException = throwNotImplementedException;
+        }
+
+        public Dictionary<string, string> Values
+        {
+            get
+            {
+                return _values;
+            }
+        }
+
+        public string Resolve(string name)
+        {
+            if (_throwException)
+            {
+                throw new NotImplementedException("INameResolver must be supplied to resolve '%" + name + "%'.");
+            }
+
+            string value = null;
+            Values.TryGetValue(name, out value);
+            return value;
+        }
     }
 }
