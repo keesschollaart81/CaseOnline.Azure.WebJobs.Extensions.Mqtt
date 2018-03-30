@@ -12,14 +12,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
         {
         }
 
-        // public MqttTriggerAttribute(string[] topics) : this(topics, TimeSpan.FromSeconds(5))
-        // {
-        // }
-
         public MqttTriggerAttribute(string[] topics)
         {
             Topics = topics;
-            // ReconnectDelay = reconnectDelay;
         }
 
         public MqttTriggerAttribute(Type mqttConfigCreatorType)
@@ -47,7 +42,5 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
 
         [AppSetting]
         public string ClientIdName { get; set; }
-
-        // public TimeSpan ReconnectDelay { get; }
     }
 }
