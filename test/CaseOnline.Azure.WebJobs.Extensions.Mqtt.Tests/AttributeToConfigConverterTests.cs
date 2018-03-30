@@ -1,12 +1,7 @@
-using System.Threading;
-using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
-using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MQTTnet;
-using MQTTnet.Client;
 using MQTTnet.ManagedClient;
 using MQTTnet.Protocol;
 using Xunit;

@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Description;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
