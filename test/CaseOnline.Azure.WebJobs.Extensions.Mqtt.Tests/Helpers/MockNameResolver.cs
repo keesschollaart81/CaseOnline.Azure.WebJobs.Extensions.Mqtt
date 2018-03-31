@@ -1,7 +1,7 @@
 using Microsoft.Azure.WebJobs;
 using System;
 
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Util
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Util.Helpers
 {
     class MockNameResolver : INameResolver
     {

@@ -1,252 +1,131 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host.Executors;
-using Microsoft.Azure.WebJobs.Logging;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers.Logging;
 using Microsoft.Extensions.Logging;
-using Moq;
 using MQTTnet;
-using MQTTnet.Client;
-using MQTTnet.ManagedClient;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
 using Xunit;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 {
-    public class IntegrationTests : IDisposable
+    public class IntegrationTests
     {
-        static IMqttServer _mqttServer;
+        private ILogger _logger;
+        private ILoggerFactory _loggerFactory;
+
+        private MqttApplicationMessage DefaultMessage = new MqttApplicationMessageBuilder()
+                    .WithTopic("test/topic")
+                    .WithPayload("{ \"test\":\"case\" }")
+                    .WithAtLeastOnceQoS()
+                    .Build();
 
         public IntegrationTests()
         {
-            _mqttServer = new MqttFactory().CreateMqttServer();
-            var options = new MqttServerOptions
-            {
-                ConnectionValidator = c => { c.ReturnCode = MqttConnectReturnCode.ConnectionAccepted; }
-            };
-            _mqttServer.Started += _mqttServer_Started;
-            _mqttServer.ClientConnected += _mqttServer_ClientConnected;
-            _mqttServer.ClientDisconnected += _mqttServer_ClientDisconnected;
-            _mqttServer.StartAsync(options);
-        }
-
-        private void _mqttServer_ClientDisconnected(object sender, MQTTnet.Server.MqttClientDisconnectedEventArgs e)
-        {
-            Debug.WriteLine($"_mqttServer_ClientDisconnected: {e.Client.ClientId}");
-        }
-        private void _mqttServer_ClientConnected(object sender, MQTTnet.Server.MqttClientConnectedEventArgs e)
-        {
-            Debug.WriteLine($"_mqttServer_ClientConnected: {e.Client.ClientId}");
-        }
-
-        private void _mqttServer_Started(object sender, MqttServerStartedEventArgs e)
-        {
-            Debug.WriteLine($"mqtt server started: {e}");
-        }
-
-        public void Dispose()
-        {
-            _mqttServer.StopAsync();
+            _loggerFactory = new LoggerFactory();
+            _loggerFactory.AddProvider(new TestLoggerProvider());
+            _logger = _loggerFactory.CreateLogger("IntegrationTests");
+            ;
         }
 
         [Fact]
-        public async Task StartAsyncSubscribesToTopics()
+        public async Task SimpleMessageIsReceived()
         {
-            var locator = new ExplicitTypeLocator(typeof(TestFunctions));
-            var config = new JobHostConfiguration
+            using (var mqttServer = await MqttServerHelper.Get(_logger))
+            using (var jobHost = await JobHostHelper.RunFor<SimpleMessageIsReceivedTestFunction>(_loggerFactory))
             {
-                TypeLocator = locator
-            };
-            var loggerFactory = new LoggerFactory();
-            loggerFactory.AddProvider(new TestLoggerProvider());
+                await mqttServer.PublishAsync(DefaultMessage);
 
-            config.LoggerFactory = loggerFactory;
-            config.UseDevelopmentSettings();
-            config.UseMqtt();
-            var host = new JobHost(config);
-            await host.StartAsync();
-            Debug.WriteLine("host started");
-            for (var i = 0; i < 280; i++)
-            {
-                if (MqttListener.Connected)
-                {
-                    Debug.WriteLine($"connected after {i}");
-                    break;
-                }
-                await Task.Delay(50);
+                await jobHost.WaitFor(() => SimpleMessageIsReceivedTestFunction.CallCount >= 1);
             }
-            var message = new MqttApplicationMessageBuilder()
-                .WithTopic("test/topic")
-                .WithPayload("{ \"test\":\"case\" }")
-                .WithAtLeastOnceQoS()
+
+            Assert.Equal(1, SimpleMessageIsReceivedTestFunction.CallCount);
+            Assert.Equal("test/topic", SimpleMessageIsReceivedTestFunction.LastReceivedMessage.Topic);
+            var messageBody = Encoding.UTF8.GetString(SimpleMessageIsReceivedTestFunction.LastReceivedMessage.GetMessage());
+            Assert.Equal("{ \"test\":\"case\" }", messageBody);
+        }
+
+        private class SimpleMessageIsReceivedTestFunction
+        {
+            public static int CallCount = 0;
+            public static PublishedMqttMessage LastReceivedMessage;
+
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnection")] PublishedMqttMessage publishedMqttMessage)
+            {
+                CallCount++;
+                LastReceivedMessage = publishedMqttMessage;
+            }
+        }
+
+        [Fact]
+        public async Task UsernameAndPasswordAreValidated()
+        {
+            var validated = false;
+            var options = new MqttServerOptionsBuilder()
+                .WithConnectionValidator(x =>
+                {
+                    validated = true;
+                    x.ReturnCode = MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                    if (x.Username == "admin" && x.Password == "Welkom123")
+                    {
+                        x.ReturnCode = MqttConnectReturnCode.ConnectionAccepted;
+                    }
+                })
                 .Build();
 
-            await _mqttServer.PublishAsync(message);
-
-            for (var i = 0; i < 300; i++)
+            using (var mqttServer = await MqttServerHelper.Get(_logger, options))
+            using (var jobHost = await JobHostHelper.RunFor<UsernameAndPasswordTestFunction>(_loggerFactory))
             {
-                if (TestFunctions.CallCount > 0)
-                {
-                    Debug.WriteLine($"ececuted after {i}");
-                    break;
-                }
-                await Task.Delay(50);
-            }
-            await Task.Delay(1000); // let the function finish
-            await host.StopAsync();
-            Assert.Equal(1, TestFunctions.CallCount);
-        }
-    }
+                await mqttServer.PublishAsync(DefaultMessage);
 
-    public class ExplicitTypeLocator : ITypeLocator
-    {
-        private readonly IReadOnlyList<Type> types;
-
-        public ExplicitTypeLocator(params Type[] types)
-        {
-            this.types = types.ToList().AsReadOnly();
-        }
-
-        public IReadOnlyList<Type> GetTypes()
-        {
-            return types;
-        }
-    }
-
-    public static class TestFunctions
-    {
-        public static int CallCount = 0;
-
-        public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnection")] PublishedMqttMessage timer)
-        {
-            CallCount++;
-        }
-    }
-
-    public class TestLoggerProvider : ILoggerProvider
-    {
-        private readonly Func<string, LogLevel, bool> _filter;
-        private readonly Regex userCategoryRegex = new Regex(@"^Function\.\w+\.User$");
-
-        public IList<TestLogger> CreatedLoggers = new List<TestLogger>();
-
-        public TestLoggerProvider(Func<string, LogLevel, bool> filter = null)
-        {
-            _filter = filter ?? new LogCategoryFilter().Filter;
-        }
-
-        public ILogger CreateLogger(string categoryName)
-        {
-            var logger = new TestLogger(categoryName, _filter);
-            CreatedLoggers.Add(logger);
-            return logger;
-        }
-
-        public IEnumerable<LogMessage> GetAllLogMessages()
-        {
-            return CreatedLoggers.SelectMany(l => l.LogMessages);
-        }
-
-        public IEnumerable<LogMessage> GetAllUserLogMessages()
-        {
-            return GetAllLogMessages().Where(p => userCategoryRegex.IsMatch(p.Category));
-        }
-
-        public void Dispose()
-        {
-        }
-    }
-    public class TestLogger : ILogger
-    {
-        private readonly Func<string, LogLevel, bool> _filter;
-
-        public TestLogger(string category, Func<string, LogLevel, bool> filter = null)
-        {
-            Category = category;
-            _filter = filter;
-        }
-
-        public string Category { get; private set; }
-
-        public IList<LogMessage> LogMessages { get; } = new List<LogMessage>();
-
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return null;
-        }
-
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return _filter?.Invoke(Category, logLevel) ?? true;
-        }
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            if (!IsEnabled(logLevel))
-            {
-                return;
+                await jobHost.WaitFor(() => UsernameAndPasswordTestFunction.CallCount >= 1);
             }
 
-            Debug.WriteLine(formatter(state, exception));
-
-            LogMessages.Add(new LogMessage
-            {
-                Level = logLevel,
-                EventId = eventId,
-                State = state as IEnumerable<KeyValuePair<string, object>>,
-                Exception = exception,
-                FormattedMessage = formatter(state, exception),
-                Category = Category
-            });
-        }
-    }
-
-    public class LogMessage
-    {
-        public LogLevel Level { get; set; }
-
-        public EventId EventId { get; set; }
-
-        public IEnumerable<KeyValuePair<string, object>> State { get; set; }
-
-        public Exception Exception { get; set; }
-
-        public string FormattedMessage { get; set; }
-
-        public string Category { get; set; }
-    }
-
-    public class TestNameResolver : INameResolver
-    {
-        private readonly Dictionary<string, string> _values = new Dictionary<string, string>();
-        private readonly bool _throwException;
-
-        public TestNameResolver(bool throwNotImplementedException = false)
-        {
-            // DefaultNameResolver throws so this helps simulate that for testing
-            _throwException = throwNotImplementedException;
+            Assert.Equal(1, UsernameAndPasswordTestFunction.CallCount);
+            Assert.True(validated, "Username and Password are not validated by the Mqtt server");
         }
 
-        public Dictionary<string, string> Values => _values;
-
-        public string Resolve(string name)
+        private class UsernameAndPasswordTestFunction
         {
-            if (_throwException)
+            public static int CallCount = 0;
+
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithUsernameAndPassword")] PublishedMqttMessage publishedMqttMessage)
             {
-                throw new NotImplementedException("INameResolver must be supplied to resolve '%" + name + "%'.");
+                CallCount++;
+            }
+        }
+
+        [Fact]
+        public async Task MqttServerOnOtherPortReceivesMessage()
+        {
+            var options = new MqttServerOptionsBuilder()
+               .WithDefaultEndpointPort(1337)
+               .Build();
+
+            using (var mqttServer = await MqttServerHelper.Get(_logger, options))
+            using (var jobHost = await JobHostHelper.RunFor<SimpleMessageAnotherPortTestFunction>(_loggerFactory))
+            {
+                await mqttServer.PublishAsync(DefaultMessage);
+
+                await jobHost.WaitFor(() => SimpleMessageAnotherPortTestFunction.CallCount >= 1);
             }
 
-            string value = null;
-            Values.TryGetValue(name, out value);
-            return value;
+            Assert.Equal(1, SimpleMessageAnotherPortTestFunction.CallCount);
+        }
+
+        private class SimpleMessageAnotherPortTestFunction
+        {
+            public static int CallCount = 0;
+            public static PublishedMqttMessage LastReceivedMessage;
+
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithCustomPort")] PublishedMqttMessage publishedMqttMessage)
+            {
+                CallCount++;
+                LastReceivedMessage = publishedMqttMessage;
+            }
         }
     }
+
 }

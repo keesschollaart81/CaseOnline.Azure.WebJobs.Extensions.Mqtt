@@ -7,10 +7,10 @@ using MQTTnet.Protocol;
 using Xunit;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
 using System.Linq;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Util;
 using System;
 using Microsoft.Azure.WebJobs;
 using System.Collections.Generic;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Util.Helpers;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 {

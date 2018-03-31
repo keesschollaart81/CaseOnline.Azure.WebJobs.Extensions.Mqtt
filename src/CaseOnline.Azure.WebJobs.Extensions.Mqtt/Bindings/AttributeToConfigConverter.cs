@@ -66,7 +66,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             var connectionStringHasPort = _connectionString.TryGetValue(ConnectionStringForPort, out var portAsString);
             if (connectionStringHasPort && !string.IsNullOrEmpty(portAsString as string))
             {
-                var canParsePortFromConnectionString = int.TryParse(portAsString as string, out var portAsInt);
+                var canParsePortFromConnectionString = int.TryParse(portAsString as string, out port);
                 if (!canParsePortFromConnectionString)
                 {
                     throw new FormatException("Port has an invalid value");
