@@ -122,7 +122,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private void ManagedMqttClientConnected(object sender, MqttClientConnectedEventArgs e)
         {
             Connected = true;
-            _logger.LogInformation($"MqttListener Connected {e.IsSessionPresent} for {Descriptor}");
+            _logger.LogInformation($"MqttListener Connected, IsSessionPresent: '{e.IsSessionPresent}' for {Descriptor}");
         }
 
         private void ManagedMqttClientApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
