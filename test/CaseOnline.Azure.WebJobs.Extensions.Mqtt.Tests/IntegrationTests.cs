@@ -32,13 +32,24 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             {
                 ConnectionValidator = c => { c.ReturnCode = MqttConnectReturnCode.ConnectionAccepted; }
             };
+            _mqttServer.Started += _mqttServer_Started;
+            _mqttServer.ClientConnected += _mqttServer_ClientConnected;
+            _mqttServer.ClientDisconnected += _mqttServer_ClientDisconnected;
             _mqttServer.StartAsync(options);
+        }
 
+        private void _mqttServer_ClientDisconnected(object sender, MQTTnet.Server.MqttClientDisconnectedEventArgs e)
+        {
+            Debug.WriteLine($"_mqttServer_ClientDisconnected: {e.Client.ClientId}");
+        }
+        private void _mqttServer_ClientConnected(object sender, MQTTnet.Server.MqttClientConnectedEventArgs e)
+        {
+            Debug.WriteLine($"_mqttServer_ClientConnected: {e.Client.ClientId}");
         }
 
         private void _mqttServer_Started(object sender, MqttServerStartedEventArgs e)
         {
-            Debug.Write(e);
+            Debug.WriteLine($"mqtt server started: {e}");
         }
 
         public void Dispose()
@@ -52,40 +63,40 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             var locator = new ExplicitTypeLocator(typeof(TestFunctions));
             var config = new JobHostConfiguration
             {
-                TypeLocator = locator,
-                StorageConnectionString = "UseDevelopmentStorage=true",
-                DashboardConnectionString = "UseDevelopmentStorage=true"
+                TypeLocator = locator
             };
-            ILoggerFactory loggerFactory = new LoggerFactory();
-            var provider = new TestLoggerProvider();
-            loggerFactory.AddProvider(provider);
+            var loggerFactory = new LoggerFactory();
+            loggerFactory.AddProvider(new TestLoggerProvider());
 
             config.LoggerFactory = loggerFactory;
             config.UseDevelopmentSettings();
             config.UseMqtt();
             var host = new JobHost(config);
             await host.StartAsync();
-           
-            for (var i = 0; i < 50; i++)
+            Debug.WriteLine("host started");
+            for (var i = 0; i < 280; i++)
             {
                 if (MqttListener.Connected)
                 {
+                    Debug.WriteLine($"connected after {i}");
                     break;
                 }
-                await Task.Delay(200);
+                await Task.Delay(50);
             }
             var message = new MqttApplicationMessageBuilder().WithTopic("test/topic").WithPayload("{ \"test\":\"case\" }").Build();
 
-            await _mqttServer.PublishAsync(message); 
+            await _mqttServer.PublishAsync(message);
 
-            for (var i = 0; i < 50; i++)
+            for (var i = 0; i < 200; i++)
             {
                 if (TestFunctions.CallCount > 0)
                 {
+                    Debug.WriteLine($"ececuted after {i}");
                     break;
                 }
-                await Task.Delay(200);
+                await Task.Delay(50);
             }
+            await Task.Delay(1000); // let the function finish
             await host.StopAsync();
             Assert.Equal(1, TestFunctions.CallCount);
         }
