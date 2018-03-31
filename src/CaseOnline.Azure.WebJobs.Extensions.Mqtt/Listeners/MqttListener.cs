@@ -13,6 +13,9 @@ using MQTTnet.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
+    /// <summary>
+    /// Listens for MQTT messages.
+    /// </summary>
     [Singleton(Mode = SingletonMode.Listener)]
     public sealed class MqttListener : IListener
     { 
@@ -24,6 +27,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private bool _disposed;
         private IManagedMqttClient _managedMqttClient;
 
+        /// <summary>
+        /// Inititalizes a new instance of the <see cref="MqttListener"/> class.
+        /// </summary>
+        /// <param name="mqttClientFactory">The factory for <see cref="IManagedMqttClient"/>s.</param>
+        /// <param name="config">The MQTT configuration.</param>
+        /// <param name="executor">Allows the function to be executed.</param>
+        /// <param name="logger">The logger.</param>
         public MqttListener(IMqttClientFactory mqttClientFactory, MqttConfiguration config, ITriggeredFunctionExecutor executor, ILogger logger)
         {
             _config = config;
@@ -33,9 +43,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        public static bool Connected { get; internal set; }
+        /// <summary>
+        /// Gets a value indicating whether the listener is connected to the MQTT queue.
+        /// </summary>
+        public static bool Connected { get; private set; }
 
-        private string Descriptor => $"client {_config?.Options?.ClientOptions?.ClientId} and topics {string.Join(",", _config?.Topics?.Select(t => t.Topic))}";
+        /// <summary>
+        /// Gets the descriptor for this listener.
+        /// </summary>
+        private string Descriptor => $"Client {_config?.Options?.ClientOptions?.ClientId} and topics {string.Join(", ", _config?.Topics?.Select(t => t.Topic))}";
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {

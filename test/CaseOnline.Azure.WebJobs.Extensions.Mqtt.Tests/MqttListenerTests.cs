@@ -33,6 +33,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             mockManagedMqttClient
                 .Setup(m => m.SubscribeAsync(It.Is<TopicFilter[]>(y => y == mqttConfiguration.Topics)))
                 .Returns(Task.CompletedTask);
+
             mockManagedMqttClient
                 .Setup(m => m.StartAsync(It.Is<IManagedMqttClientOptions>(y => y == mqttConfiguration.Options)))
                 .Returns(Task.CompletedTask);

@@ -11,7 +11,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
         {
         }
 
-        public MqttTriggerAttribute(string[] topics)
+        public MqttTriggerAttribute(params string[] topics)
         {
             Topics = topics;
         }
@@ -28,18 +28,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
         public bool UseCustomConfigCreator => MqttConfigCreatorType != null;
 
         [AppSetting]
-        public string ServerName { get; set; }
-
-        [AppSetting]
-        public string PortName { get; set; }
-
-        [AppSetting]
-        public string UsernameName { get; set; }
-
-        [AppSetting]
-        public string PasswordName { get; set; }
-
-        [AppSetting]
-        public string ClientIdName { get; set; }
+        public string ConnectionString { get; set; }
     }
 }

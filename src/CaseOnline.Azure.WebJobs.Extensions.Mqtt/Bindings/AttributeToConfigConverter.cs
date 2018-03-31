@@ -1,4 +1,5 @@
 using System;
+using System.Data.Common;
 using System.Linq;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Azure.WebJobs;
@@ -10,67 +11,84 @@ using MQTTnet.Protocol;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
+    /// <summary>
+    /// Converts a <see cref="MqttTriggerAttribute"/> to a <see cref="MqttConfiguration"/>.
+    /// </summary>
     public class AttributeToConfigConverter
     {
         private const int DetaultMqttPort = 1883;
-        private const string SettingsKeyForPort = "MqttPort";
-        private const string SettingsKeyForClientId = "MqttClientId";
-        private const string SettingsKeyForServer = "MqttServer";
-        private const string SettingsKeyForUsername = "MqttUsername";
-        private const string SettingsKeyForPassword = "MqttPassword";
+        private const string ConnectionStringForPort = "Port";
+        private const string ConnectionStringForClientId = "ClientId";
+        private const string ConnectionStringForServer = "Server";
+        private const string ConnectionStringForUsername = "Username";
+        private const string ConnectionStringForPassword = "Password";
 
         private readonly TimeSpan _detaultReconnectTime = TimeSpan.FromSeconds(5);
         private readonly MqttTriggerAttribute _mqttTriggerAttribute;
         private readonly INameResolver _nameResolver;
         private readonly ILogger _logger;
+        private readonly DbConnectionStringBuilder _connectionString;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AttributeToConfigConverter"/> class.
+        /// </summary>
+        /// <param name="source">The trigger attribute.</param>
+        /// <param name="nameResolver">The name resolver.</param>
+        /// <param name="logger">The logger.</param>
         public AttributeToConfigConverter(MqttTriggerAttribute source, INameResolver nameResolver, ILogger logger)
         {
+            _connectionString = new DbConnectionStringBuilder()
+            {
+                ConnectionString = nameResolver.Resolve(source.ConnectionString)
+            };
+        
             _mqttTriggerAttribute = source;
             _nameResolver = nameResolver;
             _logger = logger;
         }
 
+        /// <summary>
+        /// Gets the MQTT configuration from this attribute.
+        /// </summary>
+        /// <returns>
+        /// The configuration.
+        /// </returns>
         public MqttConfiguration GetMqttConfiguration()
         {
-            MqttConfiguration mqttConfiguration;
-
-            if (!_mqttTriggerAttribute.UseCustomConfigCreator)
-            {
-                mqttConfiguration = GetConfigurationViaAttributeValues();
-            }
-            else
-            {
-                mqttConfiguration = GetConfigurationViaCustomConfigCreator();
-            }
-            return mqttConfiguration;
+            return !_mqttTriggerAttribute.UseCustomConfigCreator 
+                ? GetConfigurationViaAttributeValues() 
+                : GetConfigurationViaCustomConfigCreator();
         }
 
         private MqttConfiguration GetConfigurationViaAttributeValues()
         {
-            var port = _nameResolver.Resolve(_mqttTriggerAttribute.PortName ?? SettingsKeyForPort);
-            int portInt = (port != null) ? int.Parse(port) : DetaultMqttPort;
 
-            var clientId = _nameResolver.Resolve(_mqttTriggerAttribute.ClientIdName ?? SettingsKeyForClientId);
-            if (string.IsNullOrEmpty(clientId))
-            {
-                clientId = Guid.NewGuid().ToString();
-            }
+            var port = _connectionString.TryGetValue(ConnectionStringForPort, out var portAsString) &&
+                int.TryParse(portAsString as string, out var portAsInt)
+                    ? portAsInt
+                    : DetaultMqttPort;
 
-            var server = _nameResolver.Resolve(_mqttTriggerAttribute.ServerName ?? SettingsKeyForServer);
-            if (string.IsNullOrEmpty(server))
-            {
-                throw new Exception("No server hostname configured, please set the server via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json");
-            }
+            var clientId = _connectionString.TryGetValue(ConnectionStringForClientId, out var clientIdValue) && !string.IsNullOrEmpty(clientIdValue as string)
+                ? clientIdValue.ToString()
+                : Guid.NewGuid().ToString();
 
-            var username = _nameResolver.Resolve(_mqttTriggerAttribute.UsernameName ?? SettingsKeyForUsername);
-            var password = _nameResolver.Resolve(_mqttTriggerAttribute.PasswordName ?? SettingsKeyForPassword);
+            var server = _connectionString.TryGetValue(ConnectionStringForServer, out var serverValue)
+                ? serverValue.ToString()
+                : throw new Exception("No server hostname configured, please set the server via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json"); ;
+
+            var username = _connectionString.TryGetValue(ConnectionStringForUsername, out var userNameValue)
+                ? userNameValue.ToString()
+                : null;
+
+            var password = _connectionString.TryGetValue(ConnectionStringForPassword, out var passwordValue)
+                ? passwordValue.ToString()
+                : null;
 
             var options = new ManagedMqttClientOptionsBuilder()
                .WithAutoReconnectDelay(_detaultReconnectTime)
                .WithClientOptions(new MqttClientOptionsBuilder()
                    .WithClientId(clientId)
-                   .WithTcpServer(server, portInt)
+                   .WithTcpServer(server, port)
                    .WithCredentials(username, password)
                    .Build())
                .Build();
@@ -82,24 +100,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         private MqttConfiguration GetConfigurationViaCustomConfigCreator()
         {
-            ICreateMqttConfig customConfigCreator;
             MqttConfig customConfig;
             try
             {
-                customConfigCreator = (ICreateMqttConfig)Activator.CreateInstance(_mqttTriggerAttribute.MqttConfigCreatorType);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidCustomConfigCreatorException($"Enexpected exception while instantiating custom config creator of type {_mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
-            }
-
-            try
-            {
+                var customConfigCreator = (ICreateMqttConfig)Activator.CreateInstance(_mqttTriggerAttribute.MqttConfigCreatorType);
                 customConfig = customConfigCreator.Create(_nameResolver, _logger);
             }
             catch (Exception ex)
             {
-                throw new InvalidCustomConfigCreatorException($"Enexpected exception while getting creating a config via type {_mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
+                throw new InvalidCustomConfigCreatorException($"Unexpected exception while getting creating a config via type {_mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
             }
 
             return new MqttConfiguration(customConfig.Options, customConfig.Topics);

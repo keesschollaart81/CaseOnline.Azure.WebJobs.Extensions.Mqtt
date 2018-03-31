@@ -13,7 +13,7 @@ namespace ExampleFunctions
     {
         [FunctionName("SimpleFunction")]
         public static void SimpleFunction(
-            [MqttTrigger(new[] { "owntracks/kees/kees01", "owntracks/marleen/marleen01" })]PublishedMqttMessage message,
+            [MqttTrigger("owntracks/kees/kees01", "owntracks/marleen/marleen01", ConnectionString = "MqttConnection")] PublishedMqttMessage message,
             ILogger log,
             [Table("Locations", Connection = "StorageConnectionAppSetting")] out Trail trail)
         {

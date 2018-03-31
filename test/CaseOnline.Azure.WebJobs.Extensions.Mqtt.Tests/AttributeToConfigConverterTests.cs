@@ -25,11 +25,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange 
             var mqttTriggerAttribute = new MqttTriggerAttribute(new[] { "testTopic" })
             {
-                ServerName = "ServerName",
-                PortName = "1883",
-                UsernameName = "UserName",
-                PasswordName = "Password",
-                ClientIdName = "TestClientId"
+                ConnectionString = "Server=ServerName;Port=1883;Username=UserName;Password=Password;ClientId=TestClientId"
             };
 
             var attributeToConfigConverter = new AttributeToConfigConverter(mqttTriggerAttribute, _resolver, _mockLogger.Object);
@@ -46,12 +42,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         public void InvalidPortThrowsException()
         {
             // Arrange 
-            var mqttTriggerAttribute = new MqttTriggerAttribute(new[] { "testTopic" })
+            var mqttTriggerAttribute = new MqttTriggerAttribute("testTopic")
             {
-                ServerName = "ServerName",
-                PortName = "ByeWorld",
-                UsernameName = "UserName",
-                PasswordName = "Password"
+                ConnectionString = "Server=ServerName;Port=ByeWorld;Username=UserName;Password=Password"
             };
 
             var attributeToConfigConverter = new AttributeToConfigConverter(mqttTriggerAttribute, _resolver, _mockLogger.Object);
@@ -66,11 +59,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange 
             var mqttTriggerAttribute = new MqttTriggerAttribute(new[] { "testTopic" })
             {
-                ServerName = "ServerName",
-                PortName = "1883",
-                UsernameName = "UserName",
-                PasswordName = "Password",
-                ClientIdName = ""
+                ConnectionString = "Server=ServerName;Port=1883;Username=UserName;Password=Password;ClientId="
             };
 
             var attributeToConfigConverter = new AttributeToConfigConverter(mqttTriggerAttribute, _resolver, _mockLogger.Object);
@@ -89,10 +78,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange 
             var mqttTriggerAttribute = new MqttTriggerAttribute(new[] { "testTopic" })
             {
-                ServerName = "",
-                PortName = "1883",
-                UsernameName = "UserName",
-                PasswordName = "Password"
+                ConnectionString = "Server=;Port=1883;Username=UserName;Password=Password;ClientId="
             };
 
             var attributeToConfigConverter = new AttributeToConfigConverter(mqttTriggerAttribute, _resolver, _mockLogger.Object);
@@ -148,7 +134,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
     {
         public MqttConfig Create(INameResolver nameResolver, ILogger logger)
         {
-            return new TestMqttConfig(new ManagedMqttClientOptions(), new TopicFilter[] { new TopicFilter("Test", MqttQualityOfServiceLevel.AtMostOnce) });
+            return new TestMqttConfig(new ManagedMqttClientOptions(), new[] { new TopicFilter("Test", MqttQualityOfServiceLevel.AtMostOnce) });
         }
     }
 

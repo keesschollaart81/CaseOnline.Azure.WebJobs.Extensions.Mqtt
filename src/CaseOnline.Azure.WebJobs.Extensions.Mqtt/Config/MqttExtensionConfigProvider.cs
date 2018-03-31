@@ -5,17 +5,22 @@ using Microsoft.Azure.WebJobs.Logging;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
+    /// <summary>
+    /// Registers the <see cref="MqttTriggerAttribute"/> binding.
+    /// </summary>
     public class MqttExtensionConfigProvider : IExtensionConfigProvider
     {
-        private INameResolver _nameResolver;
-
+        /// <summary>
+        /// Initializes the extension configuration provider.
+        /// </summary>
+        /// <param name="context">The extension configuration context.</param>
         public void Initialize(ExtensionConfigContext context)
         {
             var logger = context.Config.LoggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
 
-            _nameResolver = context.Config.GetService<INameResolver>();
+            var nameResolver = context.Config.GetService<INameResolver>();
 
-            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(_nameResolver, logger));
+            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(nameResolver, logger));
         }
     }
 }
