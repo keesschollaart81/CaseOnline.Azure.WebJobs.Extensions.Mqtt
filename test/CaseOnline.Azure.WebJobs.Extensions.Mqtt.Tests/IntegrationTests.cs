@@ -83,11 +83,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 }
                 await Task.Delay(50);
             }
-            var message = new MqttApplicationMessageBuilder().WithTopic("test/topic").WithPayload("{ \"test\":\"case\" }").Build();
+            var message = new MqttApplicationMessageBuilder()
+                .WithTopic("test/topic")
+                .WithPayload("{ \"test\":\"case\" }")
+                .WithAtLeastOnceQoS()
+                .Build();
 
             await _mqttServer.PublishAsync(message);
 
-            for (var i = 0; i < 200; i++)
+            for (var i = 0; i < 300; i++)
             {
                 if (TestFunctions.CallCount > 0)
                 {
@@ -121,11 +125,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
     {
         public static int CallCount = 0;
 
-        public static void Testert([MqttTrigger(new[] { "test/topic" })] PublishedMqttMessage timer)
+        public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnection")] PublishedMqttMessage timer)
         {
             CallCount++;
         }
-
     }
 
     public class TestLoggerProvider : ILoggerProvider

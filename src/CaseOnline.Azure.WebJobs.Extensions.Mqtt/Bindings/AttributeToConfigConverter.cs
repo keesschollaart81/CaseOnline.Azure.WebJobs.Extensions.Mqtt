@@ -41,7 +41,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             {
                 ConnectionString = nameResolver.Resolve(source.ConnectionString)
             };
-        
+
             _mqttTriggerAttribute = source;
             _nameResolver = nameResolver;
             _logger = logger;
@@ -55,18 +55,23 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// </returns>
         public MqttConfiguration GetMqttConfiguration()
         {
-            return !_mqttTriggerAttribute.UseCustomConfigCreator 
-                ? GetConfigurationViaAttributeValues() 
+            return !_mqttTriggerAttribute.UseCustomConfigCreator
+                ? GetConfigurationViaAttributeValues()
                 : GetConfigurationViaCustomConfigCreator();
         }
 
         private MqttConfiguration GetConfigurationViaAttributeValues()
         {
-
-            var port = _connectionString.TryGetValue(ConnectionStringForPort, out var portAsString) &&
-                int.TryParse(portAsString as string, out var portAsInt)
-                    ? portAsInt
-                    : DetaultMqttPort;
+            var port = DetaultMqttPort;
+            var connectionStringHasPort = _connectionString.TryGetValue(ConnectionStringForPort, out var portAsString);
+            if (connectionStringHasPort && !string.IsNullOrEmpty(portAsString as string))
+            {
+                var canParsePortFromConnectionString = int.TryParse(portAsString as string, out var portAsInt);
+                if (!canParsePortFromConnectionString)
+                {
+                    throw new FormatException("Port has an invalid value");
+                }
+            }
 
             var clientId = _connectionString.TryGetValue(ConnectionStringForClientId, out var clientIdValue) && !string.IsNullOrEmpty(clientIdValue as string)
                 ? clientIdValue.ToString()

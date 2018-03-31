@@ -23,7 +23,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         public void ValidConfigurationIsMappedCorrect()
         {
             // Arrange 
-            var mqttTriggerAttribute = new MqttTriggerAttribute(new[] { "testTopic" })
+            var mqttTriggerAttribute = new MqttTriggerAttribute("testTopic")
             {
                 ConnectionString = "Server=ServerName;Port=1883;Username=UserName;Password=Password;ClientId=TestClientId"
             };
