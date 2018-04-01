@@ -27,7 +27,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             _loggerFactory = new LoggerFactory();
             _loggerFactory.AddProvider(new TestLoggerProvider());
             _logger = _loggerFactory.CreateLogger("IntegrationTests");
-            ;
         }
 
         [Fact]

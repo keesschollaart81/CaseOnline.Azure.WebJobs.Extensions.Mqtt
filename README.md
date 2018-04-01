@@ -9,12 +9,12 @@ This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mq
 - Create an Azure Function using [Visual Studio](https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs) or using [Visual Studio Code](https://code.visualstudio.com/tutorials/functions-extension/getting-started)
 - Make sure your ```Microsoft.NET.Sdk.Functions``` package version is 1.0.7 or higher
 - Install the [CaseOnline.Azure.WebJobs.Extensions.Mqtt](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/) NuGet package in you Functions Project
-- Add the Mqtt server settings to your 'local.settings.json' during development time or to your appsettings when running on Azure:
-    - MqttServer (just the dns/hostname)
-    - MqttUsername
-    - MqttPassword
-    - MqttPort (optional, defaults to 1883)
-    - MqttClientId (optional, defaults to a random Guid)
+- Add the connectionstring to your Mqtt server to your 'local.settings.json' during development time or to your appsettings when running on Azure. The default name/key for the connectionstring is 'MqttConnection' and the availble parts are:
+    - Server (just the dns/hostname)
+    - Username (optional)
+    - Password (optional)
+    - Port (optional, defaults to 1883)
+    - ClientId (optional, defaults to a random Guid)
 - When deploying/running on Azure set/ad the application-setting ```FUNCTIONS_EXTENSION_VERSION``` to ```beta```
 - Add a ```MqttTrigger``` attribute to your function parameters:
 

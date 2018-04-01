@@ -89,18 +89,30 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 ? passwordValue.ToString()
                 : null;
 
-            var options = new ManagedMqttClientOptionsBuilder()
+            var mqttClientOptions = GetMqttClientOptions(clientId, server, port, username, password);
+
+            var managedMqttClientOptions = new ManagedMqttClientOptionsBuilder()
                .WithAutoReconnectDelay(_detaultReconnectTime)
-               .WithClientOptions(new MqttClientOptionsBuilder()
-                   .WithClientId(clientId)
-                   .WithTcpServer(server, port)
-                   .WithCredentials(username, password)
-                   .Build())
+               .WithClientOptions(mqttClientOptions)
                .Build();
 
             var topics = _mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MqttQualityOfServiceLevel.AtLeastOnce));
 
-            return new MqttConfiguration(options, topics);
+            return new MqttConfiguration(managedMqttClientOptions, topics);
+        }
+
+        private IMqttClientOptions GetMqttClientOptions(string clientId, string server, int port, string username, string password)
+        {
+            var mqttClientOptionsBuilder = new MqttClientOptionsBuilder()
+                           .WithClientId(clientId)
+                           .WithTcpServer(server, port);
+
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithCredentials(username, password);
+            }
+
+            return mqttClientOptionsBuilder.Build();
         }
 
         private MqttConfiguration GetConfigurationViaCustomConfigCreator()
