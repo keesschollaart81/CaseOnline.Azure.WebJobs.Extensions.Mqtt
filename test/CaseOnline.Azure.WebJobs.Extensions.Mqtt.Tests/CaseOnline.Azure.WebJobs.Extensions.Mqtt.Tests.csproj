@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <IsPackable>false</IsPackable>
+    <DebugType>Full</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="appsettings.json" />

@@ -104,6 +104,26 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             Assert.Contains(result.Topics.Select(x => x.Topic), (x) => x == "Test");
         }
 
+        private class TestMqttConfigProvider : ICreateMqttConfig
+        {
+            public MqttConfig Create(INameResolver nameResolver, ILogger logger)
+            {
+                return new TestMqttConfig(new ManagedMqttClientOptions(), new[] { new TopicFilter("Test", MqttQualityOfServiceLevel.AtMostOnce) });
+            }
+        }
+
+        private class TestMqttConfig : MqttConfig
+        {
+            public override IManagedMqttClientOptions Options { get; }
+
+            public override IEnumerable<TopicFilter> Topics { get; }
+
+            public TestMqttConfig(IManagedMqttClientOptions options, IEnumerable<TopicFilter> topics)
+            {
+                Options = options;
+                Topics = topics;
+            }
+        }
 
         [Fact]
         public void InvalidCustomConfigCreatorThrowsException()
@@ -128,35 +148,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Act & Assert
             var ex = Assert.Throws<InvalidCustomConfigCreatorException>(() => attributeToConfigConverter.GetMqttConfiguration());
         }
-    }
 
-    public class TestMqttConfigProvider : ICreateMqttConfig
-    {
-        public MqttConfig Create(INameResolver nameResolver, ILogger logger)
+        private class BrokenTestMqttConfigProvider : ICreateMqttConfig
         {
-            return new TestMqttConfig(new ManagedMqttClientOptions(), new[] { new TopicFilter("Test", MqttQualityOfServiceLevel.AtMostOnce) });
-        }
-    }
-
-    public class TestMqttConfig : MqttConfig
-    {
-        public override IManagedMqttClientOptions Options { get; }
-
-        public override IEnumerable<TopicFilter> Topics { get; }
-
-        public TestMqttConfig(IManagedMqttClientOptions options, IEnumerable<TopicFilter> topics)
-        {
-            Options = options;
-            Topics = topics;
-        }
-    }
-
-
-    public class BrokenTestMqttConfigProvider : ICreateMqttConfig
-    {
-        public MqttConfig Create(INameResolver nameResolver, ILogger logger)
-        {
-            throw new NotImplementedException();
+            public MqttConfig Create(INameResolver nameResolver, ILogger logger)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

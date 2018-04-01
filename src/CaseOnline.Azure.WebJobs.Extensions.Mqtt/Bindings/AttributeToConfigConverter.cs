@@ -107,8 +107,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                            .WithClientId(clientId)
                            .WithTcpServer(server, port);
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            if (!string.IsNullOrEmpty(username) || !string.IsNullOrEmpty(password))
             {
+                _logger.LogTrace($"Using authentication, username: '{username}'");
                 mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithCredentials(username, password);
             }
 
