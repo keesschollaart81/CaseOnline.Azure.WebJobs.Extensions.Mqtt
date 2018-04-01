@@ -59,20 +59,29 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         }
 
         [Fact]
-        public async Task CustomConnectionStringIsReceived()
+        public async Task CustomConnectionWithClientIdIsReceived()
         {
-            using (var mqttServer = await MqttServerHelper.Get(_logger))
-            using (var jobHost = await JobHostHelper.RunFor<CustomConnectionStringTestFunction>(_loggerFactory))
+            string clientId = string.Empty;
+            var options = new MqttServerOptionsBuilder()
+                   .WithConnectionValidator(x =>
+                   {
+                       clientId = x.ClientId;
+                   })
+                   .Build();
+
+            using (var mqttServer = await MqttServerHelper.Get(_logger, options))
+            using (var jobHost = await JobHostHelper.RunFor<CustomConnectionStringWithClientIdTestFunction>(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => CustomConnectionStringTestFunction.CallCount >= 1);
+                await jobHost.WaitFor(() => CustomConnectionStringWithClientIdTestFunction.CallCount >= 1);
             }
 
-            Assert.Equal(1, CustomConnectionStringTestFunction.CallCount);
+            Assert.Equal(1, CustomConnectionStringWithClientIdTestFunction.CallCount);
+            Assert.Equal("Custom", clientId);
         }
 
-        private class CustomConnectionStringTestFunction
+        private class CustomConnectionStringWithClientIdTestFunction
         {
             public static int CallCount = 0;
             public static PublishedMqttMessage LastReceivedMessage;
