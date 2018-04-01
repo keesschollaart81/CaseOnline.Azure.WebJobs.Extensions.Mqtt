@@ -16,6 +16,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     /// </summary>
     public class AttributeToConfigConverter
     {
+        private const string DefaultAppsettingsKeyForConnectionString = "MqttConnection";
+
         private const int DetaultMqttPort = 1883;
         private const string ConnectionStringForPort = "Port";
         private const string ConnectionStringForClientId = "ClientId";
@@ -37,9 +39,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// <param name="logger">The logger.</param>
         public AttributeToConfigConverter(MqttTriggerAttribute source, INameResolver nameResolver, ILogger logger)
         {
+            var connectionStringKey = nameResolver.Resolve(source.ConnectionString) ?? nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
             _connectionString = new DbConnectionStringBuilder()
             {
-                ConnectionString = nameResolver.Resolve(source.ConnectionString)
+                ConnectionString = connectionStringKey
             };
 
             _mqttTriggerAttribute = source;

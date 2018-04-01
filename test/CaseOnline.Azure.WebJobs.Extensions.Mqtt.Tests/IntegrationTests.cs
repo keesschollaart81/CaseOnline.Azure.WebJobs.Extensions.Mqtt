@@ -51,7 +51,33 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             public static int CallCount = 0;
             public static PublishedMqttMessage LastReceivedMessage;
 
-            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnection")] PublishedMqttMessage publishedMqttMessage)
+            public static void Testert([MqttTrigger("test/topic")] PublishedMqttMessage publishedMqttMessage)
+            {
+                CallCount++;
+                LastReceivedMessage = publishedMqttMessage;
+            }
+        }
+
+        [Fact]
+        public async Task CustomConnectionStringIsReceived()
+        {
+            using (var mqttServer = await MqttServerHelper.Get(_logger))
+            using (var jobHost = await JobHostHelper.RunFor<CustomConnectionStringTestFunction>(_loggerFactory))
+            {
+                await mqttServer.PublishAsync(DefaultMessage);
+
+                await jobHost.WaitFor(() => CustomConnectionStringTestFunction.CallCount >= 1);
+            }
+
+            Assert.Equal(1, CustomConnectionStringTestFunction.CallCount);
+        }
+
+        private class CustomConnectionStringTestFunction
+        {
+            public static int CallCount = 0;
+            public static PublishedMqttMessage LastReceivedMessage;
+
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "CustomMqttConnection")] PublishedMqttMessage publishedMqttMessage)
             {
                 CallCount++;
                 LastReceivedMessage = publishedMqttMessage;
