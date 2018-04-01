@@ -3,21 +3,10 @@
   <RunConfiguration>
     <MaxCpuCount>1</MaxCpuCount> 
     <ResultsDirectory>.\TestResults</ResultsDirectory>
-
-    <!-- [x86] | x64    
-      - You can also change it from menu Test, Test Settings, Default Processor Architecture -->
-    <TargetPlatform>x86</TargetPlatform>
-
-    <!-- Framework35 | [Framework40] | Framework45 -->
     <startup>
       <supportedRuntime version="v2.0.50727"/>
     </startup>
-
-
-    <!-- Path to Test Adapters -->
-    <TestAdaptersPaths>%SystemDrive%\Temp\foo;%SystemDrive%\Temp\bar</TestAdaptersPaths>
   </RunConfiguration>
-
   <DataCollectionRunSettings>
     <DataCollectors>
       <DataCollector friendlyName="Code Coverage" uri="datacollector://Microsoft/CodeCoverage/2.0" assemblyQualifiedName="Microsoft.VisualStudio.Coverage.DynamicCoverageDataCollector, Microsoft.VisualStudio.TraceCollector, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
