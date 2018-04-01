@@ -9,7 +9,8 @@
     <RepositoryUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/blob/master/LICENSE</PackageLicenseUrl>
-    <Version>0.0.1-beta$(VersionSuffix)</Version>
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <VersionSuffix>beta</VersionSuffix>
     <PackageTags>azure functions mqtt webjobs trigger binding function webjob</PackageTags>
     <AssemblyName>CaseOnline.Azure.WebJobs.Extensions.Mqtt</AssemblyName>
     <RootNamespace>CaseOnline.Azure.WebJobs.Extensions.Mqtt</RootNamespace>
@@ -22,10 +23,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>Full</DebugType>
     <NoWarn>1701;1702;1705;1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <BuildNumber Condition=" '$(BuildNumber)' == '' ">0</BuildNumber>
-    <VersionSuffix>.$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" Link="stylecop.json" />
