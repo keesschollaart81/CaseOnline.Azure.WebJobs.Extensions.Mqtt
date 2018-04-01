@@ -29,7 +29,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private readonly MqttTriggerAttribute _mqttTriggerAttribute;
         private readonly INameResolver _nameResolver;
         private readonly ILogger _logger;
-        private readonly DbConnectionStringBuilder _connectionString;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AttributeToConfigConverter"/> class.
@@ -39,12 +38,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// <param name="logger">The logger.</param>
         public AttributeToConfigConverter(MqttTriggerAttribute source, INameResolver nameResolver, ILogger logger)
         {
-            var connectionStringKey = nameResolver.Resolve(source.ConnectionString) ?? nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
-            _connectionString = new DbConnectionStringBuilder()
-            {
-                ConnectionString = connectionStringKey
-            };
-
             _mqttTriggerAttribute = source;
             _nameResolver = nameResolver;
             _logger = logger;
@@ -65,8 +58,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         private MqttConfiguration GetConfigurationViaAttributeValues()
         {
+            var connectionStringKey = _nameResolver.Resolve(_mqttTriggerAttribute.ConnectionString) ?? _nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
+            var connectionString = new DbConnectionStringBuilder()
+            {
+                ConnectionString = connectionStringKey
+            };
+
             var port = DetaultMqttPort;
-            var connectionStringHasPort = _connectionString.TryGetValue(ConnectionStringForPort, out var portAsString);
+            var connectionStringHasPort = connectionString.TryGetValue(ConnectionStringForPort, out var portAsString);
             if (connectionStringHasPort && !string.IsNullOrEmpty(portAsString as string))
             {
                 var canParsePortFromConnectionString = int.TryParse(portAsString as string, out port);
@@ -76,19 +75,19 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 }
             }
 
-            var clientId = _connectionString.TryGetValue(ConnectionStringForClientId, out var clientIdValue) && !string.IsNullOrEmpty(clientIdValue as string)
+            var clientId = connectionString.TryGetValue(ConnectionStringForClientId, out var clientIdValue) && !string.IsNullOrEmpty(clientIdValue as string)
                 ? clientIdValue.ToString()
                 : Guid.NewGuid().ToString();
 
-            var server = _connectionString.TryGetValue(ConnectionStringForServer, out var serverValue)
+            var server = connectionString.TryGetValue(ConnectionStringForServer, out var serverValue)
                 ? serverValue.ToString()
                 : throw new Exception("No server hostname configured, please set the server via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json"); ;
 
-            var username = _connectionString.TryGetValue(ConnectionStringForUsername, out var userNameValue)
+            var username = connectionString.TryGetValue(ConnectionStringForUsername, out var userNameValue)
                 ? userNameValue.ToString()
                 : null;
 
-            var password = _connectionString.TryGetValue(ConnectionStringForPassword, out var passwordValue)
+            var password = connectionString.TryGetValue(ConnectionStringForPassword, out var passwordValue)
                 ? passwordValue.ToString()
                 : null;
 

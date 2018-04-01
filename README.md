@@ -16,6 +16,7 @@ This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mq
     - Password (optional)
     - Port (optional, defaults to 1883)
     - ClientId (optional, defaults to a random Guid)
+	
 	For example:
 
 	```
@@ -26,7 +27,7 @@ This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mq
 	}
 	```
 
-- When deploying/running on Azure set/ad the application-setting ```FUNCTIONS_EXTENSION_VERSION``` to ```beta```
+- When deploying/running on Azure, make sure the application-setting ```FUNCTIONS_EXTENSION_VERSION``` to ```beta```. 
 - Add a ```MqttTrigger``` attribute to your function parameters:
 
     ```
