@@ -1,16 +1,4 @@
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
-using Microsoft.Extensions.Logging;
-using Moq;
-using MQTTnet;
-using MQTTnet.ManagedClient;
-using MQTTnet.Protocol;
 using Xunit;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
-using System.Linq;
-using System;
-using Microsoft.Azure.WebJobs;
-using System.Collections.Generic;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Util.Helpers;
 using System.Text;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests

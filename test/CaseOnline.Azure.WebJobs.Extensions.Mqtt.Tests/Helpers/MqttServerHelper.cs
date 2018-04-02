@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
+using MQTTnet.Adapter;
+using MQTTnet.Client;
+using MQTTnet.Implementations;
 using MQTTnet.Server;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
@@ -21,6 +25,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
             return await Get(logger, defaultOptions);
         }
+
         public static async Task<MqttServerHelper> Get(ILogger logger, IMqttServerOptions options)
         {
             var serverHelper = new MqttServerHelper(logger, options);
@@ -36,12 +41,20 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         private async Task StartMqttServer()
         {
-            _mqttServer = new MqttFactory().CreateMqttServer();
+            MqttTcpChannel.CustomCertificateValidationCallback = remoteValidation;
+            var logger = new MqttLogger(_logger);
+            _mqttServer = new MqttFactory().CreateMqttServer(new List<IMqttServerAdapter> { new MqttServerAdapter(logger) }, logger);
             _mqttServer.Started += Started;
             _mqttServer.ClientConnected += ClientConnected;
             _mqttServer.ClientDisconnected += ClientDisconnected;
 
             await _mqttServer.StartAsync(_options);
+        }
+
+        private bool remoteValidation(X509Certificate certificate, X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors, MqttClientTcpOptions options)
+        {
+            _logger.LogDebug($"RemoteValidation: {sslPolicyErrors}");
+            return true;
         }
 
         private void ClientDisconnected(object sender, MQTTnet.Server.MqttClientDisconnectedEventArgs e)

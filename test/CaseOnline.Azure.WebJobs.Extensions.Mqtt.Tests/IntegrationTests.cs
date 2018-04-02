@@ -1,4 +1,4 @@
-using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
@@ -160,6 +160,40 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 LastReceivedMessage = publishedMqttMessage;
             }
         }
-    }
 
+        [Fact]
+        public async Task WhenTlsIsSetToTrueASecureConnectionIsMade()
+        {
+            var serializedServerCertificate = new X509Certificate(@".\Certificates\myRootCA.pfx", "12345", X509KeyStorageFlags.Exportable)
+                .Export(X509ContentType.Pfx);
+
+            var options = new MqttServerOptionsBuilder()
+               .WithEncryptedEndpoint()
+               .WithEncryptionCertificate(serializedServerCertificate)
+               .WithoutDefaultEndpoint()
+               .Build();
+
+            using (var mqttServer = await MqttServerHelper.Get(_logger, options))
+            using (var jobHost = await JobHostHelper.RunFor<FunctionConnectingWithTlsEnabledTestFunction>(_loggerFactory))
+            {
+                await mqttServer.PublishAsync(DefaultMessage);
+
+                await jobHost.WaitFor(() => FunctionConnectingWithTlsEnabledTestFunction.CallCount >= 1);
+            }
+
+            Assert.Equal(1, FunctionConnectingWithTlsEnabledTestFunction.CallCount);
+        }
+
+        private class FunctionConnectingWithTlsEnabledTestFunction
+        {
+            public static int CallCount = 0;
+            public static PublishedMqttMessage LastReceivedMessage;
+
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithTls")] PublishedMqttMessage publishedMqttMessage)
+            {
+                CallCount++;
+                LastReceivedMessage = publishedMqttMessage;
+            }
+        }
+    }
 }

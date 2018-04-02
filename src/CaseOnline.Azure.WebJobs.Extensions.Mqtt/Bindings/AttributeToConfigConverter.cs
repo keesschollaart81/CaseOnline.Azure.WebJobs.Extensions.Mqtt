@@ -19,11 +19,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private const string DefaultAppsettingsKeyForConnectionString = "MqttConnection";
 
         private const int DetaultMqttPort = 1883;
+        private const int DetaultMqttPortWithTls = 8883;
+        private const bool DefaultTls = false;
         private const string ConnectionStringForPort = "Port";
         private const string ConnectionStringForClientId = "ClientId";
         private const string ConnectionStringForServer = "Server";
         private const string ConnectionStringForUsername = "Username";
         private const string ConnectionStringForPassword = "Password";
+        private const string ConnectionStringForTls = "Tls";
 
         private readonly TimeSpan _detaultReconnectTime = TimeSpan.FromSeconds(5);
         private readonly MqttTriggerAttribute _mqttTriggerAttribute;
@@ -64,7 +67,18 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 ConnectionString = connectionStringKey
             };
 
-            var port = DetaultMqttPort;
+            var tls = DefaultTls;
+            var connectionStringHasTls = connectionString.TryGetValue(ConnectionStringForTls, out var tlsAsString);
+            if (connectionStringHasTls && !string.IsNullOrEmpty(tlsAsString as string))
+            {
+                var canParseTlsFromConnectionString = bool.TryParse(tlsAsString as string, out tls);
+                if (!canParseTlsFromConnectionString)
+                {
+                    throw new FormatException("Tls has an invalid value");
+                }
+            }
+
+            var port = tls ? DetaultMqttPortWithTls : DetaultMqttPort;
             var connectionStringHasPort = connectionString.TryGetValue(ConnectionStringForPort, out var portAsString);
             if (connectionStringHasPort && !string.IsNullOrEmpty(portAsString as string))
             {
@@ -81,7 +95,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             var server = connectionString.TryGetValue(ConnectionStringForServer, out var serverValue)
                 ? serverValue.ToString()
-                : throw new Exception("No server hostname configured, please set the server via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json"); ;
+                : throw new Exception("No server hostname configured, please set the server via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json"); 
 
             var username = connectionString.TryGetValue(ConnectionStringForUsername, out var userNameValue)
                 ? userNameValue.ToString()
@@ -91,7 +105,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 ? passwordValue.ToString()
                 : null;
 
-            var mqttClientOptions = GetMqttClientOptions(clientId, server, port, username, password);
+            var mqttClientOptions = GetMqttClientOptions(clientId, server, port, username, password, tls);
 
             var managedMqttClientOptions = new ManagedMqttClientOptionsBuilder()
                .WithAutoReconnectDelay(_detaultReconnectTime)
@@ -103,7 +117,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             return new MqttConfiguration(managedMqttClientOptions, topics);
         }
 
-        private IMqttClientOptions GetMqttClientOptions(string clientId, string server, int port, string username, string password)
+        private IMqttClientOptions GetMqttClientOptions(string clientId, string server, int port, string username, string password, bool tls)
         {
             var mqttClientOptionsBuilder = new MqttClientOptionsBuilder()
                            .WithClientId(clientId)
@@ -113,6 +127,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             {
                 _logger.LogTrace($"Using authentication, username: '{username}'");
                 mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithCredentials(username, password);
+            }
+
+            if (tls)
+            {
+                //todo
+                mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithTls(true, false, false);
             }
 
             return mqttClientOptionsBuilder.Build();

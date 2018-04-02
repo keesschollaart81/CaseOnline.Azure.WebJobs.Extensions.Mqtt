@@ -3,9 +3,6 @@ using Microsoft.Azure.WebJobs;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt;
-using Newtonsoft.Json;
-using ExampleFunction.AdvancedConfig;
-using System.Globalization;
 
 namespace ExampleFunctions
 {
@@ -13,19 +10,12 @@ namespace ExampleFunctions
     {
         [FunctionName("SimpleFunction")]
         public static void SimpleFunction(
-            [MqttTrigger("owntracks/kees/kees01", "owntracks/marleen/marleen01", ConnectionString = "MqttConnection")] PublishedMqttMessage message,
-            ILogger log,
-            [Table("Locations", Connection = "StorageConnectionAppSetting")] out Trail trail)
+            [MqttTrigger("devices/testdevice/#")] PublishedMqttMessage message,
+            ILogger logger)
         {
-            var body = Encoding.UTF8.GetString(message.GetMessage());
-
-            log.LogInformation($"Simple: message from topic {message.Topic} body: {body}");
-
-            trail = JsonConvert.DeserializeObject<Trail>(body);
-            trail.PartitionKey = message.Topic.Replace("/", "_");
-            trail.RowKey = DateTime.Now.Ticks.ToString(CultureInfo.CurrentCulture);
-            trail.QosLevel = message.QosLevel;
-            trail.Retain = message.Retain;
+            var body = message.GetMessage();
+            var bodyString = Encoding.UTF8.GetString(body);
+            logger.LogInformation($"{DateTime.Now:g} Message for topic {message.Topic}: {bodyString}");
         }
 
         [FunctionName("AdvancedFunction")]
@@ -35,7 +25,7 @@ namespace ExampleFunctions
         {
             var body = Encoding.UTF8.GetString(message.GetMessage());
 
-            log.LogInformation($"Advanced: message from topic {message.Topic} body: {body}"); 
+            log.LogInformation($"Advanced: message from topic {message.Topic} body: {body}");
         }
     }
 }

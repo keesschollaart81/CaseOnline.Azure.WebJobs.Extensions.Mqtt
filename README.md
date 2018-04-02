@@ -12,10 +12,11 @@ This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mq
 - Add the connectionstring to your Mqtt server to your 'local.settings.json' during development time or to your appsettings when running on Azure. 
 	The default name/key for the connectionstring is 'MqttConnection' and the availble parts are:
     - Server (just the dns/hostname)
-    - Username (optional)
-    - Password (optional)
-    - Port (optional, defaults to 1883)
-    - ClientId (optional, defaults to a random Guid)
+    - Username (string, optional)
+    - Password (string, optional)
+    - Port (integer, optional, defaults to 1883 or 8883 when tls=true)
+    - Tls (boolean, optional, defaults to false)
+    - ClientId (string, optional, defaults to a random Guid)
 	
 	For example:
 
