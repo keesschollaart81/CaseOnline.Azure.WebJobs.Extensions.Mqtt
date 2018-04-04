@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers.Logging;
 using Microsoft.Extensions.Logging;

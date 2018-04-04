@@ -1,5 +1,6 @@
 using Xunit;
 using System.Text;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 {

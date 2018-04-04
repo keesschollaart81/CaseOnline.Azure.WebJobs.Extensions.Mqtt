@@ -1,4 +1,4 @@
-﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging
 {
     public enum MqttQualityOfServiceLevel
     {

@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt;
 using ExampleFunction.AdvancedConfig;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 
 namespace ExampleFunctions
 {
