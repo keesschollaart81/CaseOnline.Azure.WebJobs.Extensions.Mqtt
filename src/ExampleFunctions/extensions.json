@@ -1,9 +1,0 @@
-﻿/* 
-for as long as Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator does not work properly
-https://github.com/Azure/Azure-Functions/issues/624
-*/
-{
-  "extensions":[
-    { "name": "MqttExtensionConfigProvider", "typeName":"CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config.MqttExtensionConfigProvider, CaseOnline.Azure.WebJobs.Extensions.Mqtt, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"}
-  ]
-}

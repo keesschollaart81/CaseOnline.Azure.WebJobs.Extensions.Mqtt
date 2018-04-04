@@ -6,6 +6,7 @@ using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using MQTTnet.Client;
 using MQTTnet;
 using MQTTnet.Protocol;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
 
 namespace ExampleFunction.AdvancedConfig
 {
@@ -13,17 +14,19 @@ namespace ExampleFunction.AdvancedConfig
     {
         public MqttConfig Create(INameResolver nameResolver, ILogger logger)
         {
+            var connectionString = new MqttConnectionString(nameResolver.Resolve("MqttConnection"));
+
             var options = new ManagedMqttClientOptionsBuilder()
                    .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
                    .WithClientOptions(new MqttClientOptionsBuilder()
                         .WithClientId(Guid.NewGuid().ToString())
-                        .WithTcpServer(nameResolver.Resolve("MqttServer"), 1883)
-                        .WithCredentials(nameResolver.Resolve("MqttUsername"), nameResolver.Resolve("MqttPassword"))
+                        .WithTcpServer(nameResolver.Resolve(connectionString.Server), 1883)
+                        .WithCredentials(nameResolver.Resolve(connectionString.Username), nameResolver.Resolve(connectionString.Password))
                         .Build())
                    .Build();
 
             var topics = new TopicFilter[]{
-                new TopicFilter("owntracks/kees/kees01", MqttQualityOfServiceLevel.ExactlyOnce)
+                new TopicFilter("my/test/topic/#", MqttQualityOfServiceLevel.ExactlyOnce)
             };
 
             return new MqttConfigExample(options, topics);

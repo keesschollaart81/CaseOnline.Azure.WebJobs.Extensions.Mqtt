@@ -14,9 +14,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         public ILogger Logger { get; }
 
+#pragma warning disable 67
         public event EventHandler<MqttNetLogMessagePublishedEventArgs> LogMessagePublished;
+#pragma warning restore 67
 
-         private void MqttLogger_LogMessagePublished(object sender, MqttNetLogMessagePublishedEventArgs e)
+        private void MqttLogger_LogMessagePublished(object sender, MqttNetLogMessagePublishedEventArgs e)
         {
             Logger.LogTrace($"{e.TraceMessage.Level}:{e.TraceMessage.Message}");
         }

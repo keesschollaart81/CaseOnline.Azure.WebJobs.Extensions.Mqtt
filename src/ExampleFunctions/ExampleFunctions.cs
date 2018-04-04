@@ -11,7 +11,7 @@ namespace ExampleFunctions
     {
         [FunctionName("SimpleFunction")]
         public static void SimpleFunction(
-            [MqttTrigger("devices/testdevice/#")] PublishedMqttMessage message,
+            [MqttTrigger("test/topic/#")] PublishedMqttMessage message,
             ILogger logger)
         {
             var body = message.GetMessage();

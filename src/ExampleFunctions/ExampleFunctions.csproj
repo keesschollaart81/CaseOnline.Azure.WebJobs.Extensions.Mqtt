@@ -3,14 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AzureFunctionsVersion>v2</AzureFunctionsVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0</DefineConstants>
-    <NoWarn>1701;1702;1705;NU1701</NoWarn>
-  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.12" />
     <PackageReference Include="MQTTnet" Version="2.7.1" /> 
   </ItemGroup> 
@@ -18,9 +11,6 @@
     <ProjectReference Include="..\CaseOnline.Azure.WebJobs.Extensions.Mqtt\CaseOnline.Azure.WebJobs.Extensions.Mqtt.csproj" />
   </ItemGroup> 
   <ItemGroup>
-    <None Update="extensions.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

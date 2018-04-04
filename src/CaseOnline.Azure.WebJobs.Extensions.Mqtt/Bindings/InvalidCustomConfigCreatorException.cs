@@ -7,7 +7,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     /// </summary>
     public class InvalidCustomConfigCreatorException : Exception
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidCustomConfigCreatorException"/> class.
         /// </summary>

@@ -11,7 +11,6 @@ using MQTTnet.Protocol;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
-
     /// <summary>
     /// Converts a <see cref="MqttTriggerAttribute"/> to a <see cref="MqttConfiguration"/>.
     /// </summary>

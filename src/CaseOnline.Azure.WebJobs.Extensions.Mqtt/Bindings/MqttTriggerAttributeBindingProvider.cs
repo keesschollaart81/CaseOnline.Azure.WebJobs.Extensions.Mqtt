@@ -50,7 +50,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             return Task.FromResult<ITriggerBinding>(mqttTriggerBinding);
         }
 
-        private MqttTriggerAttribute GetMqttTriggerAttribute(ParameterInfo parameter)
+        private static MqttTriggerAttribute GetMqttTriggerAttribute(ParameterInfo parameter)
         {
             var mqttTriggerAttribute = parameter.GetCustomAttribute<MqttTriggerAttribute>(inherit: false);
 
