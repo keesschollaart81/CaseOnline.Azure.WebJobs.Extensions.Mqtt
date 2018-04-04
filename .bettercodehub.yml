@@ -2,5 +2,4 @@ component_depth: 2
 languages:
 - csharp
 exclude:
-- /src/ExampleFunctions/.*
 - /.vscode/.*
