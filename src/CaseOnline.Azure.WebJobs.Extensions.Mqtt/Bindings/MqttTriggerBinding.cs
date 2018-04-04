@@ -42,7 +42,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// <summary>
         /// Gets the trigger value type.
         /// </summary>
-        public Type TriggerValueType => typeof(PublishedMqttMessage);
+        public Type TriggerValueType => typeof(IMqttMessage);
 
         /// <summary>
         /// Gets the binding data contract.
@@ -99,7 +99,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 _value = value;
             }
 
-            public Type Type => typeof(PublishedMqttMessage);
+            public Type Type => typeof(IMqttMessage);
 
             public Task<object> GetValueAsync()
             {

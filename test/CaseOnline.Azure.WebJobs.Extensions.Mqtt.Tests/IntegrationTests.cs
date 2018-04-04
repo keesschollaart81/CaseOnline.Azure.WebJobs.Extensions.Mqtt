@@ -49,12 +49,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         private class SimpleMessageIsReceivedTestFunction
         {
             public static int CallCount = 0;
-            public static PublishedMqttMessage LastReceivedMessage;
+            public static IMqttMessage LastReceivedMessage;
 
-            public static void Testert([MqttTrigger("test/topic")] PublishedMqttMessage publishedMqttMessage)
+            public static void Testert([MqttTrigger("test/topic")] IMqttMessage mqttMessage)
             {
                 CallCount++;
-                LastReceivedMessage = publishedMqttMessage;
+                LastReceivedMessage = mqttMessage;
             }
         }
 
@@ -84,12 +84,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         private class CustomConnectionStringWithClientIdTestFunction
         {
             public static int CallCount = 0;
-            public static PublishedMqttMessage LastReceivedMessage;
+            public static IMqttMessage LastReceivedMessage;
 
-            public static void Testert([MqttTrigger("test/topic", ConnectionString = "CustomMqttConnection")] PublishedMqttMessage publishedMqttMessage)
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "CustomMqttConnection")] IMqttMessage mqttMessage)
             {
                 CallCount++;
-                LastReceivedMessage = publishedMqttMessage;
+                LastReceivedMessage = mqttMessage;
             }
         }
 
@@ -125,7 +125,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         {
             public static int CallCount = 0;
 
-            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithUsernameAndPassword")] PublishedMqttMessage publishedMqttMessage)
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithUsernameAndPassword")] IMqttMessage mqttMessage)
             {
                 CallCount++;
             }
@@ -152,12 +152,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         private class SimpleMessageAnotherPortTestFunction
         {
             public static int CallCount = 0;
-            public static PublishedMqttMessage LastReceivedMessage;
+            public static IMqttMessage LastReceivedMessage;
 
-            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithCustomPort")] PublishedMqttMessage publishedMqttMessage)
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithCustomPort")] IMqttMessage mqttMessage)
             {
                 CallCount++;
-                LastReceivedMessage = publishedMqttMessage;
+                LastReceivedMessage = mqttMessage;
             }
         }
 
@@ -187,12 +187,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         private class FunctionConnectingWithTlsEnabledTestFunction
         {
             public static int CallCount = 0;
-            public static PublishedMqttMessage LastReceivedMessage;
+            public static IMqttMessage LastReceivedMessage;
 
-            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithTls")] PublishedMqttMessage publishedMqttMessage)
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithTls")] IMqttMessage mqttMessage)
             {
                 CallCount++;
-                LastReceivedMessage = publishedMqttMessage;
+                LastReceivedMessage = mqttMessage;
             }
         }
     }

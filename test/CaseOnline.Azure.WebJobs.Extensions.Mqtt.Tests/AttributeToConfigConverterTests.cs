@@ -108,7 +108,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         {
             public MqttConfig Create(INameResolver nameResolver, ILogger logger)
             {
-                return new TestMqttConfig(new ManagedMqttClientOptions(), new[] { new TopicFilter("Test", MqttQualityOfServiceLevel.AtMostOnce) });
+                return new TestMqttConfig(new ManagedMqttClientOptions(), new[] { new TopicFilter("Test", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce) });
             }
         }
 

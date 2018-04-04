@@ -26,7 +26,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange 
             var mockManagedMqttClient = new Mock<IManagedMqttClient>();
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
-            var mqttConfiguration = new MqttConfiguration(mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MqttQualityOfServiceLevel.AtLeastOnce) });
+            var mqttConfiguration = new MqttConfiguration(mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) });
             var mockMqttClientFactory = new Mock<IMqttClientFactory>();
             var mockTriggeredFunctionExecutor = new Mock<ITriggeredFunctionExecutor>();
 
@@ -59,7 +59,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             var mockManagedMqttClient = new Mock<IManagedMqttClient>();
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
             mockManagedMqttClientOptions.Setup(x => x.ClientOptions.ClientId).Returns(Guid.NewGuid().ToString());
-            var mqttConfiguration = new MqttConfiguration(mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MqttQualityOfServiceLevel.AtLeastOnce) });
+            var mqttConfiguration = new MqttConfiguration(mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) });
             var mockMqttClientFactory = new Mock<IMqttClientFactory>();
             var mockTriggeredFunctionExecutor = new Mock<ITriggeredFunctionExecutor>();
 
@@ -95,7 +95,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange 
             var mockManagedMqttClient = new Mock<IManagedMqttClient>();
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
-            var mqttConfiguration = new MqttConfiguration(mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MqttQualityOfServiceLevel.AtLeastOnce) });
+            var mqttConfiguration = new MqttConfiguration(mockManagedMqttClientOptions.Object, new[] { new TopicFilter("test/topic", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) });
             var mockMqttClientFactory = new Mock<IMqttClientFactory>();
             var mockTriggeredFunctionExecutor = new Mock<ITriggeredFunctionExecutor>();
             

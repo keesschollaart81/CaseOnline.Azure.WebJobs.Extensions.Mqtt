@@ -151,10 +151,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         {
             var token = _cancellationTokenSource.Token;
 
-            var mqttInfo = new PublishedMqttMessage(
+            var qos = (MqttQualityOfServiceLevel)Enum.Parse(typeof(MqttQualityOfServiceLevel), mqttApplicationMessageReceivedEventArgs.ApplicationMessage.QualityOfServiceLevel.ToString());
+
+            var mqttInfo = new MqttMessage(
                 mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Topic,
                 mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Payload,
-                mqttApplicationMessageReceivedEventArgs.ApplicationMessage.QualityOfServiceLevel.ToString(),
+                qos,
                 mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Retain);
 
             var triggeredFunctionData = new TriggeredFunctionData

@@ -61,7 +61,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                .WithClientOptions(mqttClientOptions)
                .Build();
 
-            var topics = _mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MqttQualityOfServiceLevel.AtLeastOnce));
+            var topics = _mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce));
 
             return new MqttConfiguration(managedMqttClientOptions, topics);
         }

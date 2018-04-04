@@ -1,23 +1,16 @@
 ﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
 {
     /// <summary>
-    /// A published MQTT message.
+    /// A MQTT message.
     /// </summary>
-    public class PublishedMqttMessage
+    public class MqttMessage : IMqttMessage
     {
         private readonly byte[] _message;
-
+        
         /// <summary>
-        /// Initializes a new instance of the <see cref="PublishedMqttMessage"/> class.
+        /// Initializes a new instance of the <see cref="MqttMessage"/> class.
         /// </summary>
-        public PublishedMqttMessage()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PublishedMqttMessage"/> class.
-        /// </summary>
-        internal PublishedMqttMessage(string topic, byte[] message, string qosLevel, bool retain)
+        public MqttMessage(string topic, byte[] message, MqttQualityOfServiceLevel qosLevel, bool retain)
         {
             Topic = topic;
             _message = message;
@@ -33,7 +26,7 @@
         /// <summary>
         /// Gets the Quality of Service level.
         /// </summary>
-        public string QosLevel { get; }
+        public MqttQualityOfServiceLevel QosLevel { get; }
 
         /// <summary>
         /// Gets a value indicating whether to retain this message.

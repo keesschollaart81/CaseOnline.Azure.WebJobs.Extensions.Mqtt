@@ -11,7 +11,7 @@ namespace ExampleFunctions
     {
         [FunctionName("SimpleFunction")]
         public static void SimpleFunction(
-            [MqttTrigger("test/topic/#")] PublishedMqttMessage message,
+            [MqttTrigger("test/topic/#")] IMqttMessage message,
             ILogger logger)
         {
             var body = message.GetMessage();
@@ -21,7 +21,7 @@ namespace ExampleFunctions
 
         [FunctionName("AdvancedFunction")]
         public static void AdvancedFunction(
-            [MqttTrigger(typeof(ExampleMqttConfigProvider))]PublishedMqttMessage message,
+            [MqttTrigger(typeof(ExampleMqttConfigProvider))]IMqttMessage message,
             ILogger log)
         {
             var body = Encoding.UTF8.GetString(message.GetMessage());

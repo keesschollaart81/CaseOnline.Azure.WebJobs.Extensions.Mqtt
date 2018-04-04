@@ -59,7 +59,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 return null;
             }
 
-            if (parameter.ParameterType != typeof(PublishedMqttMessage))
+            if (parameter.ParameterType != typeof(IMqttMessage))
             {
                 throw new InvalidOperationException($"Can't bind MqttTriggerAttribute to type '{parameter.ParameterType}'.");
             }

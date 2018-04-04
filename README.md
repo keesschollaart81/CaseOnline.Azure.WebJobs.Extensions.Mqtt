@@ -3,7 +3,7 @@
 [![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)](https://bettercodehub.com/)
 [![NuGet](https://img.shields.io/nuget/v/CaseOnline.Azure.WebJobs.Extensions.Mqtt.svg)](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/)
 
-This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mqtt NuGet Package. This package enables you to trigger an Azure Function based on a MQTT Subscription. By binding a MqttTrigger attribute as an input parameter for your function, you'll receive messages of type PublishedMqttMessage. Internally this is wired up using [MQTTnet](https://github.com/chkr1011/MQTTnet).
+This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mqtt NuGet Package. This package enables you to trigger an Azure Function based on a MQTT Subscription. By binding a MqttTrigger attribute as an input parameter for your function, you'll receive messages of type MqttMessage. Internally this is wired up using [MQTTnet](https://github.com/chkr1011/MQTTnet).
 
 ## How to use
 - Create an Azure Function using [Visual Studio](https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs) or using [Visual Studio Code](https://code.visualstudio.com/tutorials/functions-extension/getting-started)
@@ -32,7 +32,7 @@ This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mq
 - Add a ```MqttTrigger``` attribute to your function parameters:
 
     ```
-    public static void MyFunction([MqttTrigger(new[] { "my/mqtt/topic" })]PublishedMqttMessage message) 
+    public static void MyFunction([MqttTrigger(new[] { "my/mqtt/topic" })]IMqttMessage message) 
     ```
 
 - Deploy / Run your function. Azure function will subscripe to the Mqtt server/topic(s) and trigger your function when messages get published
@@ -57,7 +57,7 @@ Internally the [MQTTnet](https://github.com/chkr1011/MQTTnet) is used for the Mq
 To do this, implemented a custom ```ICreateMqttConfig``` and provide this Type as parameter to the ```MqttTrigger``` like this:
     
 ```
-public static void MyFunction([MqttTrigger(typeof(MyMqttConfigProvider))]PublishedMqttMessage message)
+public static void MyFunction([MqttTrigger(typeof(MyMqttConfigProvider))]IqttMessage message)
 ```
      
 In your implementation of ```ICreateMqttConfig``` you need to return an instance of abstract class ```MqttConfig``` which requires you to implement a property of type ```IManagedMqttClientOptions```. Examples on how to build an instance of ```IManagedMqttClientOptions``` are available in the  [ManagedClient wiki of MQTTnet](https://github.com/chkr1011/MQTTnet/wiki/Client).
