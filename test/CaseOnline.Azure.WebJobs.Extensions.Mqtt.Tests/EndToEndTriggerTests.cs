@@ -12,7 +12,7 @@ using Xunit;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 {
-    public class IntegrationTests
+    public class EndToEndTriggerTests
     {
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
@@ -23,11 +23,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                     .WithAtLeastOnceQoS()
                     .Build();
 
-        public IntegrationTests()
+        public EndToEndTriggerTests()
         {
             _loggerFactory = new LoggerFactory();
             _loggerFactory.AddProvider(new TestLoggerProvider());
-            _logger = _loggerFactory.CreateLogger("IntegrationTests");
+            _logger = _loggerFactory.CreateLogger("EndToEndTests");
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             public static int CallCount = 0;
             public static IMqttMessage LastReceivedMessage;
 
-            public static void Testert([MqttTrigger("test/topic", ConnectionString = "CustomMqttConnection")] IMqttMessage mqttMessage)
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithCustomClientId")] IMqttMessage mqttMessage)
             {
                 CallCount++;
                 LastReceivedMessage = mqttMessage;

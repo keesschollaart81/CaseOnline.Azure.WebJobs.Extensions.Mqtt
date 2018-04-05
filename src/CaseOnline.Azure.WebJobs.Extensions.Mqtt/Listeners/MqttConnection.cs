@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host.Executors;
-using Microsoft.Azure.WebJobs.Host.Listeners;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client;
@@ -14,6 +9,9 @@ using MQTTnet.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
+    /// <summary>
+    /// Manages the state of the MQTT connection, an wrapper around MQTTNet.IManagedMqttClient 
+    /// </summary>
     public class MqttConnection : IDisposable, IMqttConnection
     {
         private IMqttClientFactory _mqttClientFactory;
@@ -43,6 +41,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             return $"Connection for config: {_config.ToString()}, connected: {Connected}";
         }
 
+        /// <summary>
+        /// Opens the MQTT connection
+        /// </summary>
         public async Task StartAsync()
         {
             if (_managedMqttClient != null)
@@ -54,6 +55,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             {
                 _managedMqttClient = _mqttClientFactory.CreateManagedMqttClient();
                 _managedMqttClient.ApplicationMessageReceived += ManagedMqttClientApplicationMessageReceived;
+                _managedMqttClient.ApplicationMessageProcessed += ManagedMqttClientApplicationMessageProcessed;
                 _managedMqttClient.Connected += ManagedMqttClientConnected;
                 _managedMqttClient.Disconnected += ManagedMqttClientDisconnected;
 
@@ -61,8 +63,16 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             }
             catch (Exception e)
             {
-                _logger.LogCritical("Unhandled exception while settingup the mqttclient to {descriptor}", e);
-                throw new MqttListenerInitializationException("Unhandled exception while connectin to {descriptor}", e);
+                _logger.LogCritical($"Exception while setting up the mqttclient to {this}", e);
+                throw new MqttConnectionException($"Exception while setting up the mqttclient to {this}", e);
+            }
+        }
+
+        private void ManagedMqttClientApplicationMessageProcessed(object sender, ApplicationMessageProcessedEventArgs e)
+        {
+            if (e.HasFailed)
+            {
+                _logger.LogError($"Message could not be processed for {this}, message: {e.Exception?.Message}", e.Exception);
             }
         }
 
@@ -81,64 +91,67 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private void ManagedMqttClientApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs mqttApplicationMessageReceivedEventArgs)
         {
             _logger.LogDebug($"MqttListener receiving message for {this}");
+            try
+            {
+                var qos = (MqttQualityOfServiceLevel)Enum.Parse(typeof(MqttQualityOfServiceLevel), mqttApplicationMessageReceivedEventArgs.ApplicationMessage.QualityOfServiceLevel.ToString());
 
-            var qos = (MqttQualityOfServiceLevel)Enum.Parse(typeof(MqttQualityOfServiceLevel), mqttApplicationMessageReceivedEventArgs.ApplicationMessage.QualityOfServiceLevel.ToString());
+                var mqttMessage = new MqttMessage(
+                    mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Topic,
+                    mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Payload,
+                    qos,
+                    mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Retain);
 
-            var mqttMessage = new MqttMessage(
-                mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Topic,
-                mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Payload,
-                qos,
-                mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Retain);
+                OnMessageEventHandler(new MqttMessageReceivedEventArgs(mqttMessage)).Wait();
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical($"Exception while processing message for {this}", e);
+                throw new MqttConnectionException($"Exception while processing message for {this}", e);
+            }
+        }
 
-            OnMessageEventHandler(new MqttMessageReceivedEventArgs(mqttMessage)).Wait();
-        } 
-
+        /// <summary>
+        /// Subscribe to one or more topics
+        /// </summary>
+        /// <param name="topics">The topics to subscribe to</param>
         public async Task SubscribeAsync(TopicFilter[] topics)
         {
-            try
-            {
-                await _managedMqttClient.SubscribeAsync(topics).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical("Unhandled exception while settingup the mqttclient to {descriptor}", e);
-                throw new MqttListenerInitializationException("Unhandled exception while connectin to {descriptor}", e);
-            }
+            await _managedMqttClient.SubscribeAsync(topics).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Unsubscribe to one or more topics
+        /// </summary>
+        /// <param name="topics">The topics to unsubscribe from</param>
         public async Task UnubscribeAsync(string[] topics)
         {
-            try
-            {
-                await _managedMqttClient.UnsubscribeAsync(topics).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical("Unhandled exception while settingup the mqttclient to {descriptor}", e);
-                throw new MqttListenerInitializationException("Unhandled exception while connectin to {descriptor}", e);
-            }
+            await _managedMqttClient.UnsubscribeAsync(topics).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Publish a message on to the MQTT broker
+        /// </summary>
+        /// <param name="message">The message to publish</param>
         public async Task PublishAsync(MqttApplicationMessage message)
         {
-            try
-            {
-                await _managedMqttClient.PublishAsync(message).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical("Unhandled exception while settingup the mqttclient to {descriptor}", e);
-                throw new MqttListenerInitializationException("Unhandled exception while connectin to {descriptor}", e);
-            }
+            await _managedMqttClient.PublishAsync(message).ConfigureAwait(false);
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        /// <summary>
+        /// Close the MQTT connection
+        /// </summary>
+        public Task StopAsync()
         {
+            if (_managedMqttClient == null)
+            {
+                return Task.CompletedTask;
+            }
+
             _managedMqttClient.StopAsync().Wait();
             _managedMqttClient.Dispose();
             _managedMqttClient = null;
 
-            return Task.FromResult(true);
+            return Task.CompletedTask;
         }
 
         public void Dispose()
@@ -150,6 +163,5 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
                 _managedMqttClient = null;
             }
         }
-
     }
 }

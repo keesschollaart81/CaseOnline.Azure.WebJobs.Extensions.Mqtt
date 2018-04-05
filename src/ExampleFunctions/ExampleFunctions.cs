@@ -13,7 +13,7 @@ namespace ExampleFunctions
         [FunctionName("SimpleFunction")]
         public static void SimpleFunction(
             [MqttTrigger("owntracks/#")] IMqttMessage message,
-            [Mqtt("testtopic/in")] out IMqttMessage outMessage,
+            [Mqtt("testtopic/out")] out IMqttMessage outMessage,
             ILogger logger)
         {
             var body = message.GetMessage();

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
@@ -52,7 +52,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             }
 
             return new JobHostHelper(jobHost);
-        } 
+        }
+
+        public async Task CallAsync(MethodInfo method, object arguments)
+        {
+            await _jobHost.CallAsync(method, arguments);
+        }
+
+        public async Task CallAsync(MethodInfo method)
+        {
+            await _jobHost.CallAsync(method);
+        }
 
         public async Task WaitFor(Func<bool> condition, int seconds = 10)
         {

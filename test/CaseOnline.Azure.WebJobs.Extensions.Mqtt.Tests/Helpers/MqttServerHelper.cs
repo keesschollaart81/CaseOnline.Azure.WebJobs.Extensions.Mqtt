@@ -16,6 +16,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         static IMqttServer _mqttServer;
         private readonly ILogger _logger;
         private readonly IMqttServerOptions _options;
+        public event EventHandler<OnMessageEventArgs> OnMessage;
 
         public static async Task<MqttServerHelper> Get(ILogger logger)
         {
@@ -43,12 +44,18 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         {
             MqttTcpChannel.CustomCertificateValidationCallback = remoteValidation;
             var logger = new MqttLogger(_logger);
-            _mqttServer = new MqttFactory().CreateMqttServer(new List<IMqttServerAdapter> { new MqttServerAdapter(logger) }, logger);
+            var factory = new MqttFactory();
+            _mqttServer = factory.CreateMqttServer(new List<IMqttServerAdapter> { new MqttServerAdapter(logger) }, logger);
             _mqttServer.Started += Started;
             _mqttServer.ClientConnected += ClientConnected;
             _mqttServer.ClientDisconnected += ClientDisconnected;
-
+            
             await _mqttServer.StartAsync(_options);
+        }
+
+        private void ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
+        {
+            OnMessage(this, new OnMessageEventArgs(e.ClientId, e.ApplicationMessage));
         }
 
         private bool remoteValidation(X509Certificate certificate, X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors, MqttClientTcpOptions options)
@@ -80,6 +87,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         public async Task PublishAsync(IEnumerable<MqttApplicationMessage> applicationMessages)
         {
             await _mqttServer.PublishAsync(applicationMessages);
+        }
+
+        public async Task SubscribeAsync(string topic)
+        {
+            await _mqttServer.SubscribeAsync("IntegrationTestClient", new List<TopicFilter>() { new TopicFilter(topic, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) });
         }
     }
 }

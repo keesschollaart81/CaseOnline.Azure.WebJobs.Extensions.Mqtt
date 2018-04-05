@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using MQTTnet;
 
@@ -15,7 +14,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         Task PublishAsync(MqttApplicationMessage message);
 
-        Task StopAsync(CancellationToken cancellationToken);
+        Task StopAsync();
 
         Task SubscribeAsync(TopicFilter[] topics);
 
