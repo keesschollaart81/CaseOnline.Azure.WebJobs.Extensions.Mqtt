@@ -74,6 +74,12 @@ Please find some samples here in the [sample project](./src/ExampleFunctions/). 
 - 1.0.0 Initial release, april 2018
 - 1.5.0 Output binding for publishing MQTT messages, june 2018
 
+## Troubleshooting
+- Make sure you're on the latest Azure Functions Runtime & Tooling
+	https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local
+	v2: https://github.com/Azure/azure-functions-core-tools#versions
+
+
 ## MIT License
 Copyright (c) 2018 Kees Schollaart
 

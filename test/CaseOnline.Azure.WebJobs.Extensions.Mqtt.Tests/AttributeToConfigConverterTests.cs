@@ -1,15 +1,11 @@
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Extensions.Logging;
 using Moq;
-using MQTTnet;
 using MQTTnet.ManagedClient;
-using MQTTnet.Protocol;
 using Xunit;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
-using System.Linq;
 using System;
 using Microsoft.Azure.WebJobs;
-using System.Collections.Generic;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Util.Helpers;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
@@ -34,7 +30,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             var result = attributeToConfigConverter.GetMqttConfiguration();
 
             // Assert  
-            Assert.Equal(mqttTriggerAttribute.Topics, result.Topics.Select(x => x.Topic));
+            //Assert.Equal(mqttTriggerAttribute.Topics, result.Topics.Select(x => x.Topic));
             Assert.Equal("TestClientId", result.Options.ClientOptions.ClientId);
         }
 
@@ -101,27 +97,27 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 
             // Assert
             Assert.NotNull(result);
-            Assert.Contains(result.Topics.Select(x => x.Topic), (x) => x == "Test");
+            //Assert.Contains(result.Topics.Select(x => x.Topic), (x) => x == "Test");
         }
 
         private class TestMqttConfigProvider : ICreateMqttConfig
         {
-            public MqttConfig Create(INameResolver nameResolver, ILogger logger)
+            public CustomMqttConfig Create(INameResolver nameResolver, ILogger logger)
             {
-                return new TestMqttConfig(new ManagedMqttClientOptions(), new[] { new TopicFilter("Test", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce) });
+                return new TestMqttConfig("",new ManagedMqttClientOptions());
             }
         }
 
-        private class TestMqttConfig : MqttConfig
-        {
+        private class TestMqttConfig : CustomMqttConfig
+        { 
             public override IManagedMqttClientOptions Options { get; }
 
-            public override IEnumerable<TopicFilter> Topics { get; }
+            public override string Name { get; }
 
-            public TestMqttConfig(IManagedMqttClientOptions options, IEnumerable<TopicFilter> topics)
+            public TestMqttConfig(string name, IManagedMqttClientOptions options)
             {
-                Options = options;
-                Topics = topics;
+                Name = name;
+                Options = options; 
             }
         }
 
@@ -151,7 +147,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 
         private class BrokenTestMqttConfigProvider : ICreateMqttConfig
         {
-            public MqttConfig Create(INameResolver nameResolver, ILogger logger)
+            public CustomMqttConfig Create(INameResolver nameResolver, ILogger logger)
             {
                 throw new NotImplementedException();
             }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using MQTTnet;
 using MQTTnet.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
@@ -13,22 +11,24 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
         /// <summary>
         /// Initializes a new instance of the <see cref="MqttConfiguration"/> class.
         /// </summary>
+        /// <param name="name"></param>
         /// <param name="options">The managed options.</param>
-        /// <param name="topics">The topic filters.</param>
-        public MqttConfiguration(IManagedMqttClientOptions options, IEnumerable<TopicFilter> topics)
-        { 
+        public MqttConfiguration(string name, IManagedMqttClientOptions options)
+        {
+            Name = name;
             Options = options ?? throw new ArgumentNullException(nameof(options));
-            Topics = topics ?? throw new ArgumentNullException(nameof(topics));
         }
+
+        public string Name { get; }
+
+        public override string ToString()
+        {
+            return $"Name={Name};Client={Options?.ClientOptions?.ClientId}";
+        } 
 
         /// <summary>
         /// Gets the managed options.
         /// </summary>
         public IManagedMqttClientOptions Options { get; }
-
-        /// <summary>
-        /// Gets the topic filters.
-        /// </summary>
-        public IEnumerable<TopicFilter> Topics { get; }
     }
 }

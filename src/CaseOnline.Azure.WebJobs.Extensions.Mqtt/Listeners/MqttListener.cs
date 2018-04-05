@@ -19,150 +19,53 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
     /// </summary>
     [Singleton(Mode = SingletonMode.Listener)]
     public sealed class MqttListener : IListener
-    { 
-        private readonly ITriggeredFunctionExecutor _executor; 
+    {
+        private readonly ITriggeredFunctionExecutor _executor;
         private readonly ILogger _logger;
         private readonly CancellationTokenSource _cancellationTokenSource;
-        private readonly MqttConfiguration _config;
-        private readonly IMqttClientFactory _mqttClientFactory;
+        private readonly IMqttConnection _mqttConnection;
+        private readonly TopicFilter[] _topics;
         private bool _disposed;
-        private IManagedMqttClient _managedMqttClient;
 
         /// <summary>
         /// Inititalizes a new instance of the <see cref="MqttListener"/> class.
         /// </summary>
-        /// <param name="mqttClientFactory">The factory for <see cref="IManagedMqttClient"/>s.</param>
-        /// <param name="config">The MQTT configuration.</param>
+        /// <param name="connection">The connection to listen on</param>
+        /// <param name="topics">The topics to subscribe to</param> 
         /// <param name="executor">Allows the function to be executed.</param>
         /// <param name="logger">The logger.</param>
-        public MqttListener(IMqttClientFactory mqttClientFactory, MqttConfiguration config, ITriggeredFunctionExecutor executor, ILogger logger)
+        public MqttListener(IMqttConnection connection, TopicFilter[] topics, ITriggeredFunctionExecutor executor, ILogger logger)
         {
-            _config = config;
-            _mqttClientFactory = mqttClientFactory;
-            _executor = executor; 
+            _executor = executor;
             _logger = logger;
+            _mqttConnection = connection;
+            _topics = topics;
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the listener is connected to the MQTT queue.
-        /// </summary>
-        public static bool Connected { get; private set; }
-
-        /// <summary>
-        /// Gets the descriptor for this listener.
-        /// </summary>
-        private string Descriptor => $"Client {_config?.Options?.ClientOptions?.ClientId} and topics {string.Join(", ", _config?.Topics?.Select(t => t.Topic))}";
-
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Starting MqttListener for {Descriptor}");
-            ThrowIfDisposed();
-
-            await StartMqtt(cancellationToken).ConfigureAwait(false);
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            _logger.LogInformation($"Stopping MqttListener for {Descriptor}");
+            _logger.LogInformation($"Starting MqttListener for {_mqttConnection}");
 
             ThrowIfDisposed();
 
-            if (_managedMqttClient == null)
-            {
-                throw new InvalidOperationException("The listener has not yet been started or has already been stopped.");
-            }
-
-            _cancellationTokenSource.Cancel();
-
-            _managedMqttClient.StopAsync().Wait();
-            _managedMqttClient.Dispose();
-            _managedMqttClient = null;
-
-            return Task.FromResult<bool>(true);
-        }
-
-        public void Cancel()
-        {
-            _logger.LogWarning($"Cancelling MqttListener for {Descriptor}");
-
-            ThrowIfDisposed();
-            _cancellationTokenSource.Cancel();
-        }
-
-        public void Dispose()
-        {
-            if (!_disposed)
-            {
-                _cancellationTokenSource.Cancel();
-
-                if (_managedMqttClient != null)
-                {
-                    _managedMqttClient.StopAsync().Wait();
-                    _managedMqttClient.Dispose();
-                    _managedMqttClient = null;
-                }
-
-                _disposed = true;
-            }
-        }
-
-        private async Task StartMqtt(CancellationToken cancellationToken)
-        {
             if (_cancellationTokenSource.IsCancellationRequested || cancellationToken.IsCancellationRequested)
             {
                 return;
             }
-            try
-            {
-                _managedMqttClient = _mqttClientFactory.CreateManagedMqttClient();
-                _managedMqttClient.ApplicationMessageReceived += ManagedMqttClientApplicationMessageReceived;
-                _managedMqttClient.Connected += ManagedMqttClientConnected;
-                _managedMqttClient.Disconnected += ManagedMqttClientDisconnected;
 
-                await _managedMqttClient.SubscribeAsync(_config.Topics).ConfigureAwait(false);
-                await _managedMqttClient.StartAsync(_config.Options).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical("Unhandled exception while settingup the mqttclient to {descriptor}", e);
-                throw new MqttListenerInitializationException("Unhandled exception while connectin to {descriptor}", e);
-            }
-        }
-        
-        private void ManagedMqttClientDisconnected(object sender, MqttClientDisconnectedEventArgs e)
-        {
-            Connected = false;
-            _logger.LogWarning($"MqttListener Disconnected, previous connectivity state '{e.ClientWasConnected}' for {Descriptor}, message: {e.Exception?.Message}", e.Exception);
+            _mqttConnection.OnMessageEventHandler += OnMessage;
+
+            await _mqttConnection.SubscribeAsync(_topics).ConfigureAwait(false);
         }
 
-        private void ManagedMqttClientConnected(object sender, MqttClientConnectedEventArgs e)
-        {
-            Connected = true;
-            _logger.LogInformation($"MqttListener Connected, IsSessionPresent: '{e.IsSessionPresent}' for {Descriptor}");
-        }
-
-        private void ManagedMqttClientApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
-        {
-            _logger.LogDebug($"MqttListener receiving message for {Descriptor}");
-            InvokeJobFunction(e).Wait();
-        }
-
-        private async Task InvokeJobFunction(MqttApplicationMessageReceivedEventArgs mqttApplicationMessageReceivedEventArgs)
+        internal async Task OnMessage(MqttMessageReceivedEventArgs arg)
         {
             var token = _cancellationTokenSource.Token;
 
-            var qos = (MqttQualityOfServiceLevel)Enum.Parse(typeof(MqttQualityOfServiceLevel), mqttApplicationMessageReceivedEventArgs.ApplicationMessage.QualityOfServiceLevel.ToString());
-
-            var mqttInfo = new MqttMessage(
-                mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Topic,
-                mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Payload,
-                qos,
-                mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Retain);
-
             var triggeredFunctionData = new TriggeredFunctionData
             {
-                TriggerValue = mqttInfo
+                TriggerValue = arg.Message
             };
 
             try
@@ -182,6 +85,37 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
                 _logger.LogCritical("Error firing function", e);
 
                 // We don't want any function errors to stop the execution. Errors will be logged to Dashboard already.
+            }
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation($"Stopping MqttListener for {_mqttConnection}");
+
+            ThrowIfDisposed();
+
+            _cancellationTokenSource.Cancel();
+
+            await _mqttConnection.UnubscribeAsync(_topics.Select(x => x.Topic).ToArray()).ConfigureAwait(false);
+
+            _mqttConnection.OnMessageEventHandler -= OnMessage;
+        }
+
+        public void Cancel()
+        {
+            _logger.LogWarning($"Cancelling MqttListener for {_mqttConnection}");
+
+            ThrowIfDisposed();
+
+            _cancellationTokenSource.Cancel();
+        }
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _cancellationTokenSource.Cancel();
+                _disposed = true;
             }
         }
 

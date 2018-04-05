@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using Microsoft.Azure.WebJobs.Host.Bindings;
@@ -10,7 +9,7 @@ using Microsoft.Azure.WebJobs.Host.Listeners;
 using Microsoft.Azure.WebJobs.Host.Protocols;
 using Microsoft.Azure.WebJobs.Host.Triggers;
 using Microsoft.Extensions.Logging;
-using MQTTnet.Client;
+using MQTTnet;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
@@ -20,8 +19,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     public class MqttTriggerBinding : ITriggerBinding
     {
         private readonly ParameterInfo _parameter;
-        private readonly IMqttClientFactory _mqttClientFactory;
-        private readonly MqttConfiguration _config;
+        private readonly MqttConnection _connection;
+        private readonly TopicFilter[] _topics;
         private readonly ILogger _logger;
         private readonly IReadOnlyDictionary<string, object> _emptyBindingData = new Dictionary<string, object>();
 
@@ -29,14 +28,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// Initializes a new instance of the <see cref="MqttTriggerAttribute"/> class.
         /// </summary>
         /// <param name="parameter">The parameter to bind to.</param>
-        /// <param name="mqttClientFactory">The MQTT client factory.</param>
-        /// <param name="config">The MQTT configuration.</param>
-        /// <param name="logger">The logger.</param>
-        public MqttTriggerBinding(ParameterInfo parameter, IMqttClientFactory mqttClientFactory, MqttConfiguration config, ILogger logger)
+        /// <param name="connection">The MQTT connection</param>
+        /// <param name="topics">The topics to subscribe to</param>
+        /// <param name="logger">The logger</param>
+        public MqttTriggerBinding(ParameterInfo parameter, MqttConnection connection, TopicFilter[] topics, ILogger logger)
         {
             _parameter = parameter;
-            _mqttClientFactory = mqttClientFactory;
-            _config = config;
+            _connection = connection;
+            _topics = topics;
             _logger = logger;
         }
 
@@ -67,7 +66,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 throw new ArgumentNullException(nameof(context));
             }
 
-            return Task.FromResult<IListener>(new MqttListener(_mqttClientFactory, _config, context.Executor, _logger));
+            return Task.FromResult<IListener>(new MqttListener(_connection, _topics, context.Executor, _logger));
         }
 
         public ParameterDescriptor ToParameterDescriptor()

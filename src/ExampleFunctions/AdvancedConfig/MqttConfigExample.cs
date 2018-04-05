@@ -1,20 +1,18 @@
 using MQTTnet.ManagedClient;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
-using MQTTnet;
-using System.Collections.Generic;
 
 namespace ExampleFunction.AdvancedConfig
 {
-    public class MqttConfigExample : MqttConfig
+    public class MqttConfigExample : CustomMqttConfig
     {
         public override IManagedMqttClientOptions Options { get; }
 
-        public override IEnumerable<TopicFilter> Topics { get; }
-
-        public MqttConfigExample(IManagedMqttClientOptions options, IEnumerable<TopicFilter> topics)
+        public override string Name { get; }
+        
+        public MqttConfigExample(string name, IManagedMqttClientOptions options)
         {
             Options = options;
-            Topics = topics;
+            Name = name;
         }
     }
 }

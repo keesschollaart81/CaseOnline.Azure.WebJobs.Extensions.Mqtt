@@ -42,7 +42,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
             for (var i = 0; i < (totalMilliseconds / sleepDuration.TotalMilliseconds); i++)
             {
-                if (MqttListener.Connected)
+                if (MqttExtensionConfigProvider.MqttConnectionFactory.AllConnectionsConnected())
                 {
                     Debug.WriteLine($"JobHost boot, waited for {i * sleepDuration.TotalMilliseconds}ms to be connected (MqttListener.Connected)");
                     await Task.Delay(TimeSpan.FromSeconds(1)); //wait for another second to realy become connected
@@ -52,7 +52,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             }
 
             return new JobHostHelper(jobHost);
-        }
+        } 
 
         public async Task WaitFor(Func<bool> condition, int seconds = 10)
         {

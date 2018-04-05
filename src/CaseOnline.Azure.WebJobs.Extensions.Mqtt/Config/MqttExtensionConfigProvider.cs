@@ -2,6 +2,7 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host.Config;
 using Microsoft.Azure.WebJobs.Logging;
+using MQTTnet;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
@@ -10,6 +11,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
     /// </summary>
     public class MqttExtensionConfigProvider : IExtensionConfigProvider
     {
+        private static MqttConnectionFactory mqttConnectionFactory;
+
+        internal static MqttConnectionFactory MqttConnectionFactory { get => mqttConnectionFactory; }
+
         /// <summary>
         /// Initializes the extension configuration provider.
         /// </summary>
@@ -20,7 +25,16 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 
             var nameResolver = context.Config.GetService<INameResolver>();
 
-            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(nameResolver, logger));
+            mqttConnectionFactory = new MqttConnectionFactory(logger, new MqttFactory(), nameResolver);
+            
+            var mqttAttributeBindingRule = context.AddBindingRule<MqttAttribute>();
+            mqttAttributeBindingRule.BindToCollector((attr) => new MqttMessageCollector(attr, MqttConnectionFactory.GetMqttConnectionAsync(attr).Result));
+
+            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(nameResolver, MqttConnectionFactory, logger));
+            
+            // todo: in later release of the Functions SDK (currently beta 25) replace the line above with the two below
+            //var mqttTriggerAttributeBindingRule = context.AddBindingRule<MqttTriggerAttribute>();
+            //mqttTriggerAttributeBindingRule.BindToTrigger<IMqttMessage>(new MqttTriggerAttributeBindingProvider(nameResolver, _mqttConnectionFactory, logger));
         }
     }
 }
