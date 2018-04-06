@@ -20,16 +20,16 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         public static async Task<MqttServerHelper> Get(ILogger logger)
         {
-            var defaultOptions = new MqttServerOptionsBuilder()
+            var defaultServerOptions = new MqttServerOptionsBuilder()
                 .WithDefaultEndpointPort(1883)
                 .Build();
 
-            return await Get(logger, defaultOptions);
+            return await Get(logger, defaultServerOptions);
         }
 
-        public static async Task<MqttServerHelper> Get(ILogger logger, IMqttServerOptions options)
+        public static async Task<MqttServerHelper> Get(ILogger logger, IMqttServerOptions serverOptions)
         {
-            var serverHelper = new MqttServerHelper(logger, options);
+            var serverHelper = new MqttServerHelper(logger, serverOptions);
             await serverHelper.StartMqttServer();
             return serverHelper;
         }
@@ -49,7 +49,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             _mqttServer.Started += Started;
             _mqttServer.ClientConnected += ClientConnected;
             _mqttServer.ClientDisconnected += ClientDisconnected;
-            
+
             await _mqttServer.StartAsync(_options);
         }
 
@@ -91,7 +91,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         public async Task SubscribeAsync(string topic)
         {
-            await _mqttServer.SubscribeAsync("IntegrationTestClient", new List<TopicFilter>() { new TopicFilter(topic, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) });
+            var clients = await _mqttServer.GetConnectedClientsAsync();
+            await _mqttServer.SubscribeAsync("Custom", new List<TopicFilter>() { new TopicFilter(topic, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) });
         }
     }
 }

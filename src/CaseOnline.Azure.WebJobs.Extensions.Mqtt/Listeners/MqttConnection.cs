@@ -116,6 +116,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         /// <param name="topics">The topics to subscribe to</param>
         public async Task SubscribeAsync(TopicFilter[] topics)
         {
+            if (_managedMqttClient == null)
+            {
+                throw new MqttConnectionException("Connection not open, please use StartAsync first!");
+            }
             await _managedMqttClient.SubscribeAsync(topics).ConfigureAwait(false);
         }
 
@@ -125,6 +129,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         /// <param name="topics">The topics to unsubscribe from</param>
         public async Task UnubscribeAsync(string[] topics)
         {
+            if (_managedMqttClient == null)
+            {
+                throw new MqttConnectionException("Connection not open, please use StartAsync first!");
+            }
             await _managedMqttClient.UnsubscribeAsync(topics).ConfigureAwait(false);
         }
 
@@ -134,6 +142,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         /// <param name="message">The message to publish</param>
         public async Task PublishAsync(MqttApplicationMessage message)
         {
+            if (_managedMqttClient == null)
+            {
+                throw new MqttConnectionException("Connection not open, please use StartAsync first!");
+            }
             await _managedMqttClient.PublishAsync(message).ConfigureAwait(false);
         }
 
