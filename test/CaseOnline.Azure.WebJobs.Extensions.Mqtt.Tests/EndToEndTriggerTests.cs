@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,10 +65,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         {
             string clientId = string.Empty;
             var options = new MqttServerOptionsBuilder()
-                   .WithConnectionValidator(x =>
-                   {
-                       clientId = x.ClientId;
-                   })
+                   .WithConnectionValidator(x => clientId = x.ClientId)
                    .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))

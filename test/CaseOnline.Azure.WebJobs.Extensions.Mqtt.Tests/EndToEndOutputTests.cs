@@ -53,8 +53,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 
         public class SimpleOutputIsPublishedTestFunction
         {
-            [FunctionName("Testert")]
-            [NoAutomaticTrigger()]
             public static void Testert([Mqtt("test/topic")]out IMqttMessage mqttMessage)
             {
                 mqttMessage = new MqttMessage("test/topic", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true);

@@ -13,7 +13,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 {
     public class MqttServerHelper : IDisposable, IApplicationMessagePublisher
     {
-        static IMqttServer _mqttServer;
+        private IMqttServer _mqttServer;
         private readonly ILogger _logger;
         private readonly IMqttServerOptions _options;
         public event EventHandler<OnMessageEventArgs> OnMessage;
