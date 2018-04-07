@@ -163,23 +163,23 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         [Fact]
         public async Task WhenTlsIsSetToTrueASecureConnectionIsMade()
         {
-            var serializedServerCertificate = new X509Certificate(@".\Certificates\myRootCA.pfx", "12345", X509KeyStorageFlags.Exportable)
-                .Export(X509ContentType.Pfx);
-
-            var options = new MqttServerOptionsBuilder()
-               .WithEncryptedEndpoint()
-               .WithEncryptionCertificate(serializedServerCertificate)
-               .WithoutDefaultEndpoint()
-               .Build();
-
-            using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper.RunFor<FunctionConnectingWithTlsEnabledTestFunction>(_loggerFactory))
+            using (var x509Certificate = new X509Certificate(@".\Certificates\myRootCA.pfx", "12345", X509KeyStorageFlags.Exportable))
             {
-                await mqttServer.PublishAsync(DefaultMessage);
+                var privateKeyWithoutPassword = x509Certificate.Export(X509ContentType.Pfx);
+                var options = new MqttServerOptionsBuilder()
+                   .WithEncryptedEndpoint()
+                   .WithEncryptionCertificate(privateKeyWithoutPassword)
+                   .WithoutDefaultEndpoint()
+                   .Build();
 
-                await jobHost.WaitFor(() => FunctionConnectingWithTlsEnabledTestFunction.CallCount >= 1);
+                using (var mqttServer = await MqttServerHelper.Get(_logger, options))
+                using (var jobHost = await JobHostHelper.RunFor<FunctionConnectingWithTlsEnabledTestFunction>(_loggerFactory))
+                {
+                    await mqttServer.PublishAsync(DefaultMessage);
+
+                    await jobHost.WaitFor(() => FunctionConnectingWithTlsEnabledTestFunction.CallCount >= 1);
+                }
             }
-
             Assert.Equal(1, FunctionConnectingWithTlsEnabledTestFunction.CallCount);
         }
 
