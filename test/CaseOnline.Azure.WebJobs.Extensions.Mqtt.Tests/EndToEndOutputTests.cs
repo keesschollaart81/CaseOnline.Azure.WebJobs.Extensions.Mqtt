@@ -34,16 +34,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 
             using (var mqttServer = await MqttServerHelper.Get(_logger))
             using (var mqttClient = await MqttClientHelper.Get(_logger))
-            using (var jobHost = await JobHostHelper.RunFor<SimpleOutputIsPublishedTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<SimpleOutputIsPublishedTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttClient.SubscribeAsync("test/topic");
-                mqttClient.OnMessage += (object sender, OnMessageEventArgs e) =>
-                {
-                    mqttApplicationMessage = e.ApplicationMessage;
-                };
+                mqttClient.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessage = e.ApplicationMessage;
 
-                var method = typeof(SimpleOutputIsPublishedTestFunction).GetMethod(nameof(SimpleOutputIsPublishedTestFunction.Testert));
-                await jobHost.CallAsync(method, new { });
+                await jobHost.CallAsync(nameof(SimpleOutputIsPublishedTestFunction.Testert));
 
                 await jobHost.WaitFor(() => mqttApplicationMessage != null);
             }

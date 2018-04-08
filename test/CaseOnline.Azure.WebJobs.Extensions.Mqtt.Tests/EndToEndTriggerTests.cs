@@ -35,7 +35,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         public async Task SimpleMessageIsReceived()
         {
             using (var mqttServer = await MqttServerHelper.Get(_logger))
-            using (var jobHost = await JobHostHelper.RunFor<SimpleMessageIsReceivedTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<SimpleMessageIsReceivedTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
@@ -69,7 +69,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                    .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper.RunFor<CustomConnectionStringWithClientIdTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<CustomConnectionStringWithClientIdTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
@@ -109,7 +109,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper.RunFor<UsernameAndPasswordTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<UsernameAndPasswordTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
@@ -138,7 +138,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper.RunFor<SimpleMessageAnotherPortTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<SimpleMessageAnotherPortTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
@@ -173,7 +173,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper.RunFor<FunctionConnectingWithTlsEnabledTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<FunctionConnectingWithTlsEnabledTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 

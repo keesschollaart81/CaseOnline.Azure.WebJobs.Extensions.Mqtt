@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,8 +9,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
-{
-    public class JobHostHelper : IDisposable
+{ 
+    public class JobHostHelper<T> : IDisposable
     {
         private JobHost _jobHost;
 
@@ -18,7 +19,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             _jobHost = jobHost;
         }
 
-        public static async Task<JobHostHelper> RunFor<T>(ILoggerFactory loggerFactory)
+        public static async Task<JobHostHelper<T>> RunFor(ILoggerFactory loggerFactory)
         {
             var config = new JobHostConfiguration();
             config.TypeLocator = new ExplicitTypeLocator(typeof(T));
@@ -51,17 +52,19 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
                 await Task.Delay(sleepDuration);
             }
 
-            return new JobHostHelper(jobHost);
+            return new JobHostHelper<T>(jobHost);
         }
 
-        public async Task CallAsync(MethodInfo method, object arguments)
+        public async Task CallAsync(string methodName, object arguments)
         {
+            var method = typeof(T).GetMethod(methodName);
             await _jobHost.CallAsync(method, arguments);
         }
 
-        public async Task CallAsync(MethodInfo method)
+        public async Task CallAsync(string methodName)
         {
-            await _jobHost.CallAsync(method);
+            var method = typeof(T).GetMethod(methodName);
+            await _jobHost.CallAsync(methodName);
         }
 
         public async Task WaitFor(Func<bool> condition, int seconds = 10)
