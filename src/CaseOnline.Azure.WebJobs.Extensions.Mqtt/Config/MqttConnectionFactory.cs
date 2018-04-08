@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
@@ -8,7 +9,7 @@ using MQTTnet.Client;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
-    public class MqttConnectionFactory
+    public class MqttConnectionFactory : IMqttConnectionFactory
     {
         private readonly ILogger _logger;
         private readonly IMqttClientFactory _mqttFactory;
@@ -23,12 +24,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
             _nameResolver = nameResolver;
         }
 
-        public async Task<MqttConnection> GetMqttConnectionAsync(IRquireMqttConnection attribute)
+        public MqttConnection GetMqttConnection(IRquireMqttConnection attribute)
         {
             var attributeToConfigConverter = new AttributeToConfigConverter(attribute, _nameResolver, _logger);
             var mqttConfiguration = attributeToConfigConverter.GetMqttConfiguration();
             var connection = mqttConnections.GetOrAdd(mqttConfiguration.Name, (c) => new MqttConnection(_mqttFactory, mqttConfiguration, _logger));
-            await connection.StartAsync().ConfigureAwait(false);
             return connection;
         }
 
@@ -42,6 +42,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
                 }
             }
             return true;
+        }
+
+        public async Task DisconnectAll()
+        {
+            foreach (var connection in mqttConnections)
+            {
+                await connection.Value.StopAsync().ConfigureAwait(false);
+                connection.Value.Dispose();
+            }
         }
     }
 }

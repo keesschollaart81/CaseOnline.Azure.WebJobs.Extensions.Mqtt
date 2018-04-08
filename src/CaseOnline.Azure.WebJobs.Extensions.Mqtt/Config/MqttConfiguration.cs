@@ -21,14 +21,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 
         public string Name { get; }
 
-        public override string ToString()
-        {
-            return $"Name={Name};Client={Options?.ClientOptions?.ClientId}";
-        } 
-
         /// <summary>
         /// Gets the managed options.
         /// </summary>
         public IManagedMqttClientOptions Options { get; }
+
+        public override string ToString()
+        {
+            return $"Name={Name};Client={Options?.ClientOptions?.ClientId}";
+        } 
     }
 }

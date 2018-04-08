@@ -33,7 +33,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             _logger = logger;
         }
 
-        public async Task<ITriggerBinding> TryCreateAsync(TriggerBindingProviderContext context)
+        public Task<ITriggerBinding> TryCreateAsync(TriggerBindingProviderContext context)
         {
             if (context == null)
             {
@@ -43,16 +43,16 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             var mqttTriggerAttribute = GetMqttTriggerAttribute(context.Parameter);
             if (mqttTriggerAttribute == null)
             {
-                return null;
+                return Task.FromResult<ITriggerBinding>(null);
             }
 
             _logger.LogDebug($"Creating binding for parameter '{context.Parameter.Name}'");
 
-            var mqttTriggerBinding = await GetMqttTriggerBindingAsync(context.Parameter, mqttTriggerAttribute).ConfigureAwait(false);
+            ITriggerBinding mqttTriggerBinding = GetMqttTriggerBinding(context.Parameter, mqttTriggerAttribute);
 
             _logger.LogDebug($"Succesfully created binding for parameter '{context.Parameter.Name}'");
 
-            return mqttTriggerBinding;
+            return Task.FromResult(mqttTriggerBinding);
         }
 
         private static MqttTriggerAttribute GetMqttTriggerAttribute(ParameterInfo parameter)
@@ -72,10 +72,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             return mqttTriggerAttribute;
         }
 
-        private async Task<MqttTriggerBinding> GetMqttTriggerBindingAsync(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute)
+        private MqttTriggerBinding GetMqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute)
         {
             TopicFilter[] topics;
-            var mqttConnection = await _connectionFactory.GetMqttConnectionAsync(mqttTriggerAttribute).ConfigureAwait(false);
+            var mqttConnection = _connectionFactory.GetMqttConnection(mqttTriggerAttribute);
             try
             {
                 topics = mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)).ToArray();

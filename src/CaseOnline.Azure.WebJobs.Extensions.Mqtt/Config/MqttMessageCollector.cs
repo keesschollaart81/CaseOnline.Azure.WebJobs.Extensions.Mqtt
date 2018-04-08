@@ -19,6 +19,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 
         public async Task AddAsync(IMqttMessage item, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (!_mqttConnection.Connected)
+            {
+                await _mqttConnection.StartAsync().ConfigureAwait(false);
+            }
             var qos = (MQTTnet.Protocol.MqttQualityOfServiceLevel)Enum.Parse(typeof(MQTTnet.Protocol.MqttQualityOfServiceLevel), item.QosLevel.ToString());
             var mqttApplicationMessage = new MqttApplicationMessage(item.Topic, item.GetMessage(), qos, item.Retain);
             await _mqttConnection.PublishAsync(mqttApplicationMessage).ConfigureAwait(false);

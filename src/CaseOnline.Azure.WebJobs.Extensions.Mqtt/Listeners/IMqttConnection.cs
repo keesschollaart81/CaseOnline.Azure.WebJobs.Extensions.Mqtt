@@ -4,11 +4,11 @@ using MQTTnet;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
-    public interface IMqttConnection
+    public interface IMqttConnection : IDisposable
     {
-        bool Connected { get; }
-
         event Func<MqttMessageReceivedEventArgs, Task> OnMessageEventHandler;
+
+        bool Connected { get; }
 
         Task StartAsync();
 

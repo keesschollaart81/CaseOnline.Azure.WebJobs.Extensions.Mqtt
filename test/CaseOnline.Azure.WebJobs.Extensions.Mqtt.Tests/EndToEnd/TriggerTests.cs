@@ -1,36 +1,17 @@
-using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers.Logging;
-using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
 using Xunit;
 
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 {
-    public class EndToEndTriggerTests
+    public class TriggerTests : EndToEndTestBase
     {
-        private ILogger _logger;
-        private ILoggerFactory _loggerFactory;
-
-        private MqttApplicationMessage DefaultMessage = new MqttApplicationMessageBuilder()
-                    .WithTopic("test/topic")
-                    .WithPayload("{ \"test\":\"case\" }")
-                    .WithAtLeastOnceQoS()
-                    .Build();
-
-        public EndToEndTriggerTests()
-        {
-            _loggerFactory = new LoggerFactory();
-            _loggerFactory.AddProvider(new TestLoggerProvider());
-            _logger = _loggerFactory.CreateLogger("EndToEndTests");
-        }
-
         [Fact]
         public async Task SimpleMessageIsReceived()
         {
@@ -39,7 +20,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => SimpleMessageIsReceivedTestFunction.CallCount >= 1);
+                await WaitFor(() => SimpleMessageIsReceivedTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, SimpleMessageIsReceivedTestFunction.CallCount);
@@ -73,7 +54,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => CustomConnectionStringWithClientIdTestFunction.CallCount >= 1);
+                await WaitFor(() => CustomConnectionStringWithClientIdTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, CustomConnectionStringWithClientIdTestFunction.CallCount);
@@ -113,7 +94,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => UsernameAndPasswordTestFunction.CallCount >= 1);
+                await WaitFor(() => UsernameAndPasswordTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, UsernameAndPasswordTestFunction.CallCount);
@@ -142,7 +123,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => SimpleMessageAnotherPortTestFunction.CallCount >= 1);
+                await WaitFor(() => SimpleMessageAnotherPortTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, SimpleMessageAnotherPortTestFunction.CallCount);
@@ -177,7 +158,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => FunctionConnectingWithTlsEnabledTestFunction.CallCount >= 1);
+                await WaitFor(() => FunctionConnectingWithTlsEnabledTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, FunctionConnectingWithTlsEnabledTestFunction.CallCount);

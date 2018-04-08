@@ -49,7 +49,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             {
                 return;
             }
-
+            await _mqttConnection.StartAsync().ConfigureAwait(false);
             _mqttConnection.OnMessageEventHandler += OnMessage;
 
             await _mqttConnection.SubscribeAsync(_topics).ConfigureAwait(false);
@@ -95,6 +95,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             await _mqttConnection.UnubscribeAsync(_topics.Select(x => x.Topic).ToArray()).ConfigureAwait(false);
 
             _mqttConnection.OnMessageEventHandler -= OnMessage;
+
+            await _mqttConnection.StopAsync().ConfigureAwait(false);
         }
 
         public void Cancel()
@@ -103,6 +105,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
             ThrowIfDisposed();
 
+            StopAsync(_cancellationTokenSource.Token).Wait();
+
             _cancellationTokenSource.Cancel();
         }
 
@@ -110,6 +114,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         {
             if (!_disposed)
             {
+                _mqttConnection.Dispose();
                 _cancellationTokenSource.Cancel();
                 _disposed = true;
             }

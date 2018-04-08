@@ -11,10 +11,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
     /// </summary>
     public class MqttExtensionConfigProvider : IExtensionConfigProvider
     {
-        private static MqttConnectionFactory mqttConnectionFactory;
-
-        internal static MqttConnectionFactory MqttConnectionFactory { get => mqttConnectionFactory; }
-
         /// <summary>
         /// Initializes the extension configuration provider.
         /// </summary>
@@ -24,14 +20,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
             var logger = context.Config.LoggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
 
             var nameResolver = context.Config.GetService<INameResolver>();
+            var mqttConnectionFactory = new MqttConnectionFactory(logger, new MqttFactory(), nameResolver);
 
-            mqttConnectionFactory = new MqttConnectionFactory(logger, new MqttFactory(), nameResolver);
-            
+            context.Config.AddService(typeof(IMqttConnectionFactory), mqttConnectionFactory);
+
             var mqttAttributeBindingRule = context.AddBindingRule<MqttAttribute>();
-            mqttAttributeBindingRule.BindToCollector((attr) => new MqttMessageCollector(attr, MqttConnectionFactory.GetMqttConnectionAsync(attr).Result));
+            mqttAttributeBindingRule.BindToCollector((attr) => new MqttMessageCollector(attr, mqttConnectionFactory.GetMqttConnection(attr)));
 
-            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(nameResolver, MqttConnectionFactory, logger));
-            
+            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(nameResolver, mqttConnectionFactory, logger));
+
             // todo: in later release of the Functions SDK (currently beta 25) replace the line above with the two below
             //var mqttTriggerAttributeBindingRule = context.AddBindingRule<MqttTriggerAttribute>();
             //mqttTriggerAttributeBindingRule.BindToTrigger<IMqttMessage>(new MqttTriggerAttributeBindingProvider(nameResolver, _mqttConnectionFactory, logger));

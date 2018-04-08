@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
-using MQTTnet.Adapter;
 using MQTTnet.Client;
-using MQTTnet.Implementations;
 using MQTTnet.ManagedClient;
-using MQTTnet.Server;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 {
