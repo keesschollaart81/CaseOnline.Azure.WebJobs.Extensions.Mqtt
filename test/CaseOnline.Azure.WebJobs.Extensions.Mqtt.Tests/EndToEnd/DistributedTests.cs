@@ -29,11 +29,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                      await mqttServer.PublishAsync(DefaultMessage);
                  }, 30);
 
-                await WaitFor(() => MultipleJobHostsTestFunction.CallCount >= 29);
+                await WaitFor(() => MultipleJobHostsTestFunction.CallCount >= 30);
             }
 
             Assert.Equal(1, totalConnections);
-            Assert.Equal(29, MultipleJobHostsTestFunction.CallCount);
+            Assert.Equal(30, MultipleJobHostsTestFunction.CallCount);
             Assert.Equal("test/topic", MultipleJobHostsTestFunction.LastReceivedMessage.Topic);
             var messageBody = Encoding.UTF8.GetString(MultipleJobHostsTestFunction.LastReceivedMessage.GetMessage());
             Assert.Equal("{ \"test\":\"case\" }", messageBody);
