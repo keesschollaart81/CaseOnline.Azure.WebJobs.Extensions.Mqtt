@@ -20,8 +20,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
         public EndToEndTestBase()
         {
-            _loggerFactory = new LoggerFactory();
-            _loggerFactory.AddProvider(new TestLoggerProvider());
+            var filterOptions = new LoggerFilterOptions
+            {
+                MinLevel = LogLevel.Trace
+            };
+            _loggerFactory = new LoggerFactory(new[] { new TestLoggerProvider() }, filterOptions);
+            //_loggerFactory.AddProvider();
             _logger = _loggerFactory.CreateLogger("EndToEndTests");
         }
 

@@ -17,6 +17,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         private readonly ILogger _logger;
         private readonly IMqttServerOptions _options;
         public event EventHandler<OnMessageEventArgs> OnMessage;
+        private bool serverStarted = false;
 
         public static async Task<MqttServerHelper> Get(ILogger logger)
         {
@@ -51,6 +52,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             _mqttServer.ClientDisconnected += ClientDisconnected;
 
             await _mqttServer.StartAsync(_options);
+
+            // wait for 5 seconds for server to be started
+            for(var i = 0; i < 100; i++)
+            {
+                if (serverStarted)
+                {
+                    return;
+                }
+                await Task.Delay(50);
+            }
+            throw new Exception("Mqtt Server did not start?");
         }
 
         private void ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
@@ -76,10 +88,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         private void Started(object sender, MqttServerStartedEventArgs e)
         {
+            serverStarted = true;
             _logger.LogDebug($"mqtt server started: {e}");
         }
+
         public void Dispose()
         {
+            serverStarted = false;
             _mqttServer.StopAsync().Wait();
             _mqttServer = null;
         }

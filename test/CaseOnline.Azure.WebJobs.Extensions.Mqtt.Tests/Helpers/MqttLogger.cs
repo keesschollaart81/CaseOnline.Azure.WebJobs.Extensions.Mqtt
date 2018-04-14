@@ -25,32 +25,32 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         public void Error<TSource>(Exception exception, string message, params object[] parameters)
         {
-            Logger.LogError(exception, $"{message},{string.Join(",", parameters)}");
+            Logger.LogError(exception, $"{string.Format(message, parameters)}");
         }
 
         public void Error<TSource>(string message, params object[] parameters)
         {
-            Logger.LogError($"{message},{string.Join(",", parameters)}");
+            Logger.LogError(message, parameters);
         }
 
         public void Info<TSource>(string message, params object[] parameters)
         {
-            Logger.LogInformation(message);
+            Logger.LogInformation(message, parameters);
         }
 
         public void Trace<TSource>(string message, params object[] parameters)
         {
-            Logger.LogTrace(message);
+            Logger.LogTrace(message, parameters);
         }
 
         public void Warning<TSource>(Exception exception, string message, params object[] parameters)
         {
-            Logger.LogWarning(message);
+            Logger.LogWarning(exception, message, parameters);
         }
 
         public void Warning<TSource>(string message, params object[] parameters)
         {
-            Logger.LogWarning(message);
+            Logger.LogWarning(message, parameters);
         }
     }
 }

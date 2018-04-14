@@ -17,7 +17,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             _jobHost = jobHost;
         }
 
-        public static async Task<JobHostHelper<T>> RunFor(ILoggerFactory loggerFactory)
+        public static async Task<JobHostHelper<T>> RunFor(ILoggerFactory loggerFactory, bool waitForAllConnectionToBeConnected = true)
         {
             var config = new JobHostConfiguration();
             config.TypeLocator = new ExplicitTypeLocator(typeof(T));
@@ -33,23 +33,38 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             catch (InvalidOperationException ex)
             {
                 throw new Exception("In order to be able to run this integration tests, make sure you have the Azure Storage Emulator running or configure a connection to a real Azure Storage Account in the appsettings.json", ex);
+            } 
+
+            var jobHostHelper = new JobHostHelper<T>(jobHost);
+
+            if (waitForAllConnectionToBeConnected)
+            {
+                await jobHostHelper.WaitForAllConnectionToBeConnected();
             }
+
+            return jobHostHelper;
+        }
+
+        public async Task WaitForAllConnectionToBeConnected()
+        {
             var totalMilliseconds = TimeSpan.FromSeconds(5).TotalMilliseconds;
             var sleepDuration = TimeSpan.FromMilliseconds(50); // not long otherwise MQTT Connections are being dropped?!
 
-            var mqttExtensionConfigProvider = jobHost.Services.GetService(typeof(IMqttConnectionFactory)) as MqttConnectionFactory;
+            var mqttExtensionConfigProvider = _jobHost.Services.GetService(typeof(IMqttConnectionFactory)) as MqttConnectionFactory;
             for (var i = 0; i < (totalMilliseconds / sleepDuration.TotalMilliseconds); i++)
             {
                 if (mqttExtensionConfigProvider.AllConnectionsConnected())
                 {
-                    Debug.WriteLine($"JobHost boot, waited for {i * sleepDuration.TotalMilliseconds}ms to be connected (MqttListener.Connected)");
-                    await Task.Delay(TimeSpan.FromSeconds(1)); //wait for another second to realy become connected
+                    Debug.WriteLine($"JobHost boot, waited for {i * sleepDuration.TotalMilliseconds}ms to be connected");
+                    await Task.Delay(sleepDuration); //wait for another second to realy become connected
                     break;
                 }
                 await Task.Delay(sleepDuration);
             }
-
-            return new JobHostHelper<T>(jobHost);
+            if (!mqttExtensionConfigProvider.AllConnectionsConnected())
+            {
+                throw new Exception("Not all connections could be connected");
+            }
         }
 
         public async Task CallAsync(string methodName, object arguments)
