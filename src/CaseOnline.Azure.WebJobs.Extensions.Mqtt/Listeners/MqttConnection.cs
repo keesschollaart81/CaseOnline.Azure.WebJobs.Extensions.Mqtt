@@ -41,7 +41,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         /// </summary> ;
         public override string ToString()
         {
-            return $"Connection for config: {_config.ToString()}, connected: {Connected}";
+            return $"Connection for config: {_config.ToString()}, currently connected: {Connected}";
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         {
             if (e.HasFailed)
             {
-                _logger.LogError($"Message could not be processed for {this}, message: {e.Exception?.Message}", e.Exception);
+                _logger.LogError($"Message could not be processed for {this}, message: '{e.Exception?.Message}'", e.Exception);
             }
         }
 
@@ -96,14 +96,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         {
             Connected = false;
             Connecting = false;
-            _logger.LogWarning($"MqttConnection Disconnected, previous connectivity state '{e.ClientWasConnected}' for {this}, message: {e.Exception?.Message}", e.Exception);
+            _logger.LogWarning($"MqttConnection Disconnected, previous connectivity state '{e.ClientWasConnected}' for {this}, message: '{e.Exception?.Message}'", e.Exception);
         }
 
         private void ManagedMqttClientConnected(object sender, MqttClientConnectedEventArgs e)
         {
             Connected = true;
             Connecting = false;
-            _logger.LogInformation($"MqttConnection Connected, IsSessionPresent: '{e.IsSessionPresent}' for {this}");
+            _logger.LogInformation($"MqttConnection Connected for {this}");
         }
 
         private void ManagedMqttClientApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs mqttApplicationMessageReceivedEventArgs)

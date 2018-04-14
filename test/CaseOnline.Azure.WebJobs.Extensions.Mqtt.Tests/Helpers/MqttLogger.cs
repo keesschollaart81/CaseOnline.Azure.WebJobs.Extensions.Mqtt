@@ -52,5 +52,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         {
             Logger.LogWarning(message, parameters);
         }
+
+        public void Verbose<TSource>(string message, params object[] parameters)
+        {
+            Logger.LogTrace(message, parameters);
+        }
     }
 }

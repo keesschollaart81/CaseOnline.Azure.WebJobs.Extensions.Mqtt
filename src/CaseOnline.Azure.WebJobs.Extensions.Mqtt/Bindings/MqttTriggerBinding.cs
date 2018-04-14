@@ -51,22 +51,22 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         public Task<ITriggerData> BindAsync(object value, ValueBindingContext context)
         {
-            _logger.LogDebug("MqttTriggerBinding.BindAsync");
-
             var valueProvider = new ValueProvider(value);
             return Task.FromResult<ITriggerData>(new TriggerData(valueProvider, _emptyBindingData));
         }
 
         public Task<IListener> CreateListenerAsync(ListenerFactoryContext context)
         {
-            _logger.LogDebug("MqttTriggerBinding.CreateListenerAsync");
-
             if (context == null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
 
-            return Task.FromResult<IListener>(new MqttListener(_connection, _topics, context.Executor, _logger));
+            var listener = new MqttListener(_connection, _topics, context.Executor, _logger);
+
+            _logger.LogDebug("Listener for MqttTriggerBinding created");
+
+            return Task.FromResult<IListener>(listener);
         }
 
         public ParameterDescriptor ToParameterDescriptor()

@@ -46,7 +46,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             MqttTcpChannel.CustomCertificateValidationCallback = RemoteValidation;
             var logger = new MqttLogger(_logger);
             var factory = new MqttFactory();
-            _mqttServer = factory.CreateMqttServer(new List<IMqttServerAdapter> { new MqttServerAdapter(logger) }, logger);
+            _mqttServer = factory.CreateMqttServer(new List<IMqttServerAdapter> { new MqttTcpServerAdapter(logger) }, logger);
             _mqttServer.Started += Started;
             _mqttServer.ClientConnected += ClientConnected;
             _mqttServer.ClientDisconnected += ClientDisconnected;
