@@ -7,10 +7,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
     [Binding]
     public class MqttTriggerAttribute : Attribute, IRquireMqttConnection
     {
-        public MqttTriggerAttribute()
-        {
-        }
-
         public MqttTriggerAttribute(params string[] topics)
         {
             Topics = topics;

@@ -43,7 +43,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         private async Task StartMqttServer()
         {
-            MqttTcpChannel.CustomCertificateValidationCallback = remoteValidation;
+            MqttTcpChannel.CustomCertificateValidationCallback = RemoteValidation;
             var logger = new MqttLogger(_logger);
             var factory = new MqttFactory();
             _mqttServer = factory.CreateMqttServer(new List<IMqttServerAdapter> { new MqttServerAdapter(logger) }, logger);
@@ -70,7 +70,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             OnMessage(this, new OnMessageEventArgs(e.ClientId, e.ApplicationMessage));
         }
 
-        private bool remoteValidation(X509Certificate certificate, X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors, MqttClientTcpOptions options)
+        private bool RemoteValidation(X509Certificate certificate, X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors, MqttClientTcpOptions options)
         {
             _logger.LogDebug($"RemoteValidation: {sslPolicyErrors}");
             return true;
