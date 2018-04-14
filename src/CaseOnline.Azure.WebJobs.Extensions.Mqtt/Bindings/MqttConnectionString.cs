@@ -7,7 +7,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     {
         private const int DetaultMqttPort = 1883;
         private const int DetaultMqttPortWithTls = 8883;
-        private const bool DefaultTls = false;
+        private const bool DefaultTls = false; 
         private const string KeyForPort = "Port";
         private const string KeyForClientId = "ClientId";
         private const string KeyForServer = "Server";
@@ -81,6 +81,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 }
             }
             Port = port;
-        } 
+        }
+
+        public override string ToString()
+        {
+            return $"Server={Server};Port={Port};Username={Username};ClientId={ClientId};Tls={Tls}";
+        }
     }
 }
