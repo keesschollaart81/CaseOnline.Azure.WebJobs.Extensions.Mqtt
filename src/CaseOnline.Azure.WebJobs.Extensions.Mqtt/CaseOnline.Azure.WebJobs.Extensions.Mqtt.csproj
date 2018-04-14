@@ -15,13 +15,14 @@
     <AssemblyName>CaseOnline.Azure.WebJobs.Extensions.Mqtt</AssemblyName>
     <RootNamespace>CaseOnline.Azure.WebJobs.Extensions.Mqtt</RootNamespace>
     <PackageId>CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageId>
-    <Description>
-      This package enables you to:
+    <Description>Connect your Mqtt broker to your Azure Function!
+     
+This package enables you to:
 
-      * Trigger an Azure Function based on a MQTT Subscription
-      * Publish a message to a MQTT topic as a result of an Azure Function. 
+* Trigger an Azure Function based on a MQTT Subscription
+* Publish a message to a MQTT topic as a result of an Azure Function. 
       
-      For more information, please visit https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt.</Description>
+For more information, please visit https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt.</Description>
     <PackageIconUrl>https://raw.githubusercontent.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/master/logo.png</PackageIconUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>analyzers.ruleset</CodeAnalysisRuleSet>
