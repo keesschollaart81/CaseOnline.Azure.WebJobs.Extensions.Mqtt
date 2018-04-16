@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Azure.WebJobs.Description;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
@@ -8,17 +7,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
     [Binding]
     public class MqttAttribute : Attribute, IRquireMqttConnection
     {
-        public MqttAttribute(params string[] topics)
+        public MqttAttribute()
         {
-            Topics = topics;
         }
 
         public MqttAttribute(Type mqttConfigCreatorType)
         {
             MqttConfigCreatorType = mqttConfigCreatorType;
         }
-
-        public IEnumerable<string> Topics { get; }
 
         public string ConnectionString { get; set; }
 
