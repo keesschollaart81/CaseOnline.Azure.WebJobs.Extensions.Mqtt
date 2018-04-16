@@ -13,10 +13,10 @@ This package enables you to:
 
 ## How to use
 
-* [Getting Started](wiki/Getting-started)
-* [Publish via output](wiki/Publish-via-output)
-* [Subscribe via trigger](wiki/Subscribe-via-trigger)
-* [And more in the Wiki](wiki)
+* [Getting Started](/../../wiki/Getting-started)
+* [Publish via output](/../../wiki/Publish-via-output)
+* [Subscribe via trigger](/../../wiki/Subscribe-via-trigger)
+* [And more in the Wiki](/../../wiki)
 
 ## Examples
 
