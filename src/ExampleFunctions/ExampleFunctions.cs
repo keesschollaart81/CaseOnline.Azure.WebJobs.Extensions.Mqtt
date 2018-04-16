@@ -13,13 +13,13 @@ namespace ExampleFunctions
         [FunctionName("SimpleFunction")]
         public static void SimpleFunction(
             [MqttTrigger("owntracks/#")] IMqttMessage message,
-            [Mqtt("testtopic/out")] out IMqttMessage outMessage,
+            [Mqtt] out IMqttMessage outMessage,
             ILogger logger)
         {
             var body = message.GetMessage();
             var bodyString = Encoding.UTF8.GetString(body);
             logger.LogInformation($"{DateTime.Now:g} Message for topic {message.Topic}: {bodyString}");
-            outMessage = new MqttMessage("testtopic/in", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true);
+            outMessage = new MqttMessage("testtopic/out", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true);
         }
 
         [FunctionName("AdvancedFunction")]

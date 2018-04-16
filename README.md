@@ -1,4 +1,4 @@
-# Mqtt Trigger Binding for Azure Functions
+# Mqtt Bindings for Azure Functions
 [![Build Status](https://caseonline.visualstudio.com/_apis/public/build/definitions/4df87c38-5691-4d04-8373-46c830209b7e/11/badge)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_build/index?definitionId=1) 
 [![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)](https://bettercodehub.com/)
 [![NuGet](https://img.shields.io/nuget/v/CaseOnline.Azure.WebJobs.Extensions.Mqtt.svg)](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/)
@@ -10,13 +10,12 @@ This package enables you to:
 * Trigger an Azure Function based on a MQTT Subscription
 * Publish a message to a MQTT topic as a result of an Azure Function. 
 
-
 ## How to use
 
-* [Getting Started](wiki/Getting-started)
-* [Publish via output](wiki/Publish-via-output)
-* [Subscribe via trigger](wiki/Subscribe-via-trigger)
-* [And more in the Wiki](wiki)
+* [Getting Started](/../../wiki/Getting-started)
+* [Publish via output](/../../wiki/Publish-via-output)
+* [Subscribe via trigger](/../../wiki/Subscribe-via-trigger)
+* [And more in the Wiki](/../../wiki)
 
 ## Examples
 
@@ -26,9 +25,9 @@ Please find some examples here in the [sample project](./src/ExampleFunctions/).
 
 - [MQTTnet](https://github.com/chkr1011/MQTTnet)
 
-## Roadmap
+## Beta & Roadmap
 
-- 1.0.0 Initial release, april 2018
+This package currently is in a beta stage. This is because it depends on the ```3.0.0-beta5``` version of [```Microsoft.Azure.WebJobs.Extensions```](https://github.com/Azure/azure-webjobs-sdk-extensions/releases). When this becomes final this package will be updated to the 1.0.0 version as well. I expect this to be ~May 2018.
 
 ## MIT License
 Copyright (c) 2018 Kees Schollaart
