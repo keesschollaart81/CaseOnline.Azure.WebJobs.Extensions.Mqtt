@@ -14,6 +14,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
         /// <param name="nameResolver">The name resolver.</param>
         /// <param name="logger">The logger.</param>
         /// <returns>The MQTT configuration.</returns>
-        MqttConfig Create(INameResolver nameResolver, ILogger logger);
+        CustomMqttConfig Create(INameResolver nameResolver, ILogger logger);
     } 
 }

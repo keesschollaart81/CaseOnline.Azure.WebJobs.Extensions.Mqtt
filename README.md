@@ -3,76 +3,32 @@
 [![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)](https://bettercodehub.com/)
 [![NuGet](https://img.shields.io/nuget/v/CaseOnline.Azure.WebJobs.Extensions.Mqtt.svg)](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/)
 
-This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mqtt NuGet Package. This package enables you to trigger an Azure Function based on a MQTT Subscription. By binding a MqttTrigger attribute as an input parameter for your function, you'll receive messages of type MqttMessage. Internally this is wired up using [MQTTnet](https://github.com/chkr1011/MQTTnet).
+This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mqtt NuGet Package. 
+
+This package enables you to:
+
+* Trigger an Azure Function based on a MQTT Subscription
+* Publish a message to a MQTT topic as a result of an Azure Function. 
+
 
 ## How to use
-- Create an Azure Function using [Visual Studio](https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs) or using [Visual Studio Code](https://code.visualstudio.com/tutorials/functions-extension/getting-started)
-- Make sure your ```Microsoft.NET.Sdk.Functions``` package version is 1.0.11 or higher
-- Install the [CaseOnline.Azure.WebJobs.Extensions.Mqtt](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/) NuGet package in you Functions Project
-- Add the connectionstring to your Mqtt server to your 'local.settings.json' during development time or to your appsettings when running on Azure. 
-	The default name/key for the connectionstring is 'MqttConnection' and the availble parts are:
-    - Server (just the dns/hostname)
-    - Username (string, optional)
-    - Password (string, optional)
-    - Port (integer, optional, defaults to 1883 or 8883 when tls=true)
-    - Tls (boolean, optional, defaults to false)
-    - ClientId (string, optional, defaults to a random Guid)
-	
-	For example:
 
-	```
-	{ 
-		"Values": {
-			"MqttConnection": "Server=<<my.mqttserver.com>>;Username=<<username>>;Password=<<password>>"
-		}
-	}
-	```
-
-- When deploying/running on Azure, make sure the application-setting ```FUNCTIONS_EXTENSION_VERSION``` to ```beta```. 
-- Add a ```MqttTrigger``` attribute to your function parameters:
-
-    ```
-    public static void MyFunction([MqttTrigger(new[] { "my/mqtt/topic" })]IMqttMessage message) 
-    ```
-
-- Deploy / Run your function. Azure function will subscripe to the Mqtt server/topic(s) and trigger your function when messages get published
-
-## Beta - Work in progress!!
-The code currently works as it is but I have to make it better configurable before I publish it as a NuGet Package. Things that have to be done:
-- Have more beta-testers running/using it (please help! 😇)
-- Create more Unit Tests & Integration tests and get code coverage to >80%
-- Use ILogger instead of TraceWriter which currently does not output on dev machine for some reason? 
-- Create demos for integrations with CloudMqtt.net and Azure IoT Hub
-
-Expect a 1.0.0 version of the NuGet package in April '18.
-
-## Custom MQTT-Client Configuration
-Internally the [MQTTnet](https://github.com/chkr1011/MQTTnet) is used for the Mqtt implementation.  For complexer configurations, for example if you want to 
-- use Tls
-- pecial certificates 
-- custom logic for setting the topics/clientId 
-- connecting over websockets
-- control the QoS level per topic
-
-To do this, implemented a custom ```ICreateMqttConfig``` and provide this Type as parameter to the ```MqttTrigger``` like this:
-    
-```
-public static void MyFunction([MqttTrigger(typeof(MyMqttConfigProvider))]IqttMessage message)
-```
-     
-In your implementation of ```ICreateMqttConfig``` you need to return an instance of abstract class ```MqttConfig``` which requires you to implement a property of type ```IManagedMqttClientOptions```. Examples on how to build an instance of ```IManagedMqttClientOptions``` are available in the  [ManagedClient wiki of MQTTnet](https://github.com/chkr1011/MQTTnet/wiki/Client).
-
-An example of this custom client configuration is implemented in [this function](./src/ExampleFunctions/ExampleFunctions.cs#L34). 
+* [Getting Started](wiki/Getting-started)
+* [Publish via output](wiki/Publish-via-output)
+* [Subscribe via trigger](wiki/Subscribe-via-trigger)
+* [And more in the Wiki](wiki)
 
 ## Examples
-Please find some samples here in the [sample project](./src/ExampleFunctions/). The simple example subscribes to a topic where [Owntracks](http://owntracks.org/) publishes location information.
+
+Please find some examples here in the [sample project](./src/ExampleFunctions/). 
 
 ## References
+
 - [MQTTnet](https://github.com/chkr1011/MQTTnet)
 
 ## Roadmap
+
 - 1.0.0 Initial release, april 2018
-- 1.5.0 Output binding for publishing MQTT messages, june 2018
 
 ## MIT License
 Copyright (c) 2018 Kees Schollaart

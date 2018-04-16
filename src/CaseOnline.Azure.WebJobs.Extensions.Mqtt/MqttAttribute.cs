@@ -1,28 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Azure.WebJobs.Description;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
 {
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue)]
     [Binding]
-    public class MqttTriggerAttribute : Attribute, IRquireMqttConnection
+    public class MqttAttribute : Attribute, IRquireMqttConnection
     {
-        public MqttTriggerAttribute(params string[] topics)
+        public MqttAttribute(params string[] topics)
         {
             Topics = topics;
         }
 
-        public MqttTriggerAttribute(Type mqttConfigCreatorType, params string[] topics)
+        public MqttAttribute(Type mqttConfigCreatorType)
         {
             MqttConfigCreatorType = mqttConfigCreatorType;
-            Topics = topics;
         }
 
-        public Type MqttConfigCreatorType { get; }
+        public IEnumerable<string> Topics { get; }
 
-        public string[] Topics { get; }
-        
-        [AppSetting]
         public string ConnectionString { get; set; }
+
+        public Type MqttConfigCreatorType { get; }
     }
 }

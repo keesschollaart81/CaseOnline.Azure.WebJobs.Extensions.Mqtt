@@ -12,17 +12,19 @@ namespace ExampleFunctions
     {
         [FunctionName("SimpleFunction")]
         public static void SimpleFunction(
-            [MqttTrigger("test/topic/#")] IMqttMessage message,
+            [MqttTrigger("owntracks/#")] IMqttMessage message,
+            [Mqtt("testtopic/out")] out IMqttMessage outMessage,
             ILogger logger)
         {
             var body = message.GetMessage();
             var bodyString = Encoding.UTF8.GetString(body);
             logger.LogInformation($"{DateTime.Now:g} Message for topic {message.Topic}: {bodyString}");
+            outMessage = new MqttMessage("testtopic/in", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true);
         }
 
         [FunctionName("AdvancedFunction")]
         public static void AdvancedFunction(
-            [MqttTrigger(typeof(ExampleMqttConfigProvider))]IMqttMessage message,
+            [MqttTrigger(typeof(ExampleMqttConfigProvider), "testtopic/#")]IMqttMessage message,
             ILogger log)
         {
             var body = Encoding.UTF8.GetString(message.GetMessage());

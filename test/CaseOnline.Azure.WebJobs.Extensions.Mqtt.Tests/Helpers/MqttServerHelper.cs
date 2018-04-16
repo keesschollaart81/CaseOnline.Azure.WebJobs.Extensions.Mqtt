@@ -13,22 +13,24 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 {
     public class MqttServerHelper : IDisposable, IApplicationMessagePublisher
     {
-        static IMqttServer _mqttServer;
+        private IMqttServer _mqttServer;
         private readonly ILogger _logger;
         private readonly IMqttServerOptions _options;
+        public event EventHandler<OnMessageEventArgs> OnMessage;
+        private bool serverStarted = false;
 
         public static async Task<MqttServerHelper> Get(ILogger logger)
         {
-            var defaultOptions = new MqttServerOptionsBuilder()
+            var defaultServerOptions = new MqttServerOptionsBuilder()
                 .WithDefaultEndpointPort(1883)
                 .Build();
 
-            return await Get(logger, defaultOptions);
+            return await Get(logger, defaultServerOptions);
         }
 
-        public static async Task<MqttServerHelper> Get(ILogger logger, IMqttServerOptions options)
+        public static async Task<MqttServerHelper> Get(ILogger logger, IMqttServerOptions serverOptions)
         {
-            var serverHelper = new MqttServerHelper(logger, options);
+            var serverHelper = new MqttServerHelper(logger, serverOptions);
             await serverHelper.StartMqttServer();
             return serverHelper;
         }
@@ -41,17 +43,34 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         private async Task StartMqttServer()
         {
-            MqttTcpChannel.CustomCertificateValidationCallback = remoteValidation;
+            MqttTcpChannel.CustomCertificateValidationCallback = RemoteValidation;
             var logger = new MqttLogger(_logger);
-            _mqttServer = new MqttFactory().CreateMqttServer(new List<IMqttServerAdapter> { new MqttServerAdapter(logger) }, logger);
+            var factory = new MqttFactory();
+            _mqttServer = factory.CreateMqttServer(new List<IMqttServerAdapter> { new MqttTcpServerAdapter(logger) }, logger);
             _mqttServer.Started += Started;
             _mqttServer.ClientConnected += ClientConnected;
             _mqttServer.ClientDisconnected += ClientDisconnected;
 
             await _mqttServer.StartAsync(_options);
+
+            // wait for 5 seconds for server to be started
+            for(var i = 0; i < 100; i++)
+            {
+                if (serverStarted)
+                {
+                    return;
+                }
+                await Task.Delay(50);
+            }
+            throw new Exception("Mqtt Server did not start?");
         }
 
-        private bool remoteValidation(X509Certificate certificate, X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors, MqttClientTcpOptions options)
+        private void ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
+        {
+            OnMessage(this, new OnMessageEventArgs(e.ClientId, e.ApplicationMessage));
+        }
+
+        private bool RemoteValidation(X509Certificate certificate, X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors, MqttClientTcpOptions options)
         {
             _logger.LogDebug($"RemoteValidation: {sslPolicyErrors}");
             return true;
@@ -69,10 +88,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         private void Started(object sender, MqttServerStartedEventArgs e)
         {
+            serverStarted = true;
             _logger.LogDebug($"mqtt server started: {e}");
         }
+
         public void Dispose()
         {
+            serverStarted = false;
             _mqttServer.StopAsync().Wait();
             _mqttServer = null;
         }
@@ -80,6 +102,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         public async Task PublishAsync(IEnumerable<MqttApplicationMessage> applicationMessages)
         {
             await _mqttServer.PublishAsync(applicationMessages);
+        }
+
+        public async Task SubscribeAsync(string topic)
+        {
+            var clients = await _mqttServer.GetConnectedClientsAsync();
+            await _mqttServer.SubscribeAsync("Custom", new List<TopicFilter>() { new TopicFilter(topic, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) });
         }
     }
 }

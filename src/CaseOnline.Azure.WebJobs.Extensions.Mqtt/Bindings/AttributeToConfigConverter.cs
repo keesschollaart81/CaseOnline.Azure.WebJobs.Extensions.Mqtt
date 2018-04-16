@@ -1,13 +1,9 @@
 using System;
-using System.Data.Common;
-using System.Linq;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.ManagedClient;
-using MQTTnet.Protocol;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
@@ -19,7 +15,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private const string DefaultAppsettingsKeyForConnectionString = "MqttConnection";
 
         private readonly TimeSpan _detaultReconnectTime = TimeSpan.FromSeconds(5);
-        private readonly MqttTriggerAttribute _mqttTriggerAttribute;
+        private readonly IRquireMqttConnection _mqttTriggerAttribute;
         private readonly INameResolver _nameResolver;
         private readonly ILogger _logger;
 
@@ -29,7 +25,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// <param name="source">The trigger attribute.</param>
         /// <param name="nameResolver">The name resolver.</param>
         /// <param name="logger">The logger.</param>
-        public AttributeToConfigConverter(MqttTriggerAttribute source, INameResolver nameResolver, ILogger logger)
+        public AttributeToConfigConverter(IRquireMqttConnection source, INameResolver nameResolver, ILogger logger)
         {
             _mqttTriggerAttribute = source;
             _nameResolver = nameResolver;
@@ -44,13 +40,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// </returns>
         public MqttConfiguration GetMqttConfiguration()
         {
-            return !_mqttTriggerAttribute.UseCustomConfigCreator
+            return _mqttTriggerAttribute.MqttConfigCreatorType == null
                 ? GetConfigurationViaAttributeValues()
                 : GetConfigurationViaCustomConfigCreator();
         }
 
         private MqttConfiguration GetConfigurationViaAttributeValues()
         {
+            var name = _mqttTriggerAttribute.ConnectionString ?? DefaultAppsettingsKeyForConnectionString;
             var connectionString = _nameResolver.Resolve(_mqttTriggerAttribute.ConnectionString) ?? _nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
             var mqttConnectionString = new MqttConnectionString(connectionString);
 
@@ -61,9 +58,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                .WithClientOptions(mqttClientOptions)
                .Build();
 
-            var topics = _mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce));
-
-            return new MqttConfiguration(managedMqttClientOptions, topics);
+            return new MqttConfiguration(name, managedMqttClientOptions);
         }
 
         private IMqttClientOptions GetMqttClientOptions(MqttConnectionString connectionString)
@@ -80,7 +75,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             if (connectionString.Tls)
             {
-                //todo
+                //todo TLS verification
                 mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithTls(true, false, false);
             }
 
@@ -89,7 +84,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         private MqttConfiguration GetConfigurationViaCustomConfigCreator()
         {
-            MqttConfig customConfig;
+            CustomMqttConfig customConfig;
             try
             {
                 var customConfigCreator = (ICreateMqttConfig)Activator.CreateInstance(_mqttTriggerAttribute.MqttConfigCreatorType);
@@ -100,7 +95,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 throw new InvalidCustomConfigCreatorException($"Unexpected exception while getting creating a config via type {_mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
             }
 
-            return new MqttConfiguration(customConfig.Options, customConfig.Topics);
+            return new MqttConfiguration(customConfig.Name, customConfig.Options);
         }
     }
 }

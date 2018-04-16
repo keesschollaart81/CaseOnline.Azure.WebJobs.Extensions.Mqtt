@@ -3,42 +3,24 @@ using System.Text;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers.Logging;
-using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
 using Xunit;
 
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 {
-    public class IntegrationTests
+    public class TriggerTests : EndToEndTestBase
     {
-        private ILogger _logger;
-        private ILoggerFactory _loggerFactory;
-
-        private MqttApplicationMessage DefaultMessage = new MqttApplicationMessageBuilder()
-                    .WithTopic("test/topic")
-                    .WithPayload("{ \"test\":\"case\" }")
-                    .WithAtLeastOnceQoS()
-                    .Build();
-
-        public IntegrationTests()
-        {
-            _loggerFactory = new LoggerFactory();
-            _loggerFactory.AddProvider(new TestLoggerProvider());
-            _logger = _loggerFactory.CreateLogger("IntegrationTests");
-        }
-
         [Fact]
         public async Task SimpleMessageIsReceived()
         {
             using (var mqttServer = await MqttServerHelper.Get(_logger))
-            using (var jobHost = await JobHostHelper.RunFor<SimpleMessageIsReceivedTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<SimpleMessageIsReceivedTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => SimpleMessageIsReceivedTestFunction.CallCount >= 1);
+                await WaitFor(() => SimpleMessageIsReceivedTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, SimpleMessageIsReceivedTestFunction.CallCount);
@@ -64,18 +46,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         {
             string clientId = string.Empty;
             var options = new MqttServerOptionsBuilder()
-                   .WithConnectionValidator(x =>
-                   {
-                       clientId = x.ClientId;
-                   })
+                   .WithConnectionValidator(x => clientId = x.ClientId)
                    .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper.RunFor<CustomConnectionStringWithClientIdTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<CustomConnectionStringWithClientIdTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => CustomConnectionStringWithClientIdTestFunction.CallCount >= 1);
+                await WaitFor(() => CustomConnectionStringWithClientIdTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, CustomConnectionStringWithClientIdTestFunction.CallCount);
@@ -87,7 +66,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             public static int CallCount = 0;
             public static IMqttMessage LastReceivedMessage;
 
-            public static void Testert([MqttTrigger("test/topic", ConnectionString = "CustomMqttConnection")] IMqttMessage mqttMessage)
+            public static void Testert([MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithCustomClientId")] IMqttMessage mqttMessage)
             {
                 CallCount++;
                 LastReceivedMessage = mqttMessage;
@@ -111,11 +90,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper.RunFor<UsernameAndPasswordTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<UsernameAndPasswordTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => UsernameAndPasswordTestFunction.CallCount >= 1);
+                await WaitFor(() => UsernameAndPasswordTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, UsernameAndPasswordTestFunction.CallCount);
@@ -140,11 +119,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper.RunFor<SimpleMessageAnotherPortTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<SimpleMessageAnotherPortTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => SimpleMessageAnotherPortTestFunction.CallCount >= 1);
+                await WaitFor(() => SimpleMessageAnotherPortTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, SimpleMessageAnotherPortTestFunction.CallCount);
@@ -175,11 +154,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper.RunFor<FunctionConnectingWithTlsEnabledTestFunction>(_loggerFactory))
+            using (var jobHost = await JobHostHelper<FunctionConnectingWithTlsEnabledTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await jobHost.WaitFor(() => FunctionConnectingWithTlsEnabledTestFunction.CallCount >= 1);
+                await WaitFor(() => FunctionConnectingWithTlsEnabledTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, FunctionConnectingWithTlsEnabledTestFunction.CallCount);

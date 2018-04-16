@@ -36,7 +36,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers.Logging
                 return;
             }
 
-            Debug.WriteLine(formatter(state, exception));
+            Debug.WriteLine($"{DateTime.Now:hh:mm:ss.fff}: {formatter(state, exception)}");
 
             LogMessages.Add(new LogMessage
             {

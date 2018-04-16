@@ -9,13 +9,19 @@
     <RepositoryUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/blob/master/LICENSE</PackageLicenseUrl>
-    <VersionPrefix>0.0.3</VersionPrefix>
+    <VersionPrefix>0.9.0</VersionPrefix>
     <VersionSuffix>beta</VersionSuffix>
     <PackageTags>azure functions mqtt webjobs trigger binding function webjob</PackageTags>
     <AssemblyName>CaseOnline.Azure.WebJobs.Extensions.Mqtt</AssemblyName>
     <RootNamespace>CaseOnline.Azure.WebJobs.Extensions.Mqtt</RootNamespace>
     <PackageId>CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageId>
-    <Description>This package contains the runtime assemblies for CaseOnline.Azure.WebJobs.Extensions.Mqtt. For more information, please visit https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt.</Description>
+    <Description>
+      This package enables you to:
+
+      * Trigger an Azure Function based on a MQTT Subscription
+      * Publish a message to a MQTT topic as a result of an Azure Function. 
+      
+      For more information, please visit https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt.</Description>
     <PackageIconUrl>https://raw.githubusercontent.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/master/logo.png</PackageIconUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>analyzers.ruleset</CodeAnalysisRuleSet>
@@ -37,6 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.0-beta5" />
-    <PackageReference Include="MQTTnet" Version="2.7.1" />
+    <PackageReference Include="MQTTnet" Version="2.7.4" />
   </ItemGroup>
 </Project>

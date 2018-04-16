@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
@@ -16,17 +17,20 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     public class MqttTriggerAttributeBindingProvider : ITriggerBindingProvider
     {
         private readonly INameResolver _nameResolver;
-        private readonly ILogger _logger; 
+        private readonly MqttConnectionFactory _connectionFactory;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MqttTriggerAttribute"/>.
         /// </summary>
-        /// <param name="nameResolver">The name resolver.</param>
-        /// <param name="logger">The logger.</param>
-        internal MqttTriggerAttributeBindingProvider(INameResolver nameResolver, ILogger logger)
+        /// <param name="nameResolver">The name resolver</param>
+        /// <param name="connectionFactory">the connection factory</param>
+        /// <param name="logger">The logger</param>
+        internal MqttTriggerAttributeBindingProvider(INameResolver nameResolver, MqttConnectionFactory connectionFactory, ILogger logger)
         {
             _nameResolver = nameResolver;
-            _logger = logger; 
+            _connectionFactory = connectionFactory;
+            _logger = logger;
         }
 
         public Task<ITriggerBinding> TryCreateAsync(TriggerBindingProviderContext context)
@@ -42,13 +46,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 return Task.FromResult<ITriggerBinding>(null);
             }
 
-            _logger.LogDebug($"Creating binding for parameter '{context.Parameter.Name}', using custom config creator is '{mqttTriggerAttribute.UseCustomConfigCreator}'");
+            _logger.LogDebug($"Creating binding for parameter '{context.Parameter.Name}'");
 
-            var mqttTriggerBinding = GetMqttTriggerBinding(context.Parameter, mqttTriggerAttribute);
+            ITriggerBinding mqttTriggerBinding = GetMqttTriggerBinding(context.Parameter, mqttTriggerAttribute);
 
             _logger.LogDebug($"Succesfully created binding for parameter '{context.Parameter.Name}'");
 
-            return Task.FromResult<ITriggerBinding>(mqttTriggerBinding);
+            return Task.FromResult(mqttTriggerBinding);
         }
 
         private static MqttTriggerAttribute GetMqttTriggerAttribute(ParameterInfo parameter)
@@ -70,12 +74,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         private MqttTriggerBinding GetMqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute)
         {
-            var attributeToConfigConverter = new AttributeToConfigConverter(mqttTriggerAttribute, _nameResolver, _logger);
-
-            MqttConfiguration mqttConfiguration;
+            TopicFilter[] topics;
+            var mqttConnection = _connectionFactory.GetMqttConnection(mqttTriggerAttribute);
             try
             {
-                mqttConfiguration = attributeToConfigConverter.GetMqttConfiguration();
+                topics = mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)).ToArray();
             }
             catch (Exception ex)
             {
@@ -83,9 +86,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 throw;
             }
 
-            var mqttFactory = new MqttFactory();
-
-            return new MqttTriggerBinding(parameter, mqttFactory, mqttConfiguration, _logger);
+            return new MqttTriggerBinding(parameter, mqttConnection, topics, _logger);
         }
     }
 }
