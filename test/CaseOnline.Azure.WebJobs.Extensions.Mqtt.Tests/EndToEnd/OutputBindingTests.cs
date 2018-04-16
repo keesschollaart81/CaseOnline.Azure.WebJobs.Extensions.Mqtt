@@ -33,7 +33,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
         public class SimpleOutputIsPublishedTestFunction
         {
-            public static void Testert([Mqtt("test/topic")]out IMqttMessage mqttMessage)
+            public static void Testert([Mqtt]out IMqttMessage mqttMessage)
             {
                 mqttMessage = new MqttMessage("test/topic", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true);
             }
@@ -82,7 +82,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
             public static void Testert(
                 [MqttTrigger("test/topic")]IMqttMessage incomgingMessage,
-                [Mqtt("test/outtopic")]out IMqttMessage outGoingMessage)
+                [Mqtt()]out IMqttMessage outGoingMessage)
             {
                 LastIncomingMessage = incomgingMessage;
                 CallCount++;
@@ -140,7 +140,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
             public static void Testert(
                 [MqttTrigger("test/topic", ConnectionString = "MqttConnectionWithCustomPort")]IMqttMessage incomgingMessage,
-                [Mqtt("test/outtopic")]out IMqttMessage outGoingMessage)
+                [Mqtt]out IMqttMessage outGoingMessage)
             {
                 LastIncomingMessage = incomgingMessage;
                 CallCount++;
