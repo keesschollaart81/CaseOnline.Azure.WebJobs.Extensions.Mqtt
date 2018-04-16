@@ -10,14 +10,14 @@ namespace ExampleFunctions
 {
     public static class ExampleIoTHubFunctions
     {
-        // Attention: these functions are disabled in this example project because they require an Azure IoT Hub and a corresponding connectionstring
-        // To get these working, remove the [Disable] attribute on the triggers and a the IoTHubConnectionString to the settings
+        // Attention: this function is disabled because it requires an Azure IoT Hub and a corresponding connectionstring
+        // To get it working, remove the [Disable] attribute on the trigger and a the "IoTHubConnectionString" to the settings
         // More on IoT Hub: https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/wiki/Azure-IoT-Hub
 
         [FunctionName("CloudToDeviceMessages")]
         public static void CloudToDeviceMessages(
-            [MqttTrigger("devices/testdevice/messages/devicebound/#", "$iothub/methods/POST/#", ConnectionString = "IoTHubConnectionString")]IMqttMessage message,
-            [Mqtt] out IMqttMessage response,
+            [MqttTrigger("devices/testdevice/messages/devicebound/#", "$iothub/methods/POST/#", ConnectionString = "IoTHubConnectionString"), Disable]IMqttMessage message,
+            [Mqtt(ConnectionString = "IoTHubConnectionString")] out IMqttMessage response,
             ILogger logger)
         {
             var body = message.GetMessage();
