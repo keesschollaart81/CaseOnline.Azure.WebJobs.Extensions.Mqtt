@@ -5,7 +5,6 @@ using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
 using MQTTnet;
 using MQTTnet.Server;
 using Xunit;
-using System.Collections.Async;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;

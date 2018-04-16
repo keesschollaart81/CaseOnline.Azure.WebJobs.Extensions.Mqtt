@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
@@ -42,7 +45,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
         [Fact]
         public async Task TriggerAndOutputReuseConnection()
         {
-            MqttApplicationMessage mqttApplicationMessage = null;
+            var mqttApplicationMessages = new List<MqttApplicationMessage>(); ;
             var counnections = 0;
             var options = new MqttServerOptionsBuilder()
                 .WithConnectionValidator(x =>
@@ -58,20 +61,22 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             using (var jobHost = await JobHostHelper<TriggerAndOutputWithSameConnectionTestFunction>.RunFor(_loggerFactory))
             {
                 await mqttClient.SubscribeAsync("test/outtopic");
-                mqttClient.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessage = e.ApplicationMessage;
+                await mqttClient.SubscribeAsync("test/outtopic2");
+                mqttClient.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessages.Add(e.ApplicationMessage);
 
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await WaitFor(() => TriggerAndOutputWithSameConnectionTestFunction.CallCount >= 1);
+                await WaitFor(() => TriggerAndOutputWithSameConnectionTestFunction.CallCount >= 2);
             }
 
             Assert.Equal(1, TriggerAndOutputWithSameConnectionTestFunction.CallCount);
             Assert.Equal(1, counnections);
 
-            Assert.NotNull(mqttApplicationMessage);
-            Assert.Equal("test/outtopic", mqttApplicationMessage.Topic);
+            Assert.Equal(2, mqttApplicationMessages.Count);
+            Assert.Contains(mqttApplicationMessages, x => x.Topic == "test/outtopic");
+            Assert.Contains(mqttApplicationMessages, x => x.Topic == "test/outtopic2");
 
-            var bodyString = Encoding.UTF8.GetString(mqttApplicationMessage.Payload);
+            var bodyString = Encoding.UTF8.GetString(mqttApplicationMessages.First().Payload);
             Assert.Equal("{\"test\":\"message\"}", bodyString);
         }
 
@@ -82,16 +87,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
             public static void Testert(
                 [MqttTrigger("test/topic")]IMqttMessage incomgingMessage,
-                [Mqtt("test/outtopic")]out IMqttMessage outGoingMessage)
+                [Mqtt]out IMqttMessage outGoingMessage,
+                [Mqtt]out IMqttMessage outGoingMessage2)
             {
                 LastIncomingMessage = incomgingMessage;
-                CallCount++;
+                Interlocked.Increment(ref CallCount);
 
                 var updatedBody = Encoding.UTF8.GetBytes("{\"test\":\"message\"}");
                 outGoingMessage = new MqttMessage("test/outtopic", updatedBody, MqttQualityOfServiceLevel.AtLeastOnce, true);
+                outGoingMessage2 = new MqttMessage("test/outtopic2", updatedBody, MqttQualityOfServiceLevel.AtLeastOnce, true);
             }
         }
-
 
         [Fact]
         public async Task TriggerAndOutputUseDifferentConnection()

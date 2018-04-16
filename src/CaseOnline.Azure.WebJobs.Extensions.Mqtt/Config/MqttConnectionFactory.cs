@@ -1,5 +1,5 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
@@ -28,6 +28,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
         {
             var attributeToConfigConverter = new AttributeToConfigConverter(attribute, _nameResolver, _logger);
             var mqttConfiguration = attributeToConfigConverter.GetMqttConfiguration();
+            if (mqttConnections.ContainsKey(mqttConfiguration.Name) && attribute is MqttTriggerAttribute)
+            {
+                throw new Exception($"Error setting up listener for this attribute. Connectionstring '{mqttConfiguration.Name}' is already used by another Trigger. Connections can only be reused for output bindings. Each trigger needs it own connectionstring");
+            }
             var connection = mqttConnections.GetOrAdd(mqttConfiguration.Name, (c) => new MqttConnection(_mqttFactory, mqttConfiguration, _logger));
             return connection;
         }

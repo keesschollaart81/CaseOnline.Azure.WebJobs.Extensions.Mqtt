@@ -15,30 +15,33 @@ namespace ExampleFunctions
         // More on IoT Hub: https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/wiki/Azure-IoT-Hub
 
         [FunctionName("CloudToDeviceMessages")]
-        public static void CloudToDeviceMessages([MqttTrigger("devices/testdevice/messages/devicebound/#", ConnectionString = "IoTHubConnectionString"), Disable]IMqttMessage message, ILogger logger)
+        public static void CloudToDeviceMessages(
+            [MqttTrigger("devices/testdevice/messages/devicebound/#", "$iothub/methods/POST/#", ConnectionString = "IoTHubConnectionString")]IMqttMessage message,
+            [Mqtt] out IMqttMessage response,
+            ILogger logger)
         {
             var body = message.GetMessage();
             var bodyString = Encoding.UTF8.GetString(body);
             logger.LogInformation($"{DateTime.Now:g} Message for topic {message.Topic}: {bodyString}");
+
+            if (message.Topic.Contains("methods"))
+            {
+                response = CloudToDeviceMethodCall(message.Topic, bodyString);
+            }
+            else
+            {
+                response = null;
+            }
         }
 
-        [FunctionName("ReplyToMethodCalls")]
-        public static void ReplyToMethodCalls(
-            [MqttTrigger("$iothub/methods/POST/#", ConnectionString = "IoTHubConnectionString"), Disable]IMqttMessage request,
-            [Mqtt] out IMqttMessage response,
-            ILogger logger)
+        private static IMqttMessage CloudToDeviceMethodCall(string topic, string message)
         {
-            var body = request.GetMessage();
-            var bodyString = Encoding.UTF8.GetString(body);
-
-            logger.LogInformation($"{DateTime.Now:g} Request for topic {request.Topic}: {bodyString}");
-
-            var requestId = request.Topic.Split('=').Last();
+            var requestId = topic.Split('=').Last();
 
             var responseBodyString = "{}";
             var responseBodyBytes = Encoding.UTF8.GetBytes(responseBodyString);
 
-            response = new MqttMessage($"$iothub/methods/res/200/?$rid={requestId}", responseBodyBytes, MqttQualityOfServiceLevel.AtLeastOnce, true);
+            return new MqttMessage($"$iothub/methods/res/200/?$rid={requestId}", responseBodyBytes, MqttQualityOfServiceLevel.AtLeastOnce, true);
         }
     }
 }
