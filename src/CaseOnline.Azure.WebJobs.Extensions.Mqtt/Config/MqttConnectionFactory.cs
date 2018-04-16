@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
@@ -38,14 +39,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 
         internal bool AllConnectionsConnected()
         {
-            foreach (var connection in mqttConnections)
-            {
-                if (!connection.Value.Connected)
-                {
-                    return false;
-                }
-            }
-            return true;
+            return mqttConnections.All(x => x.Value.ConnectionState == ConnectionState.Connected);
         }
 
         public async Task DisconnectAll()

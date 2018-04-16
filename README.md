@@ -8,18 +8,40 @@ This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mq
 This package enables you to:
 
 * Trigger an Azure Function based on a MQTT Subscription
-* Publish a message to a MQTT topic as a result of an Azure Function. 
+* Publish a message to a MQTT topic as a result of an Azure Function
+
+Are you curious what MQTT is? Check [this page](http://mqtt.org/faq)!
 
 ## How to use
 
 * [Getting Started](/../../wiki/Getting-started)
 * [Publish via output](/../../wiki/Publish-via-output)
 * [Subscribe via trigger](/../../wiki/Subscribe-via-trigger)
+* [Integrate with Azure IoT Hub](/../../Azure-IoT-Hub)
 * [And more in the Wiki](/../../wiki)
 
 ## Examples
 
-Please find some examples here in the [sample project](./src/ExampleFunctions/). 
+This is a simple example, receicing messages for topic ```my/topic/in``` and publishing messages on topic ```testtopic/out```.
+
+``` csharp
+public static class ExampleFunctions
+{
+    [FunctionName("SimpleFunction")]
+    public static void SimpleFunction(
+        [MqttTrigger("my/topic/in")] IMqttMessage message,
+        [Mqtt] out IMqttMessage outMessage,
+        ILogger logger)
+    {
+        var body = message.GetMessage();
+        var bodyString = Encoding.UTF8.GetString(body);
+        logger.LogInformation($"{DateTime.Now:g} Message for topic {message.Topic}: {bodyString}");
+        outMessage = new MqttMessage("testtopic/out", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true);
+    }
+}
+```
+
+Please find all working examples in the [sample project](./src/ExampleFunctions/). 
 
 ## References
 

@@ -8,7 +8,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
     {
         event Func<MqttMessageReceivedEventArgs, Task> OnMessageEventHandler;
 
-        bool Connected { get; }
+        ConnectionState ConnectionState { get; }
 
         Task StartAsync();
 

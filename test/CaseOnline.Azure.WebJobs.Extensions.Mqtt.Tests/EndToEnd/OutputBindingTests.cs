@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
+using Microsoft.Azure.WebJobs;
 using MQTTnet;
 using MQTTnet.Server;
 using Xunit;
@@ -153,6 +154,47 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
                 var updatedBody = Encoding.UTF8.GetBytes("{\"test\":\"message\"}");
                 outGoingMessage = new MqttMessage("test/outtopic", updatedBody, MqttQualityOfServiceLevel.AtLeastOnce, true);
+            }
+        }
+
+
+        [Fact]
+        public async Task ICollectorOutputsArePublished()
+        {
+            var mqttApplicationMessages = new List<MqttApplicationMessage>(); ;
+
+            using (var mqttServer = await MqttServerHelper.Get(_logger))
+            using (var mqttClient = await MqttClientHelper.Get(_logger))
+            using (var jobHost = await JobHostHelper<ICollectorOutputIsPublishedTestFunction>.RunFor(_loggerFactory))
+            {
+                await mqttClient.SubscribeAsync("test/outtopic");
+                await mqttClient.SubscribeAsync("test/outtopic2");
+                mqttClient.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessages.Add(e.ApplicationMessage);
+
+                await jobHost.CallAsync(nameof(ICollectorOutputIsPublishedTestFunction.Testert));
+
+                await WaitFor(() => ICollectorOutputIsPublishedTestFunction.CallCount >= 1);
+            }
+
+            Assert.Equal(1, ICollectorOutputIsPublishedTestFunction.CallCount);
+
+            Assert.Equal(2, mqttApplicationMessages.Count);
+            Assert.Contains(mqttApplicationMessages, x => x.Topic == "test/outtopic");
+            Assert.Contains(mqttApplicationMessages, x => x.Topic == "test/outtopic2");
+
+            var bodyString = Encoding.UTF8.GetString(mqttApplicationMessages.First().Payload);
+            Assert.Equal("", bodyString);
+        }
+
+        public class ICollectorOutputIsPublishedTestFunction
+        {
+            public static int CallCount = 0;
+
+            public static void Testert([Mqtt] ICollector<IMqttMessage> mqttMessages)
+            {
+                Interlocked.Increment(ref CallCount);
+                mqttMessages.Add(new MqttMessage("test/outtopic", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true));
+                mqttMessages.Add(new MqttMessage("test/outtopic2", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true));
             }
         }
     }

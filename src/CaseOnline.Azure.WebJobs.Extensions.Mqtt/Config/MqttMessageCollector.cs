@@ -21,7 +21,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 
         public async Task AddAsync(IMqttMessage item, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (!_mqttConnection.Connected)
+            if (_mqttConnection.ConnectionState != ConnectionState.Connected)
             {
                 await _mqttConnection.StartAsync().ConfigureAwait(false);
             }

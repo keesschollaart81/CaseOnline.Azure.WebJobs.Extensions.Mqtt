@@ -48,7 +48,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             mockManagedMqttClient.Raise(x => x.Connected += null, new MqttClientConnectedEventArgs(true));
 
             // Assert 
-            Assert.True(mqttConnection.Connected);
+            Assert.Equal(ConnectionState.Connected, mqttConnection.ConnectionState);
             mockMqttClientFactory.VerifyAll();
             mockManagedMqttClient.VerifyAll();
         }
