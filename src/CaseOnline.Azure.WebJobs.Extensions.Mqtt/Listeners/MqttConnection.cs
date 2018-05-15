@@ -32,7 +32,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         /// <summary>
         /// Gets the current status of the connection
         /// </summary>
-        public ConnectionState ConnectionState { get; private set; } 
+        public ConnectionState ConnectionState { get; private set; }
 
         /// <summary>
         /// Gets the descriptor for this Connection.
@@ -66,7 +66,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             }
             catch (Exception e)
             {
-                _logger.LogCritical($"Exception while setting up the mqttclient to {this}", e);
+                _logger.LogCritical(new EventId(0), e, $"Exception while setting up the mqttclient to {this}");
                 throw new MqttConnectionException($"Exception while setting up the mqttclient to {this}", e);
             }
         }
@@ -75,14 +75,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         {
             if (e.HasFailed)
             {
-                _logger.LogError($"Message could not be processed for {this}, message: '{e.Exception?.Message}'", e.Exception);
+                _logger.LogError(new EventId(0), e.Exception, $"Message could not be processed for {this}, message: '{e.Exception?.Message}'");
             }
         }
 
         private void ManagedMqttClientDisconnected(object sender, MqttClientDisconnectedEventArgs e)
         {
             ConnectionState = ConnectionState.Disconnected;
-            _logger.LogWarning($"MqttConnection Disconnected, previous connectivity state '{e.ClientWasConnected}' for {this}, message: '{e.Exception?.Message}'", e.Exception);
+            _logger.LogWarning(new EventId(0), e.Exception, $"MqttConnection Disconnected, previous connectivity state '{e.ClientWasConnected}' for {this}, message: '{e.Exception?.Message}'");
         }
 
         private void ManagedMqttClientConnected(object sender, MqttClientConnectedEventArgs e)
@@ -108,7 +108,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             }
             catch (Exception e)
             {
-                _logger.LogCritical($"Exception while processing message for {this}", e);
+                _logger.LogCritical(new EventId(0), e, $"Exception while processing message for {this}");
                 throw new MqttConnectionException($"Exception while processing message for {this}", e);
             }
         }
