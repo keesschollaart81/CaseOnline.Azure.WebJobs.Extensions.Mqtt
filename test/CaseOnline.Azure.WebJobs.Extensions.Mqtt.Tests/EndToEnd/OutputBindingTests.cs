@@ -11,6 +11,8 @@ using MQTTnet;
 using MQTTnet.Server;
 using Xunit;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 {
     public class OutputBindingTests : EndToEndTestBase
@@ -157,8 +159,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             }
         }
 
-        // todo investigate why this fails in VSTS
-        [Fact(Skip = "Works on my machine, not in build agent")]
+        [Fact]
         public async Task ICollectorOutputsArePublished()
         {
             var mqttApplicationMessages = new List<MqttApplicationMessage>(); ;
