@@ -14,6 +14,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         private readonly ILogger _logger;
         private readonly IManagedMqttClientOptions _options;
         public event EventHandler<OnMessageEventArgs> OnMessage;
+        private bool IsConnected { get; set; }
 
         public static async Task<MqttClientHelper> Get(ILogger logger)
         {
@@ -31,7 +32,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         {
             var clientHelper = new MqttClientHelper(logger, clientOptions);
             await clientHelper.StartMqttClient();
-            return clientHelper;
+
+            // wait for 5 seconds for client to be connected
+            for (var i = 0; i < 100; i++)
+            {
+                if (clientHelper.IsConnected)
+                {
+                    return clientHelper;
+                }
+                await Task.Delay(50);
+            }
+            throw new Exception("Could not connect to server");
         }
 
         private MqttClientHelper(ILogger logger, IManagedMqttClientOptions options)
@@ -63,6 +74,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         private void _mqttClient_Connected(object sender, MQTTnet.Client.MqttClientConnectedEventArgs e)
         {
+            IsConnected = true;
             _logger.LogDebug($"_mqttClient_Connected");
         }
         

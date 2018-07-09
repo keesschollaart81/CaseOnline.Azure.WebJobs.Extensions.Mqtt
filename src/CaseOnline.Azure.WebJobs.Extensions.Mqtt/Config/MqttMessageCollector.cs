@@ -24,6 +24,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
             if (_mqttConnection.ConnectionState != ConnectionState.Connected)
             {
                 await _mqttConnection.StartAsync().ConfigureAwait(false);
+                for (var i = 0; i < 100; i++)
+                {
+                    if (_mqttConnection.ConnectionState != ConnectionState.Connected)
+                    {
+                        await Task.Delay(50).ConfigureAwait(false);
+                    } 
+                }
             }
             var qos = (MQTTnet.Protocol.MqttQualityOfServiceLevel)Enum.Parse(typeof(MQTTnet.Protocol.MqttQualityOfServiceLevel), item.QosLevel.ToString());
             var mqttApplicationMessage = new MqttApplicationMessage

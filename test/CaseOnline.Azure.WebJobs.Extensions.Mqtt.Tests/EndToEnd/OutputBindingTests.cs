@@ -174,6 +174,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 await jobHost.CallAsync(nameof(ICollectorOutputIsPublishedTestFunction.Testert));
 
                 await WaitFor(() => ICollectorOutputIsPublishedTestFunction.CallCount >= 1);
+
+                await WaitFor(() => mqttApplicationMessages.Count > 0);
             }
 
             Assert.Equal(1, ICollectorOutputIsPublishedTestFunction.CallCount);
@@ -192,9 +194,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
             public static void Testert([Mqtt] ICollector<IMqttMessage> mqttMessages)
             {
-                Interlocked.Increment(ref CallCount);
                 mqttMessages.Add(new MqttMessage("test/outtopic", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true));
                 mqttMessages.Add(new MqttMessage("test/outtopic2", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true));
+                Interlocked.Increment(ref CallCount);
             }
         }
     }
