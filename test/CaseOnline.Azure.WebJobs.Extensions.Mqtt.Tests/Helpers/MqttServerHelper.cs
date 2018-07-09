@@ -17,10 +17,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         public event EventHandler<OnMessageEventArgs> OnMessage;
         private bool serverStarted = false;
 
-        public static async Task<MqttServerHelper> Get(ILogger logger)
+        public static async Task<MqttServerHelper> Get(ILogger logger, int port = 1883)
         {
             var defaultServerOptions = new MqttServerOptionsBuilder()
-                .WithDefaultEndpointPort(1883)
+                .WithDefaultEndpointPort(port)
                 .Build();
 
             return await Get(logger, defaultServerOptions);
@@ -55,6 +55,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             {
                 if (serverStarted)
                 {
+                    _logger.LogDebug($"Waited for {i * 50} milliseconds for server to be started");
                     return;
                 }
                 await Task.Delay(50);

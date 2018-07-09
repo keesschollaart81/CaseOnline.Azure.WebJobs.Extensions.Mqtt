@@ -11,26 +11,28 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
     public class MqttClientHelper : IDisposable
     {
         static IManagedMqttClient _mqttClient;
-        private readonly ILogger _logger;
+        private static ILogger _logger;
         private readonly IManagedMqttClientOptions _options;
         public event EventHandler<OnMessageEventArgs> OnMessage;
         private bool IsConnected { get; set; }
 
-        public static async Task<MqttClientHelper> Get(ILogger logger)
+        public static async Task<MqttClientHelper> Get(ILogger logger, int port = 1883)
         {
+            _logger = logger;
+
             var defaultClientOptions = new ManagedMqttClientOptionsBuilder()
                 .WithClientOptions(new MqttClientOptionsBuilder()
-                    .WithTcpServer("localhost")
+                    .WithTcpServer("127.0.0.1", port)
                     .WithClientId("IntegrationTest")
                     .Build())
                 .Build();
 
-            return await Get(logger, defaultClientOptions);
+            return await Get( defaultClientOptions);
         }
 
-        public static async Task<MqttClientHelper> Get(ILogger logger, IManagedMqttClientOptions clientOptions)
+        public static async Task<MqttClientHelper> Get(IManagedMqttClientOptions clientOptions)
         {
-            var clientHelper = new MqttClientHelper(logger, clientOptions);
+            var clientHelper = new MqttClientHelper(clientOptions);
             await clientHelper.StartMqttClient();
 
             // wait for 5 seconds for client to be connected
@@ -38,6 +40,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             {
                 if (clientHelper.IsConnected)
                 {
+                    _logger.LogDebug($"Waited for {i * 50} milliseconds for client to be connected");
                     return clientHelper;
                 }
                 await Task.Delay(50);
@@ -45,9 +48,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             throw new Exception("Could not connect to server");
         }
 
-        private MqttClientHelper(ILogger logger, IManagedMqttClientOptions options)
+        private MqttClientHelper(IManagedMqttClientOptions options)
         {
-            _logger = logger;
             _options = options;
         }
 
@@ -67,12 +69,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             OnMessage(this, new OnMessageEventArgs(e.ClientId, e.ApplicationMessage));
         }
 
-        private void _mqttClient_Disconnected(object sender, MQTTnet.Client.MqttClientDisconnectedEventArgs e)
+        private void _mqttClient_Disconnected(object sender, MqttClientDisconnectedEventArgs e)
         {
             _logger.LogDebug($"_mqttClient_Disconnected: {e.Exception?.Message}");
         }
 
-        private void _mqttClient_Connected(object sender, MQTTnet.Client.MqttClientConnectedEventArgs e)
+        private void _mqttClient_Connected(object sender, MqttClientConnectedEventArgs e)
         {
             IsConnected = true;
             _logger.LogDebug($"_mqttClient_Connected");
