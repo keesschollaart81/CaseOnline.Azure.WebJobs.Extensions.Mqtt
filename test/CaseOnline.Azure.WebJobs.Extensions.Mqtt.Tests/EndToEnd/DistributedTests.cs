@@ -2,7 +2,6 @@ using System.Text;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
-using MQTTnet;
 using MQTTnet.Server;
 using Xunit;
 using System.Linq;

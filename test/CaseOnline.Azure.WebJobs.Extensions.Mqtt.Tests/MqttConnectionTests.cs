@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using MQTTnet;
 using MQTTnet.Client;
-using MQTTnet.ManagedClient;
+using MQTTnet.Extensions.ManagedClient;
 using Xunit;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
@@ -29,7 +29,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange 
             var mockManagedMqttClient = new Mock<IManagedMqttClient>();
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
-            var mockMqttClientFactory = new Mock<IMqttClientFactory>();
+            var mockMqttClientFactory = new Mock<IManagedMqttClientFactory>();
 
             mockMqttClientFactory
                 .Setup(m => m.CreateManagedMqttClient())
@@ -59,7 +59,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange 
             var mockManagedMqttClient = new Mock<IManagedMqttClient>();
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
-            var mockMqttClientFactory = new Mock<IMqttClientFactory>();
+            var mockMqttClientFactory = new Mock<IManagedMqttClientFactory>();
 
             mockMqttClientFactory
                 .Setup(m => m.CreateManagedMqttClient())

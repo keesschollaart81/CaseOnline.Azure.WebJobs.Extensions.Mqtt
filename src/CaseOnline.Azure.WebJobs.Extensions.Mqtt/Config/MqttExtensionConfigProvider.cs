@@ -1,4 +1,5 @@
 ﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host.Config;
 using Microsoft.Azure.WebJobs.Logging;
@@ -20,7 +21,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
             var logger = context.Config.LoggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
 
             var nameResolver = context.Config.GetService<INameResolver>();
-            var mqttConnectionFactory = new MqttConnectionFactory(logger, new MqttFactory(), nameResolver);
+            var mqttConnectionFactory = new MqttConnectionFactory(logger, new ManagedMqttClientFactory(new MqttFactory()), nameResolver);
 
             context.Config.AddService(typeof(IMqttConnectionFactory), mqttConnectionFactory);
 

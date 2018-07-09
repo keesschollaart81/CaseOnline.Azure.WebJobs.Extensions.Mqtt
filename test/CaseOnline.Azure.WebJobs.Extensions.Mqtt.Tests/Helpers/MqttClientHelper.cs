@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client;
-using MQTTnet.ManagedClient;
+using MQTTnet.Extensions.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 {

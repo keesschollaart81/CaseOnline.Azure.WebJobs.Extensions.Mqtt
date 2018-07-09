@@ -5,7 +5,7 @@ using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client;
-using MQTTnet.ManagedClient;
+using MQTTnet.Extensions.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
@@ -14,13 +14,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
     /// </summary>
     public class MqttConnection : IMqttConnection
     {
-        private IMqttClientFactory _mqttClientFactory;
+        private IManagedMqttClientFactory _mqttClientFactory;
         private MqttConfiguration _config;
         private ILogger _logger;
         private IManagedMqttClient _managedMqttClient;
         private object startupLock = new object();
 
-        public MqttConnection(IMqttClientFactory mqttClientFactory, MqttConfiguration config, ILogger logger)
+        public MqttConnection(IManagedMqttClientFactory mqttClientFactory, MqttConfiguration config, ILogger logger)
         {
             _mqttClientFactory = mqttClientFactory;
             _config = config;

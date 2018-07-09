@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Adapter;
-using MQTTnet.Client;
 using MQTTnet.Implementations;
 using MQTTnet.Server;
 
@@ -43,10 +41,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         private async Task StartMqttServer()
         {
-            MqttTcpChannel.CustomCertificateValidationCallback = RemoteValidation;
             var logger = new MqttLogger(_logger);
             var factory = new MqttFactory();
-            _mqttServer = factory.CreateMqttServer(new List<IMqttServerAdapter> { new MqttTcpServerAdapter(logger) }, logger);
+            _mqttServer = factory.CreateMqttServer(new List<IMqttServerAdapter> { new MqttTcpServerAdapter(logger.CreateChildLogger()) }, logger);
             _mqttServer.Started += Started;
             _mqttServer.ClientConnected += ClientConnected;
             _mqttServer.ClientDisconnected += ClientDisconnected;
@@ -54,7 +51,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             await _mqttServer.StartAsync(_options);
 
             // wait for 5 seconds for server to be started
-            for(var i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 if (serverStarted)
                 {
@@ -70,23 +67,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             OnMessage(this, new OnMessageEventArgs(e.ClientId, e.ApplicationMessage));
         }
 
-        private bool RemoteValidation(X509Certificate certificate, X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors, MqttClientTcpOptions options)
-        {
-            _logger.LogDebug($"RemoteValidation: {sslPolicyErrors}");
-            return true;
-        }
-
         private void ClientDisconnected(object sender, MQTTnet.Server.MqttClientDisconnectedEventArgs e)
         {
-            _logger.LogDebug($"_mqttServer_ClientDisconnected: {e.Client.ClientId}");
+            _logger.LogDebug($"_mqttServer_ClientDisconnected: {e.ClientId}");
         }
 
         private void ClientConnected(object sender, MQTTnet.Server.MqttClientConnectedEventArgs e)
         {
-            _logger.LogDebug($"_mqttServer_ClientConnected: {e.Client.ClientId}");
+            _logger.LogDebug($"_mqttServer_ClientConnected: {e.ClientId}");
         }
 
-        private void Started(object sender, MqttServerStartedEventArgs e)
+        private void Started(object sender, EventArgs e)
         {
             serverStarted = true;
             _logger.LogDebug($"mqtt server started: {e}");
@@ -106,8 +97,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         public async Task SubscribeAsync(string topic)
         {
-            var clients = await _mqttServer.GetConnectedClientsAsync();
             await _mqttServer.SubscribeAsync("Custom", new List<TopicFilter>() { new TopicFilter(topic, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) });
+        }
+
+        public async Task PublishAsync(MqttApplicationMessage applicationMessage)
+        {
+            await _mqttServer.PublishAsync(applicationMessage);
         }
     }
 }

@@ -26,7 +26,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
                 await _mqttConnection.StartAsync().ConfigureAwait(false);
             }
             var qos = (MQTTnet.Protocol.MqttQualityOfServiceLevel)Enum.Parse(typeof(MQTTnet.Protocol.MqttQualityOfServiceLevel), item.QosLevel.ToString());
-            var mqttApplicationMessage = new MqttApplicationMessage(item.Topic, item.GetMessage(), qos, item.Retain);
+            var mqttApplicationMessage = new MqttApplicationMessage
+            {
+                Topic = item.Topic,
+                Payload = item.GetMessage(),
+                QualityOfServiceLevel = qos,
+                Retain = item.Retain
+            };
             await _mqttConnection.PublishAsync(mqttApplicationMessage).ConfigureAwait(false);
         }
 

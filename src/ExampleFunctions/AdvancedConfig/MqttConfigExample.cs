@@ -1,4 +1,4 @@
-using MQTTnet.ManagedClient;
+using MQTTnet.Extensions.ManagedClient;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 
 namespace ExampleFunction.AdvancedConfig
