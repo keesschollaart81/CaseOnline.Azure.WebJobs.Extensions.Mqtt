@@ -17,5 +17,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers.Logging
         public string FormattedMessage { get; set; }
 
         public string Category { get; set; }
+
+        public DateTime Timestamp { get; set; }
+
+        public override string ToString() => $"[{Timestamp.ToString("HH:mm:ss.fff")}] [{Category}] {FormattedMessage} {Exception}";
     }
 }

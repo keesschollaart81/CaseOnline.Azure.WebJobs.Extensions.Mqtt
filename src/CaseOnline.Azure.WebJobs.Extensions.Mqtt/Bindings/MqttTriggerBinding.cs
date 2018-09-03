@@ -28,9 +28,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// Initializes a new instance of the <see cref="MqttTriggerAttribute"/> class.
         /// </summary>
         /// <param name="parameter">The parameter to bind to.</param>
-        /// <param name="connection">The MQTT connection</param>
-        /// <param name="topics">The topics to subscribe to</param>
-        /// <param name="logger">The logger</param>
+        /// <param name="connection">The MQTT connection.</param>
+        /// <param name="topics">The topics to subscribe to.</param>
+        /// <param name="logger">The logger.</param>
         public MqttTriggerBinding(ParameterInfo parameter, MqttConnection connection, TopicFilter[] topics, ILogger logger)
         {
             _parameter = parameter;
