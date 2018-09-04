@@ -52,7 +52,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers.Logging
 
         public void Dispose()
         {
-            Debug.WriteLine(GetLogString());
         }
     }
 }

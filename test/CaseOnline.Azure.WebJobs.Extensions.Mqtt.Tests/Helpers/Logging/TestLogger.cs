@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -68,6 +69,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers.Logging
             lock (_syncLock)
             {
                 _logMessages.Add(logMessage);
+                Debug.WriteLine(logMessage.FormattedMessage);
             }
 
             _logAction?.Invoke(logMessage);
