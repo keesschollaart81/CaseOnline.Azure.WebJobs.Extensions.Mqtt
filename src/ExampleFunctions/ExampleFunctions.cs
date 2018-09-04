@@ -2,9 +2,7 @@ using System;
 using Microsoft.Azure.WebJobs;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt;
 using ExampleFunction.AdvancedConfig;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 
 namespace ExampleFunctions
 {
@@ -47,7 +45,7 @@ namespace ExampleFunctions
         [FunctionName("TimerFunction")]
         public static void TimerFunction( 
             [TimerTrigger("0 * * * * *")]TimerInfo timerInfo,
-            [Mqtt(ConnectionString = "AnotherConnection")] ICollector<IMqttMessage> outMessages,
+            [Mqtt] ICollector<IMqttMessage> outMessages,
             ILogger logger)
         {
             var body = Encoding.UTF8.GetBytes($"It is currently {DateTime.UtcNow:g}");

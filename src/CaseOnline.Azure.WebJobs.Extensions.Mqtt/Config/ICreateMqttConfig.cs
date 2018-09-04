@@ -1,6 +1,3 @@
-using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
-
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
     /// <summary>

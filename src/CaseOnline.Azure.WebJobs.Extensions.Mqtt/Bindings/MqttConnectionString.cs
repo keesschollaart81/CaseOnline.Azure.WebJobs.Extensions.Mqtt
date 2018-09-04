@@ -1,7 +1,4 @@
-﻿using System;
-using System.Data.Common;
-
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
     public class MqttConnectionString
     {

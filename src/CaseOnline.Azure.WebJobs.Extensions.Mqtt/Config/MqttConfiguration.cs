@@ -1,7 +1,4 @@
-﻿using System;
-using MQTTnet.Extensions.ManagedClient;
-
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
     /// <summary>
     /// The configuration for MQTT.

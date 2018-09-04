@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -171,7 +170,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             { 
                 await mqttClient.SubscribeAsync("test/outtopic");
                 await mqttClient.SubscribeAsync("test/outtopic2"); 
-
                 mqttClient.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessages.Add(e.ApplicationMessage);
 
                 await jobHost.CallAsync(nameof(ICollectorOutputIsPublishedTestFunction.Testert));

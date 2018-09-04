@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
     /// <summary>
     /// Thrown when an invalid custom config creator is provided.

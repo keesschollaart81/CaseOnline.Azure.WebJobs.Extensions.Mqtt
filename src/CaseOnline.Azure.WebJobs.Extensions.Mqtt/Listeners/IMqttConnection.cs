@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using MQTTnet;
-
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
     public interface IMqttConnection : IDisposable
     {

@@ -1,5 +1,3 @@
-using MQTTnet.Extensions.ManagedClient;
-
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
     /// <summary>

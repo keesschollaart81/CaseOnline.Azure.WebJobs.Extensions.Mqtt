@@ -2,8 +2,6 @@ using System;
 using Microsoft.Azure.WebJobs;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using System.Linq;
 
 namespace ExampleFunctions
