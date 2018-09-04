@@ -57,5 +57,31 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         {
             Logger.LogTrace(message, parameters);
         }
+
+        public IMqttNetChildLogger CreateChildLogger(string source = null)
+        {
+            return new MqttNetChildLogger(this, source);
+        }
+
+        public void Publish(MqttNetLogLevel logLevel, string source, string message, object[] parameters, Exception exception)
+        {
+            LogLevel loggerLogLevel = LogLevel.None;
+            switch (logLevel)
+            {
+                case MqttNetLogLevel.Error:
+                    loggerLogLevel = LogLevel.Error;
+                    break;
+                case MqttNetLogLevel.Info:
+                    loggerLogLevel = LogLevel.Information;
+                    break;
+                case MqttNetLogLevel.Verbose:
+                    loggerLogLevel = LogLevel.Trace;
+                    break;
+                case MqttNetLogLevel.Warning:
+                    loggerLogLevel = LogLevel.Warning;
+                    break;
+            }
+            Logger.Log(loggerLogLevel, new EventId(), message, exception, (x,y) => $"{x}: {y?.Message}");
+        }
     }
 }

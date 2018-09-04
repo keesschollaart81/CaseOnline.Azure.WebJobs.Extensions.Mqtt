@@ -1,7 +1,7 @@
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Extensions.Logging;
 using Moq;
-using MQTTnet.ManagedClient;
+using MQTTnet.Extensions.ManagedClient;
 using Xunit;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
 using System;

@@ -68,5 +68,33 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Assert 
             mockMqttConnection.VerifyAll();
         }
+
+        [Fact]
+        public async Task MessageForOtherTopicThanSubscribedToIsProcessed()
+        {
+            // Arrange 
+            var mockMqttConnection = new Mock<IMqttConnection>();
+            var mockTriggeredFunctionExecutor = new Mock<ITriggeredFunctionExecutor>();
+
+            mockMqttConnection
+                .Setup(x => x.SubscribeAsync(It.IsAny<TopicFilter[]>()))
+                .Returns(Task.CompletedTask);
+
+            mockTriggeredFunctionExecutor
+                .Setup(x => x.TryExecuteAsync(It.IsAny<TriggeredFunctionData>(), It.IsAny<CancellationToken>()));
+
+            var topicFilter = new TopicFilter[] { new TopicFilter("test/topic", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) };
+            var mqttListener = new MqttListener(mockMqttConnection.Object, topicFilter, mockTriggeredFunctionExecutor.Object, _mockLogger.Object);
+
+            // Act
+            await mqttListener.StartAsync(_cancellationToken).ConfigureAwait(false);
+
+            var message = new MqttMessage("weird", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true);
+            await mqttListener.OnMessage(new MqttMessageReceivedEventArgs(message));
+
+            // Assert 
+            mockMqttConnection.VerifyAll();
+            mockTriggeredFunctionExecutor.VerifyAll();
+        }
     }
 }

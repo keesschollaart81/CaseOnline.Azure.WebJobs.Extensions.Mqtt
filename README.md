@@ -1,5 +1,6 @@
 # Mqtt Bindings for Azure Functions
-[![Build Status](https://caseonline.visualstudio.com/_apis/public/build/definitions/4df87c38-5691-4d04-8373-46c830209b7e/11/badge)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_build/index?definitionId=1) 
+[![Build Status](https://caseonline.visualstudio.com/_apis/public/build/definitions/4df87c38-5691-4d04-8373-46c830209b7e/11/badge)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_build/index?definitionId=11) 
+[![Deployment Status](https://caseonline.vsrm.visualstudio.com/_apis/public/Release/badge/4df87c38-5691-4d04-8373-46c830209b7e/1/2)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_releases2?definitionId=1) 
 [![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)](https://bettercodehub.com/)
 [![NuGet](https://img.shields.io/nuget/v/CaseOnline.Azure.WebJobs.Extensions.Mqtt.svg)](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/)
 
@@ -8,18 +9,40 @@ This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mq
 This package enables you to:
 
 * Trigger an Azure Function based on a MQTT Subscription
-* Publish a message to a MQTT topic as a result of an Azure Function. 
+* Publish a message to a MQTT topic as a result of an Azure Function
+
+Are you curious what MQTT is? Check [this page](http://mqtt.org/faq)!
 
 ## How to use
 
-* [Getting Started](wiki/Getting-started)
-* [Publish via output](wiki/Publish-via-output)
-* [Subscribe via trigger](wiki/Subscribe-via-trigger)
-* [And more in the Wiki](wiki)
+* [Getting Started](/../../wiki/Getting-started)
+* [Publish via output](/../../wiki/Publish-via-output)
+* [Subscribe via trigger](/../../wiki/Subscribe-via-trigger)
+* [Integrate with Azure IoT Hub](/../../Azure-IoT-Hub)
+* [And more in the Wiki](/../../wiki)
 
 ## Examples
 
-Please find some examples here in the [sample project](./src/ExampleFunctions/). 
+This is a simple example, receicing messages for topic ```my/topic/in``` and publishing messages on topic ```testtopic/out```.
+
+``` csharp
+public static class ExampleFunctions
+{
+    [FunctionName("SimpleFunction")]
+    public static void SimpleFunction(
+        [MqttTrigger("my/topic/in")] IMqttMessage message,
+        [Mqtt] out IMqttMessage outMessage,
+        ILogger logger)
+    {
+        var body = message.GetMessage();
+        var bodyString = Encoding.UTF8.GetString(body);
+        logger.LogInformation($"{DateTime.Now:g} Message for topic {message.Topic}: {bodyString}");
+        outMessage = new MqttMessage("testtopic/out", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true);
+    }
+}
+```
+
+Please find all working examples in the [sample project](./src/ExampleFunctions/). 
 
 ## References
 

@@ -58,7 +58,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         internal async Task OnMessage(MqttMessageReceivedEventArgs arg)
         {
             var token = _cancellationTokenSource.Token;
-
+           
             var triggeredFunctionData = new TriggeredFunctionData
             {
                 TriggerValue = arg.Message

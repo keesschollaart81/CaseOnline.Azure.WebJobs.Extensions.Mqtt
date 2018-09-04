@@ -1,3 +1,4 @@
+using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -250,5 +251,80 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 LastReceivedMessageFunction2 = mqttMessage;
             }
         }
+
+        [Fact]
+        public async Task MultipleTriggersWithSameConnectionThrowsExceptiojn()
+        {
+            using (var mqttServer = await MqttServerHelper.Get(_logger))
+            {
+                JobHostHelper<MultipleTriggersSameConnectionTestFunction> jobHostHelper = null;
+
+                var ex = Assert.ThrowsAsync<Exception>(async () => jobHostHelper = await JobHostHelper<MultipleTriggersSameConnectionTestFunction>.RunFor(_loggerFactory));
+                jobHostHelper?.Dispose();
+            }
+        }
+
+        private class MultipleTriggersSameConnectionTestFunction
+        {
+            public static int CallCount = 0;
+            public static IMqttMessage LastReceivedMessage;
+
+            public static void Testert([MqttTrigger("test/topic")] IMqttMessage mqttMessage)
+            {
+                CallCount++;
+                LastReceivedMessage = mqttMessage;
+            }
+
+            public static void Testert2([MqttTrigger("test/topic2")] IMqttMessage mqttMessage)
+            {
+                CallCount++;
+                LastReceivedMessage = mqttMessage;
+            }
+        }
+
+
+        [Fact]
+        public async Task MultipleTriggersReceiveOwnMessages()
+        {
+            using (var mqttServer = await MqttServerHelper.Get(_logger))
+            using (var jobHost = await JobHostHelper<MultipleTriggersTestFunction>.RunFor(_loggerFactory))
+            {
+                await mqttServer.PublishAsync(DefaultMessage);
+
+                var secondMessage = new MqttApplicationMessageBuilder()
+                    .WithTopic("test/topic2")
+                    .WithPayload("{ \"test\":\"case\" }")
+                    .WithAtLeastOnceQoS()
+                    .Build();
+                await mqttServer.PublishAsync(secondMessage);
+
+                await WaitFor(() => MultipleTriggersTestFunction.CallCountFunction1 >= 1 && MultipleTriggersTestFunction.CallCountFunction2 >= 1);
+            }
+
+            Assert.Equal(1, MultipleTriggersTestFunction.CallCountFunction1);
+            Assert.Equal(1, MultipleTriggersTestFunction.CallCountFunction2);
+            Assert.Equal("test/topic", MultipleTriggersTestFunction.LastReceivedMessageFunction1.Topic);
+            Assert.Equal("test/topic2", MultipleTriggersTestFunction.LastReceivedMessageFunction2.Topic); 
+        }
+
+        private class MultipleTriggersTestFunction
+        {
+            public static int CallCountFunction1 = 0;
+            public static int CallCountFunction2 = 0;
+            public static IMqttMessage LastReceivedMessageFunction1;
+            public static IMqttMessage LastReceivedMessageFunction2;
+
+            public static void Testert([MqttTrigger("test/topic")] IMqttMessage mqttMessage)
+            {
+                CallCountFunction1++;
+                LastReceivedMessageFunction1 = mqttMessage;
+            }
+
+            public static void Testert2([MqttTrigger("test/topic2", ConnectionString = "MqttConnectionWithCustomClientId")] IMqttMessage mqttMessage)
+            {
+                CallCountFunction2++;
+                LastReceivedMessageFunction2 = mqttMessage;
+            }
+        } 
     }
 }
