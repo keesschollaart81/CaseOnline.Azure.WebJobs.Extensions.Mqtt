@@ -1,4 +1,5 @@
-﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
+﻿using System;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {

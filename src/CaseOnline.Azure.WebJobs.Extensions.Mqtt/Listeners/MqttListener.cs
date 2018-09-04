@@ -1,4 +1,14 @@
-﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
+﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host.Executors;
+using Microsoft.Azure.WebJobs.Host.Listeners;
+using Microsoft.Extensions.Logging;
+using MQTTnet;
+
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
     /// <summary>
     /// Listens for MQTT messages.

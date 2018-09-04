@@ -1,4 +1,6 @@
-﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
+﻿using System;
+
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
     /// <summary>
     /// Thrown when initialization of MQTT fails.

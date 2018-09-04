@@ -1,5 +1,15 @@
-﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading.Tasks;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
+using Microsoft.Azure.WebJobs.Host.Bindings;
+using Microsoft.Azure.WebJobs.Host.Listeners;
+using Microsoft.Azure.WebJobs.Host.Protocols;
+using Microsoft.Azure.WebJobs.Host.Triggers;
+using Microsoft.Extensions.Logging;
+using MQTTnet;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {

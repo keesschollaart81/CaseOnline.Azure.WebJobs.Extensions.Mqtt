@@ -1,4 +1,9 @@
+using System;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
+using MQTTnet.Client;
+using MQTTnet.Extensions.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {

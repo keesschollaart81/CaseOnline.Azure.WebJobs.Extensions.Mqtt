@@ -1,4 +1,5 @@
-﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
+﻿using System.Threading.Tasks;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {

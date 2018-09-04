@@ -1,4 +1,6 @@
-﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
+﻿using System;
+
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
 {
     public interface IRquireMqttConnection
     {

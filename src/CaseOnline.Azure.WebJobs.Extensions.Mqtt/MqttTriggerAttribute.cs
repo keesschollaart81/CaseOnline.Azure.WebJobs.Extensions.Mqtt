@@ -1,4 +1,7 @@
-﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
+﻿using System;
+using Microsoft.Azure.WebJobs.Description;
+
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
 {
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue)]
     [Binding]

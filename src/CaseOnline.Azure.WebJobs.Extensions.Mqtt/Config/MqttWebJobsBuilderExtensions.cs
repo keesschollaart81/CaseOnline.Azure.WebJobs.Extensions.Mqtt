@@ -1,4 +1,9 @@
-﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
+﻿using System;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.DependencyInjection;
+using MQTTnet;
+using MQTTnet.Client;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
