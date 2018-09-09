@@ -7,10 +7,10 @@ using MQTTnet;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 {
-    public abstract class EndToEndTestBase
+    public abstract class EndToEndTestBase : IDisposable
     {
         protected ILogger _logger;
-        protected ILoggerFactory _loggerFactory;
+        protected TestLoggerProvider _testLoggerProvider;
 
         protected MqttApplicationMessage DefaultMessage = new MqttApplicationMessageBuilder()
                     .WithTopic("test/topic")
@@ -24,10 +24,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             {
                 MinLevel = LogLevel.Trace
             };
-            _loggerFactory = new LoggerFactory(new[] { new TestLoggerProvider() }, filterOptions);
+            _testLoggerProvider = new TestLoggerProvider();
             //_loggerFactory.AddProvider();
-            _logger = _loggerFactory.CreateLogger("EndToEndTests");
+            _logger = _testLoggerProvider.CreateLogger("EndToEndTests");
         }
+
 
         public async Task WaitFor(Func<bool> condition, int seconds = 10)
         {
@@ -49,6 +50,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 await Task.Delay(sleepDuration);
             }
             await Task.Delay(1000); // after the condition is met, wait a bit for the function to finish
+        }
+
+        public void Dispose()
+        {
+            _testLoggerProvider.Dispose();
         }
     }
 }

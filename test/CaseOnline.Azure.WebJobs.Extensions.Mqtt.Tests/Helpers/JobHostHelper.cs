@@ -4,38 +4,53 @@ using System.Threading;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 {
     public class JobHostHelper<T> : IDisposable
     {
-        private JobHost _jobHost;
+        private IHost _host;
 
-        private JobHostHelper(JobHost jobHost)
+        private JobHost _jobHost => _host.Services.GetService<IJobHost>() as JobHost;
+
+        private JobHostHelper(IHost host)
         {
-            _jobHost = jobHost;
+            _host = host;
         }
 
-        public static async Task<JobHostHelper<T>> RunFor(ILoggerFactory loggerFactory, bool waitForAllConnectionToBeConnected = true)
-        {
-            var config = new JobHostConfiguration();
-            config.TypeLocator = new ExplicitTypeLocator(typeof(T));
-            config.LoggerFactory = loggerFactory;
-            config.UseDevelopmentSettings();
-            config.UseMqtt();
+        public static async Task<JobHostHelper<T>> RunFor(ILoggerProvider loggerProvider, bool waitForAllConnectionToBeConnected = true)
+        { 
+            var locator = new ExplicitTypeLocator(typeof(T)); 
 
-            var jobHost = new JobHost(config);
+            IHost host = new HostBuilder()
+                .ConfigureWebJobs(builder =>
+                {
+                    builder.AddMqtt();
+                })
+                .ConfigureServices(services =>
+                { 
+                    services.AddSingleton<ITypeLocator>(locator);
+                })
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddProvider(loggerProvider);
+                })
+                .Build();  
+
             try
             {
-                await jobHost.StartAsync();
+                await host.StartAsync();
             }
             catch (InvalidOperationException ex)
             {
                 throw new Exception("In order to be able to run this integration tests, make sure you have the Azure Storage Emulator running or configure a connection to a real Azure Storage Account in the appsettings.json", ex);
             } 
 
-            var jobHostHelper = new JobHostHelper<T>(jobHost);
+            var jobHostHelper = new JobHostHelper<T>(host);
 
             if (waitForAllConnectionToBeConnected)
             {
@@ -50,7 +65,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             var totalMilliseconds = TimeSpan.FromSeconds(5).TotalMilliseconds;
             var sleepDuration = TimeSpan.FromMilliseconds(50); // not long otherwise MQTT Connections are being dropped?!
 
-            var mqttExtensionConfigProvider = _jobHost.Services.GetService(typeof(IMqttConnectionFactory)) as MqttConnectionFactory;
+            var mqttExtensionConfigProvider = _host.Services.GetService(typeof(IMqttConnectionFactory)) as MqttConnectionFactory;
             for (var i = 0; i < (totalMilliseconds / sleepDuration.TotalMilliseconds); i++)
             {
                 if (mqttExtensionConfigProvider.AllConnectionsConnected())
@@ -84,12 +99,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             Thread.Sleep(TimeSpan.FromSeconds(1)); // let the functions finish
 
             // this should not be needed, but for some reason some connections stay open / references keep exist after JobHost instance is stopped and disposed
-            var mqttExtensionConfigProvider = _jobHost.Services.GetService(typeof(IMqttConnectionFactory)) as MqttConnectionFactory;
+            var mqttExtensionConfigProvider = _host.Services.GetService(typeof(IMqttConnectionFactory)) as MqttConnectionFactory;
             mqttExtensionConfigProvider.DisconnectAll().Wait();
 
             _jobHost.Stop();
-            _jobHost.Dispose();
-            _jobHost = null;
+            _host.Dispose();
+            _host = null;
         }
     }
 }

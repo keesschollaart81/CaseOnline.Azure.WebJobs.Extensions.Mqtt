@@ -2,9 +2,9 @@ using System;
 using Microsoft.Azure.WebJobs;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using System.Linq;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt;
 
 namespace ExampleFunctions
 {
@@ -17,7 +17,7 @@ namespace ExampleFunctions
         [FunctionName("CloudToDeviceMessages")]
         public static void CloudToDeviceMessages(
             [MqttTrigger("devices/testdevice/messages/devicebound/#", "$iothub/methods/POST/#", ConnectionString = "IoTHubConnectionString"), Disable]IMqttMessage message,
-            [Mqtt(ConnectionString = "IoTHubConnectionString")] out IMqttMessage response,
+            [Mqtt(ConnectionString = "IoTHubConnectionString"), Disable] out IMqttMessage response,
             ILogger logger)
         {
             var body = message.GetMessage();

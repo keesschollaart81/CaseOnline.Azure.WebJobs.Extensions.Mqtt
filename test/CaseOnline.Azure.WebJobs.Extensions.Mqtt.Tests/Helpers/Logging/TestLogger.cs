@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers.Logging
 {
     public class TestLogger : ILogger
     {
-        private readonly Func<string, LogLevel, bool> _filter;
+        private readonly Action<LogMessage> _logAction;
+        private IList<LogMessage> _logMessages = new List<LogMessage>();
 
-        public TestLogger(string category, Func<string, LogLevel, bool> filter = null)
+        // protect against changes to logMessages while enumerating
+        private object _syncLock = new object();
+
+        public TestLogger(string category, Action<LogMessage> logAction = null)
         {
             Category = category;
-            _filter = filter;
+            _logAction = logAction;
         }
 
         public string Category { get; private set; }
-
-        public IList<LogMessage> LogMessages { get; } = new List<LogMessage>();
 
         public IDisposable BeginScope<TState>(TState state)
         {
@@ -26,27 +29,57 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers.Logging
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return _filter?.Invoke(Category, logLevel) ?? true;
+            return true;
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public IList<LogMessage> GetLogMessages()
+        {
+            lock (_syncLock)
+            {
+                return _logMessages.ToList();
+            }
+        }
+
+        public void ClearLogMessages()
+        {
+            lock (_syncLock)
+            {
+                _logMessages.Clear();
+            }
+        }
+
+        public virtual void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             if (!IsEnabled(logLevel))
             {
                 return;
             }
 
-            Debug.WriteLine($"{DateTime.Now:hh:mm:ss.fff}: {formatter(state, exception)}");
-
-            LogMessages.Add(new LogMessage
+            var logMessage = new LogMessage
             {
                 Level = logLevel,
                 EventId = eventId,
                 State = state as IEnumerable<KeyValuePair<string, object>>,
                 Exception = exception,
                 FormattedMessage = formatter(state, exception),
-                Category = Category
-            });
+                Category = Category,
+                Timestamp = DateTime.UtcNow
+            };
+
+            lock (_syncLock)
+            {
+                _logMessages.Add(logMessage);
+                Debug.WriteLine(logMessage.FormattedMessage);
+            }
+
+            _logAction?.Invoke(logMessage);
+        }
+
+        public override string ToString()
+        {
+            return Category;
         }
     }
+
+    
 }

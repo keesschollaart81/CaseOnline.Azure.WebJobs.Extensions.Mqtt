@@ -1,12 +1,13 @@
 {
-    "logger": {
-        "categoryFilter": {
-            "categoryLevels": {
-                "Host.Triggers.Mqtt": "Trace"
-            }
-        }
-    },
-    "tracing": {
-        "consoleLevel": "verbose"
+  "version": "2.0",
+  "logger": {
+    "categoryFilter": {
+      "categoryLevels": {
+        "Host.Triggers.Mqtt": "Trace"
+      }
     }
+  },
+  "tracing": {
+    "consoleLevel": "verbose"
+  }
 }

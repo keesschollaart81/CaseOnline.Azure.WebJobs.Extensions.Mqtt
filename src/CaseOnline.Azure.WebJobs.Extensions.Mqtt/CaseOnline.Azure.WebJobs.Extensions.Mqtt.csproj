@@ -35,8 +35,9 @@ For more information, please visit https://github.com/keesschollaart81/CaseOnlin
     <AdditionalFiles Include="stylecop.json" Link="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="2.8.1" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta006">
+    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="2.8.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta008">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.1">
@@ -44,7 +45,7 @@ For more information, please visit https://github.com/keesschollaart81/CaseOnlin
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.0-beta5" />
-    <PackageReference Include="MQTTnet" Version="2.8.1" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.0-beta8" />
+    <PackageReference Include="MQTTnet" Version="2.8.2" />
   </ItemGroup>
 </Project>

@@ -24,7 +24,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
             using (var mqttServer = await MqttServerHelper.Get(_logger))
             using (var mqttClient = await MqttClientHelper.Get(_logger))
-            using (var jobHost = await JobHostHelper<SimpleOutputIsPublishedTestFunction>.RunFor(_loggerFactory))
+            using (var jobHost = await JobHostHelper<SimpleOutputIsPublishedTestFunction>.RunFor(_testLoggerProvider))
             {
                 await mqttClient.SubscribeAsync("test/topic");
                 mqttClient.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessage = e.ApplicationMessage;
@@ -61,7 +61,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
             using (var mqttClient = await MqttClientHelper.Get(_logger))
-            using (var jobHost = await JobHostHelper<TriggerAndOutputWithSameConnectionTestFunction>.RunFor(_loggerFactory))
+            using (var jobHost = await JobHostHelper<TriggerAndOutputWithSameConnectionTestFunction>.RunFor(_testLoggerProvider))
             {
                 await mqttClient.SubscribeAsync("test/outtopic");
                 await mqttClient.SubscribeAsync("test/outtopic2");
@@ -121,7 +121,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             using (var mqttServer1 = await MqttServerHelper.Get(_logger, optionsServer1))
             using (var mqttServer2 = await MqttServerHelper.Get(_logger, optionsServer2))
             using (var mqttClientForServer2 = await MqttClientHelper.Get(_logger))
-            using (var jobHost = await JobHostHelper<TriggerAndOutputWithDifferentConnectionTestFunction>.RunFor(_loggerFactory))
+            using (var jobHost = await JobHostHelper<TriggerAndOutputWithDifferentConnectionTestFunction>.RunFor(_testLoggerProvider))
             {
                 await mqttClientForServer2.SubscribeAsync("test/outtopic");
                 mqttClientForServer2.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessage = e.ApplicationMessage;
@@ -166,10 +166,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
             using (var mqttServer = await MqttServerHelper.Get(_logger))
             using (var mqttClient = await MqttClientHelper.Get(_logger))
-            using (var jobHost = await JobHostHelper<ICollectorOutputIsPublishedTestFunction>.RunFor(_loggerFactory))
-            {
+            using (var jobHost = await JobHostHelper<ICollectorOutputIsPublishedTestFunction>.RunFor(_testLoggerProvider))
+            { 
                 await mqttClient.SubscribeAsync("test/outtopic");
-                await mqttClient.SubscribeAsync("test/outtopic2");
+                await mqttClient.SubscribeAsync("test/outtopic2"); 
                 mqttClient.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessages.Add(e.ApplicationMessage);
 
                 await jobHost.CallAsync(nameof(ICollectorOutputIsPublishedTestFunction.Testert));
@@ -199,6 +199,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 mqttMessages.Add(new MqttMessage("test/outtopic2", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true));
                 Interlocked.Increment(ref CallCount);
             }
-        }
+        } 
     }
 }

@@ -26,8 +26,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         /// <summary>
         /// Inititalizes a new instance of the <see cref="MqttListener"/> class.
         /// </summary>
-        /// <param name="connection">The connection to listen on</param>
-        /// <param name="topics">The topics to subscribe to</param> 
+        /// <param name="connection">The connection to listen on.</param>
+        /// <param name="topics">The topics to subscribe to.</param> 
         /// <param name="executor">Allows the function to be executed.</param>
         /// <param name="logger">The logger.</param>
         public MqttListener(IMqttConnection connection, TopicFilter[] topics, ITriggeredFunctionExecutor executor, ILogger logger)

@@ -6,6 +6,7 @@ using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host.Triggers;
+using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 
@@ -17,20 +18,20 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     public class MqttTriggerAttributeBindingProvider : ITriggerBindingProvider
     {
         private readonly INameResolver _nameResolver;
-        private readonly MqttConnectionFactory _connectionFactory;
+        private readonly IMqttConnectionFactory _connectionFactory;
         private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MqttTriggerAttribute"/>.
         /// </summary>
-        /// <param name="nameResolver">The name resolver</param>
-        /// <param name="connectionFactory">the connection factory</param>
-        /// <param name="logger">The logger</param>
-        internal MqttTriggerAttributeBindingProvider(INameResolver nameResolver, MqttConnectionFactory connectionFactory, ILogger logger)
+        /// <param name="nameResolver">The name resolver.</param>
+        /// <param name="connectionFactory">the connection factory.</param>
+        /// <param name="loggerFactory">The loggerFactory.</param>
+        internal MqttTriggerAttributeBindingProvider(INameResolver nameResolver, IMqttConnectionFactory connectionFactory, ILoggerFactory loggerFactory)
         {
             _nameResolver = nameResolver;
             _connectionFactory = connectionFactory;
-            _logger = logger;
+            _logger = loggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
         }
 
         public Task<ITriggerBinding> TryCreateAsync(TriggerBindingProviderContext context)

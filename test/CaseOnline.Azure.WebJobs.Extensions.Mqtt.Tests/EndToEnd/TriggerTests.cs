@@ -1,12 +1,12 @@
-using System;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
 using MQTTnet;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
+using System;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
@@ -17,7 +17,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
         public async Task SimpleMessageIsReceived()
         {
             using (var mqttServer = await MqttServerHelper.Get(_logger))
-            using (var jobHost = await JobHostHelper<SimpleMessageIsReceivedTestFunction>.RunFor(_loggerFactory))
+            using (var jobHost = await JobHostHelper<SimpleMessageIsReceivedTestFunction>.RunFor(_testLoggerProvider))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
@@ -51,7 +51,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                    .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper<CustomConnectionStringWithClientIdTestFunction>.RunFor(_loggerFactory))
+            using (var jobHost = await JobHostHelper<CustomConnectionStringWithClientIdTestFunction>.RunFor(_testLoggerProvider))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
@@ -91,7 +91,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper<UsernameAndPasswordTestFunction>.RunFor(_loggerFactory))
+            using (var jobHost = await JobHostHelper<UsernameAndPasswordTestFunction>.RunFor(_testLoggerProvider))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
@@ -120,7 +120,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper<SimpleMessageAnotherPortTestFunction>.RunFor(_loggerFactory))
+            using (var jobHost = await JobHostHelper<SimpleMessageAnotherPortTestFunction>.RunFor(_testLoggerProvider))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
@@ -155,7 +155,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                .Build();
 
             using (var mqttServer = await MqttServerHelper.Get(_logger, options))
-            using (var jobHost = await JobHostHelper<FunctionConnectingWithTlsEnabledTestFunction>.RunFor(_loggerFactory))
+            using (var jobHost = await JobHostHelper<FunctionConnectingWithTlsEnabledTestFunction>.RunFor(_testLoggerProvider))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
@@ -184,7 +184,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             {
                 JobHostHelper<MultipleTriggersSameConnectionTestFunction> jobHostHelper = null;
 
-                var ex = Assert.ThrowsAsync<Exception>(async () => jobHostHelper = await JobHostHelper<MultipleTriggersSameConnectionTestFunction>.RunFor(_loggerFactory));
+                var ex = Assert.ThrowsAsync<Exception>(async () => jobHostHelper = await JobHostHelper<MultipleTriggersSameConnectionTestFunction>.RunFor(_testLoggerProvider));
                 jobHostHelper?.Dispose();
             }
         }
@@ -212,7 +212,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
         public async Task MultipleTriggersReceiveOwnMessages()
         {
             using (var mqttServer = await MqttServerHelper.Get(_logger))
-            using (var jobHost = await JobHostHelper<MultipleTriggersTestFunction>.RunFor(_loggerFactory))
+            using (var jobHost = await JobHostHelper<MultipleTriggersTestFunction>.RunFor(_testLoggerProvider))
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
@@ -229,7 +229,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             Assert.Equal(1, MultipleTriggersTestFunction.CallCountFunction1);
             Assert.Equal(1, MultipleTriggersTestFunction.CallCountFunction2);
             Assert.Equal("test/topic", MultipleTriggersTestFunction.LastReceivedMessageFunction1.Topic);
-            Assert.Equal("test/topic2", MultipleTriggersTestFunction.LastReceivedMessageFunction2.Topic); 
+            Assert.Equal("test/topic2", MultipleTriggersTestFunction.LastReceivedMessageFunction2.Topic);
         }
 
         private class MultipleTriggersTestFunction
@@ -250,6 +250,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 CallCountFunction2++;
                 LastReceivedMessageFunction2 = mqttMessage;
             }
-        } 
+        }
     }
 }

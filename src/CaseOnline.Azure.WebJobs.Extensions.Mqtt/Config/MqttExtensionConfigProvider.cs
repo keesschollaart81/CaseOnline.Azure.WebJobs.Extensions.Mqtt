@@ -1,38 +1,43 @@
 ﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Host.Config;
-using Microsoft.Azure.WebJobs.Logging;
-using MQTTnet;
+using Microsoft.Extensions.Logging; 
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
     /// <summary>
     /// Registers the <see cref="MqttTriggerAttribute"/> binding.
     /// </summary>
+    [Extension("Mqtt")]
     public class MqttExtensionConfigProvider : IExtensionConfigProvider
     {
+        private readonly INameResolver _nameResolver;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly IMqttConnectionFactory _mqttConnectionFactory;
+
+        public MqttExtensionConfigProvider(INameResolver nameResolver, ILoggerFactory loggerFactory, IMqttConnectionFactory mqttConnectionFactory)
+        {
+            _nameResolver = nameResolver;
+            _loggerFactory = loggerFactory;
+            _mqttConnectionFactory = mqttConnectionFactory;
+        }
+
         /// <summary>
         /// Initializes the extension configuration provider.
         /// </summary>
         /// <param name="context">The extension configuration context.</param>
         public void Initialize(ExtensionConfigContext context)
         {
-            var logger = context.Config.LoggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
-
-            var nameResolver = context.Config.GetService<INameResolver>();
-            var mqttConnectionFactory = new MqttConnectionFactory(logger, new ManagedMqttClientFactory(new MqttFactory()), nameResolver);
-
-            context.Config.AddService(typeof(IMqttConnectionFactory), mqttConnectionFactory);
-
             var mqttAttributeBindingRule = context.AddBindingRule<MqttAttribute>();
-            mqttAttributeBindingRule.BindToCollector((attr) => new MqttMessageCollector(attr, mqttConnectionFactory.GetMqttConnection(attr)));
+            mqttAttributeBindingRule.BindToCollector((attr) =>
+            {
+                return new MqttMessageCollector(attr, _mqttConnectionFactory.GetMqttConnection(attr));
+            });
 
-            context.Config.RegisterBindingExtension(new MqttTriggerAttributeBindingProvider(nameResolver, mqttConnectionFactory, logger));
-
-            // todo: in later release of the Functions SDK (currently beta 25) replace the line above with the two below
-            //var mqttTriggerAttributeBindingRule = context.AddBindingRule<MqttTriggerAttribute>();
-            //mqttTriggerAttributeBindingRule.BindToTrigger<IMqttMessage>(new MqttTriggerAttributeBindingProvider(nameResolver, _mqttConnectionFactory, logger));
+            var bindingProvider = new MqttTriggerAttributeBindingProvider(_nameResolver, _mqttConnectionFactory, _loggerFactory);
+            context.AddBindingRule<MqttTriggerAttribute>()
+                .BindToTrigger(bindingProvider);
         }
     }
 }

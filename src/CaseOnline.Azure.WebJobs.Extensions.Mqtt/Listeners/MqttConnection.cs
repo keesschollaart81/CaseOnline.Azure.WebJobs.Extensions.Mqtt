@@ -10,7 +10,7 @@ using MQTTnet.Extensions.ManagedClient;
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
     /// <summary>
-    /// Manages the state of the MQTT connection, an wrapper around MQTTNet.IManagedMqttClient 
+    /// Manages the state of the MQTT connection, an wrapper around MQTTNet.IManagedMqttClient. 
     /// </summary>
     public class MqttConnection : IMqttConnection
     {
@@ -30,7 +30,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         public event Func<MqttMessageReceivedEventArgs, Task> OnMessageEventHandler;
 
         /// <summary>
-        /// Gets the current status of the connection
+        /// Gets the current status of the connection.
         /// </summary>
         public ConnectionState ConnectionState { get; private set; }
 
@@ -43,7 +43,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         }
 
         /// <summary>
-        /// Opens the MQTT connection
+        /// Opens the MQTT connection.
         /// </summary>
         public async Task StartAsync()
         {
@@ -114,9 +114,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         }
 
         /// <summary>
-        /// Subscribe to one or more topics
+        /// Subscribe to one or more topics.
         /// </summary>
-        /// <param name="topics">The topics to subscribe to</param>
+        /// <param name="topics">The topics to subscribe to.</param>
         public async Task SubscribeAsync(TopicFilter[] topics)
         {
             if (_managedMqttClient == null)
@@ -127,9 +127,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         }
 
         /// <summary>
-        /// Unsubscribe to one or more topics
+        /// Unsubscribe to one or more topics.
         /// </summary>
-        /// <param name="topics">The topics to unsubscribe from</param>
+        /// <param name="topics">The topics to unsubscribe from.</param>
         public async Task UnubscribeAsync(string[] topics)
         {
             if (_managedMqttClient == null)
@@ -140,9 +140,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         }
 
         /// <summary>
-        /// Publish a message on to the MQTT broker
+        /// Publish a message on to the MQTT broker.
         /// </summary>
-        /// <param name="message">The message to publish</param>
+        /// <param name="message">The message to publish.</param>
         public async Task PublishAsync(MqttApplicationMessage message)
         {
             if (_managedMqttClient == null)
@@ -153,7 +153,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         }
 
         /// <summary>
-        /// Close the MQTT connection
+        /// Close the MQTT connection.
         /// </summary>
         public Task StopAsync()
         {
