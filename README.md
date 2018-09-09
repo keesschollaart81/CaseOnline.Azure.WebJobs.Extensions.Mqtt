@@ -23,13 +23,15 @@ Are you curious what MQTT is? Check [this page](http://mqtt.org/faq)!
 
 ## How to use
 
+**Important note:** This extension only works when you use AppService Plan! **Do not use this with Consumption plan!**
+
 * [Getting Started](/../../wiki/Getting-started)
 * [Publish via output](/../../wiki/Publish-via-output)
 * [Subscribe via trigger](/../../wiki/Subscribe-via-trigger)
 * [Integrate with Azure IoT Hub](/../../Azure-IoT-Hub)
 * [And more in the Wiki](/../../wiki)
 
-**Important note:** This extension only works when you use AppService Plan! **Do not use this with Consumption plan!**
+## Where to get
 
 Install stable releases via Nuget; development releases are available via MyGet.
 
