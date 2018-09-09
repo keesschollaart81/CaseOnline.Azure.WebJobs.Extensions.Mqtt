@@ -1,8 +1,16 @@
-# Mqtt Bindings for Azure Functions
-[![Build Status](https://caseonline.visualstudio.com/_apis/public/build/definitions/4df87c38-5691-4d04-8373-46c830209b7e/11/badge)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_build/index?definitionId=11) 
-[![Deployment Status](https://caseonline.vsrm.visualstudio.com/_apis/public/Release/badge/4df87c38-5691-4d04-8373-46c830209b7e/1/2)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_releases2?definitionId=1) 
+<h1 align="center">
+
+<img src="https://raw.githubusercontent.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/master/readme_banner.png" width=650 alt="CaseOnline.Azure.WebJobs.Extensions.Mqtt"/>
+<br/>
+Mqtt Bindings for Azure Functions
+</h1>
+
+<div align="center">
+
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/blob/master/LICENSE)
 [![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)](https://bettercodehub.com/)
-[![NuGet](https://img.shields.io/nuget/v/CaseOnline.Azure.WebJobs.Extensions.Mqtt.svg)](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/)
+
+</div>
 
 This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mqtt NuGet Package. 
 
@@ -21,6 +29,13 @@ Are you curious what MQTT is? Check [this page](http://mqtt.org/faq)!
 * [Integrate with Azure IoT Hub](/../../Azure-IoT-Hub)
 * [And more in the Wiki](/../../wiki)
 
+Install stable releases via Nuget; development releases are available via MyGet.
+
+|                     | Master > NuGet | Dev > MyGet |
+|--------------------------------|-----------------|-----------------|
+| Build status |  [![Build Status](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_apis/build/status/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branchName=master)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_build/index?definitionId=11)   | [![Build Status](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_apis/build/status/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branchName=dev)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_build/index?definitionId=11)
+| Deployment Status | [![Deployment Status](https://caseonline.vsrm.visualstudio.com/_apis/public/Release/badge/4df87c38-5691-4d04-8373-46c830209b7e/1/3)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_releases2?definitionId=1)|[![Deployment Status](https://caseonline.vsrm.visualstudio.com/_apis/public/Release/badge/4df87c38-5691-4d04-8373-46c830209b7e/1/2)](https://caseonline.visualstudio.com/CaseOnline.Azure.WebJobs.Extensions.Mqtt/_releases2?definitionId=1)|
+| Package | [![NuGet](https://img.shields.io/nuget/v/CaseOnline.Azure.WebJobs.Extensions.Mqtt.svg)](https://www.nuget.org/packages/CaseOnline.Azure.WebJobs.Extensions.Mqtt/) | [![MyGet](https://img.shields.io/myget/caseonline/v/CaseOnline.Azure.WebJobs.Extensions.Mqtt.svg)](https://www.myget.org/feed/caseonline/package/nuget/CaseOnline.Azure.WebJobs.Extensions.Mqtt) | 
 ## Examples
 
 This is a simple example, receicing messages for topic ```my/topic/in``` and publishing messages on topic ```testtopic/out```.
@@ -43,6 +58,7 @@ public static class ExampleFunctions
 ```
 
 Please find all working examples in the [sample project](./src/ExampleFunctions/). 
+
 
 ## References
 
