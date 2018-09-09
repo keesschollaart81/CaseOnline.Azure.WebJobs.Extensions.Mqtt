@@ -29,6 +29,8 @@ Are you curious what MQTT is? Check [this page](http://mqtt.org/faq)!
 * [Integrate with Azure IoT Hub](/../../Azure-IoT-Hub)
 * [And more in the Wiki](/../../wiki)
 
+**Important note:** This extension only works when you use AppService Plan! **Do not use this with Consumption plan!**
+
 Install stable releases via Nuget; development releases are available via MyGet.
 
 |                     | Master > NuGet | Dev > MyGet |
