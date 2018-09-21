@@ -102,7 +102,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             var mqttExtensionConfigProvider = _host.Services.GetService(typeof(IMqttConnectionFactory)) as MqttConnectionFactory;
             mqttExtensionConfigProvider.DisconnectAll().Wait();
 
-            _jobHost.Stop();
+            _jobHost.StopAsync().Wait();
             _host.Dispose();
             _host = null;
         }
