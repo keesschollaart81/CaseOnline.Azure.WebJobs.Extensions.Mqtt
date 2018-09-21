@@ -68,10 +68,6 @@ Please find all working examples in the [sample project](./src/ExampleFunctions/
 
 - [MQTTnet](https://github.com/chkr1011/MQTTnet)
 
-## Beta & Roadmap
-
-This package currently is in a beta stage. This is because it depends on the ```3.0.0-beta8``` version of [```Microsoft.Azure.WebJobs.Extensions```](https://github.com/Azure/azure-webjobs-sdk-extensions/releases). When this becomes final this package will be updated to the 1.0.0 version as well. 
-
 ## MIT License
 Copyright (c) 2018 Kees Schollaart
 
