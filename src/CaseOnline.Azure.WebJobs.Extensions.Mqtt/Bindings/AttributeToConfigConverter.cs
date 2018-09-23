@@ -75,7 +75,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             if (connectionString.Tls)
             {
-                //todo TLS verification
+                // Need to implement TLS verification sometime
                 mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithTls(true, false, false);
             }
 

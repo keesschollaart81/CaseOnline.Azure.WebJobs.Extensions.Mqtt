@@ -17,19 +17,16 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     /// </summary>
     public class MqttTriggerAttributeBindingProvider : ITriggerBindingProvider
     {
-        private readonly INameResolver _nameResolver;
         private readonly IMqttConnectionFactory _connectionFactory;
         private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MqttTriggerAttribute"/>.
         /// </summary>
-        /// <param name="nameResolver">The name resolver.</param>
         /// <param name="connectionFactory">the connection factory.</param>
         /// <param name="loggerFactory">The loggerFactory.</param>
-        internal MqttTriggerAttributeBindingProvider(INameResolver nameResolver, IMqttConnectionFactory connectionFactory, ILoggerFactory loggerFactory)
+        internal MqttTriggerAttributeBindingProvider(IMqttConnectionFactory connectionFactory, ILoggerFactory loggerFactory)
         {
-            _nameResolver = nameResolver;
             _connectionFactory = connectionFactory;
             _logger = loggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
         }

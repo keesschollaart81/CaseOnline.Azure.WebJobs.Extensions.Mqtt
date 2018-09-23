@@ -10,12 +10,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 {
     public class MqttMessageCollector : IAsyncCollector<IMqttMessage>
     {
-        private readonly MqttAttribute _attr;
         private readonly MqttConnection _mqttConnection;
 
-        public MqttMessageCollector(MqttAttribute attr, MqttConnection mqttConnection)
+        public MqttMessageCollector(MqttConnection mqttConnection)
         {
-            _attr = attr;
             _mqttConnection = mqttConnection;
         }
 
