@@ -4,6 +4,7 @@
     <Authors>Kees Schollaart</Authors>
     <Company>Case Online</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <ProjectGuid>{02D92D5F-E9FA-4816-9271-B07545DD083F}</ProjectGuid>
     <Product>Mqtt Trigger Binding for Azure Functions</Product>
     <PackageProjectUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageProjectUrl>
     <RepositoryUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</RepositoryUrl>
