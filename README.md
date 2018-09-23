@@ -9,7 +9,8 @@ Mqtt Bindings for Azure Functions
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/blob/master/LICENSE)
 [![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt?branch=master)](https://bettercodehub.com/)
-
+[![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=CaseOnline.Azure.WebJobs.Extensions.Mqtt&metric=coverage)](https://sonarcloud.io/dashboard?id=CaseOnline.Azure.WebJobs.Extensions.Mqtt)
+[![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=CaseOnline.Azure.WebJobs.Extensions.Mqtt&metric=sqale_rating)]()
 </div>
 
 This repository contains the code for the CaseOnline.Azure.WebJobs.Extensions.Mqtt NuGet Package. 
