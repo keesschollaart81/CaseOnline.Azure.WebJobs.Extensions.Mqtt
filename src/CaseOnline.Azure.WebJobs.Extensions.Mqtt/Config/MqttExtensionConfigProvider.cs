@@ -12,13 +12,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
     [Extension("Mqtt")]
     public class MqttExtensionConfigProvider : IExtensionConfigProvider
     {
-        private readonly INameResolver _nameResolver;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IMqttConnectionFactory _mqttConnectionFactory;
 
-        public MqttExtensionConfigProvider(INameResolver nameResolver, ILoggerFactory loggerFactory, IMqttConnectionFactory mqttConnectionFactory)
+        public MqttExtensionConfigProvider(ILoggerFactory loggerFactory, IMqttConnectionFactory mqttConnectionFactory)
         {
-            _nameResolver = nameResolver;
             _loggerFactory = loggerFactory;
             _mqttConnectionFactory = mqttConnectionFactory;
         }
@@ -32,10 +30,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
             var mqttAttributeBindingRule = context.AddBindingRule<MqttAttribute>();
             mqttAttributeBindingRule.BindToCollector((attr) =>
             {
-                return new MqttMessageCollector(attr, _mqttConnectionFactory.GetMqttConnection(attr));
+                return new MqttMessageCollector(_mqttConnectionFactory.GetMqttConnection(attr));
             });
 
-            var bindingProvider = new MqttTriggerAttributeBindingProvider(_nameResolver, _mqttConnectionFactory, _loggerFactory);
+            var bindingProvider = new MqttTriggerAttributeBindingProvider(_mqttConnectionFactory, _loggerFactory);
             context.AddBindingRule<MqttTriggerAttribute>()
                 .BindToTrigger(bindingProvider);
         }

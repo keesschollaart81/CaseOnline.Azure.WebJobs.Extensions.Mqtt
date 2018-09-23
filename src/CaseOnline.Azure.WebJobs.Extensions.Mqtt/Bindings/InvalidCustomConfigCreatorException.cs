@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
     /// <summary>
     /// Thrown when an invalid custom config creator is provided.
     /// </summary>
+    [Serializable]
     public class InvalidCustomConfigCreatorException : Exception
     {
         /// <summary>
@@ -29,6 +31,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// <param name="inner">The inner exception.</param>
         public InvalidCustomConfigCreatorException(string message, Exception inner) : base(message, inner)
         { 
+        }
+
+        protected InvalidCustomConfigCreatorException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
     }
 }

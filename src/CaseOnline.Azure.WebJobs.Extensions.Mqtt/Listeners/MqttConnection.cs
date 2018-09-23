@@ -14,11 +14,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
     /// </summary>
     public class MqttConnection : IMqttConnection
     {
-        private IManagedMqttClientFactory _mqttClientFactory;
-        private MqttConfiguration _config;
-        private ILogger _logger;
+        private readonly IManagedMqttClientFactory _mqttClientFactory;
+        private readonly MqttConfiguration _config;
+        private readonly ILogger _logger;
+        private readonly object startupLock = new object();
         private IManagedMqttClient _managedMqttClient;
-        private object startupLock = new object();
 
         public MqttConnection(IManagedMqttClientFactory mqttClientFactory, MqttConfiguration config, ILogger logger)
         {
@@ -177,13 +177,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && _managedMqttClient != null)
             {
-                if (_managedMqttClient != null)
-                {
-                    _managedMqttClient.Dispose();
-                    _managedMqttClient = null;
-                }
+                _managedMqttClient.Dispose();
+                _managedMqttClient = null;
             }
         }
     }
