@@ -1,4 +1,5 @@
 ﻿using System;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
             builder.Services.AddTransient<IMqttClientFactory, MqttFactory>();
             builder.Services.AddTransient<IManagedMqttClientFactory, ManagedMqttClientFactory>();
             builder.Services.AddSingleton<IMqttConnectionFactory, MqttConnectionFactory>();
+            builder.Services.AddTransient<IMqttConfigurationParser, MqttConfigurationParser>();
             builder.AddExtension<MqttExtensionConfigProvider>();
 
             return builder;

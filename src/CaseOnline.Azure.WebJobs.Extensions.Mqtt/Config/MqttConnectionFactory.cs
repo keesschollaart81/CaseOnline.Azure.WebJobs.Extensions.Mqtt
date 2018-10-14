@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -14,26 +13,21 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
     {
         private readonly ILogger _logger;
         private readonly IManagedMqttClientFactory _mqttFactory;
-        private readonly INameResolver _nameResolver;
+        private readonly IMqttConfigurationParser _mqttConfigurationParser;
 
         private readonly ConcurrentDictionary<string, MqttConnection> _mqttConnections = new ConcurrentDictionary<string, MqttConnection>();
 
-        public MqttConnectionFactory(ILoggerFactory loggerFactory, IManagedMqttClientFactory mqttFactory, INameResolver nameResolver)
+        public MqttConnectionFactory(ILoggerFactory loggerFactory, IManagedMqttClientFactory mqttFactory, IMqttConfigurationParser mqttConfigurationParser)
         {
             _mqttFactory = mqttFactory;
-            _nameResolver = nameResolver;
+            _mqttConfigurationParser = mqttConfigurationParser;
             _logger = loggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
         }
 
-        public MqttConnectionFactory()
+        public MqttConnection GetMqttConnection(MqttBaseAttribute attribute)
         {
-        }
-
-        public MqttConnection GetMqttConnection(IRquireMqttConnection attribute)
-        {
-            var attributeToConfigConverter = new AttributeToConfigConverter(attribute, _nameResolver, _logger);
-            var mqttConfiguration = attributeToConfigConverter.GetMqttConfiguration();
-            if (_mqttConnections.ContainsKey(mqttConfiguration.Name) && attribute is MqttTriggerAttribute)
+            var mqttConfiguration = _mqttConfigurationParser.Parse(attribute);
+            if (_mqttConnections.ContainsKey(mqttConfiguration.Name))
             {
                 throw new InvalidOperationException($"Error setting up listener for this attribute. Connectionstring '{mqttConfiguration.Name}' is already used by another Trigger. Connections can only be reused for output bindings. Each trigger needs it own connectionstring");
             }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
@@ -8,53 +8,51 @@ using MQTTnet.Extensions.ManagedClient;
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 {
     /// <summary>
-    /// Converts a <see cref="MqttTriggerAttribute"/> to a <see cref="MqttConfiguration"/>.
+    /// Parses a <see cref="MqttTriggerAttribute"/> to a <see cref="MqttConfiguration"/>.
     /// </summary>
-    public class AttributeToConfigConverter
+    public class MqttConfigurationParser : IMqttConfigurationParser
     {
         private const string DefaultAppsettingsKeyForConnectionString = "MqttConnection";
 
-        private readonly TimeSpan _detaultReconnectTime = TimeSpan.FromSeconds(5);
-        private readonly IRquireMqttConnection _mqttTriggerAttribute;
+        private readonly TimeSpan _defaultReconnectTime = TimeSpan.FromSeconds(5);
         private readonly INameResolver _nameResolver;
         private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AttributeToConfigConverter"/> class.
+        /// Initializes a new instance of the <see cref="MqttConfigurationParser"/> class.
         /// </summary>
-        /// <param name="source">The trigger attribute.</param>
         /// <param name="nameResolver">The name resolver.</param>
         /// <param name="logger">The logger.</param>
-        public AttributeToConfigConverter(IRquireMqttConnection source, INameResolver nameResolver, ILogger logger)
-        {
-            _mqttTriggerAttribute = source;
+        public MqttConfigurationParser(INameResolver nameResolver, ILogger logger)
+        { 
             _nameResolver = nameResolver;
             _logger = logger;
         }
 
         /// <summary>
-        /// Gets the MQTT configuration from this attribute.
+        /// Gets the MQTT configuration from the given attribute.
         /// </summary>
+        /// <param name="mqttAttribute">The attribute to parse from.</param>
         /// <returns>
         /// The configuration.
         /// </returns>
-        public MqttConfiguration GetMqttConfiguration()
+        public MqttConfiguration Parse(MqttBaseAttribute mqttAttribute)
         {
-            return _mqttTriggerAttribute.MqttConfigCreatorType == null
-                ? GetConfigurationViaAttributeValues()
-                : GetConfigurationViaCustomConfigCreator();
+            return mqttAttribute.MqttConfigCreatorType == null
+                ? GetConfigurationViaAttributeValues(mqttAttribute)
+                : GetConfigurationViaCustomConfigCreator(mqttAttribute);
         }
 
-        private MqttConfiguration GetConfigurationViaAttributeValues()
+        private MqttConfiguration GetConfigurationViaAttributeValues(MqttBaseAttribute mqttAttribute)
         {
-            var name = _mqttTriggerAttribute.ConnectionString ?? DefaultAppsettingsKeyForConnectionString;
-            var connectionString = _nameResolver.Resolve(_mqttTriggerAttribute.ConnectionString) ?? _nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
+            var name = mqttAttribute.ConnectionString ?? DefaultAppsettingsKeyForConnectionString;
+            var connectionString = _nameResolver.Resolve(mqttAttribute.ConnectionString) ?? _nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
             var mqttConnectionString = new MqttConnectionString(connectionString);
 
             var mqttClientOptions = GetMqttClientOptions(mqttConnectionString);
 
             var managedMqttClientOptions = new ManagedMqttClientOptionsBuilder()
-               .WithAutoReconnectDelay(_detaultReconnectTime)
+               .WithAutoReconnectDelay(_defaultReconnectTime)
                .WithClientOptions(mqttClientOptions)
                .Build();
 
@@ -82,17 +80,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             return mqttClientOptionsBuilder.Build();
         }
 
-        private MqttConfiguration GetConfigurationViaCustomConfigCreator()
+        private MqttConfiguration GetConfigurationViaCustomConfigCreator(MqttBaseAttribute mqttAttribute)
         {
             CustomMqttConfig customConfig;
             try
             {
-                var customConfigCreator = (ICreateMqttConfig)Activator.CreateInstance(_mqttTriggerAttribute.MqttConfigCreatorType);
+                var customConfigCreator = (ICreateMqttConfig)Activator.CreateInstance(mqttAttribute.MqttConfigCreatorType);
                 customConfig = customConfigCreator.Create(_nameResolver, _logger);
             }
             catch (Exception ex)
             {
-                throw new InvalidCustomConfigCreatorException($"Unexpected exception while getting creating a config via type {_mqttTriggerAttribute.MqttConfigCreatorType.FullName}", ex);
+                throw new InvalidCustomConfigCreatorException($"Unexpected exception while getting creating a config via type {mqttAttribute.MqttConfigCreatorType.FullName}", ex);
             }
 
             return new MqttConfiguration(customConfig.Name, customConfig.Options);
