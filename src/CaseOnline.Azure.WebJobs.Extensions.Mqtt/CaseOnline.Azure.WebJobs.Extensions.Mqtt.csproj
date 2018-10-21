@@ -9,7 +9,9 @@
     <PackageProjectUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageProjectUrl>
     <RepositoryUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PackageLicenseUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/blob/master/LICENSE</PackageLicenseUrl>
     <VersionPrefix>1.1.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
@@ -28,7 +30,7 @@ For more information, please visit https://github.com/keesschollaart81/CaseOnlin
     <PackageIconUrl>https://raw.githubusercontent.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/master/logo.png</PackageIconUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>analyzers.ruleset</CodeAnalysisRuleSet>
-    <Features>IOperation</Features>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>Full</DebugType>
@@ -54,6 +56,6 @@ For more information, please visit https://github.com/keesschollaart81/CaseOnlin
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.0" />
     <PackageReference Include="MQTTnet" Version="2.8.4" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
   </ItemGroup>
 </Project>
