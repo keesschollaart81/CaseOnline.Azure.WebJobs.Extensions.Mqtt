@@ -1,6 +1,7 @@
 ﻿using System;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
 using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
@@ -22,11 +23,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// Initializes a new instance of the <see cref="MqttConfigurationParser"/> class.
         /// </summary>
         /// <param name="nameResolver">The name resolver.</param>
-        /// <param name="logger">The logger.</param>
-        public MqttConfigurationParser(INameResolver nameResolver, ILogger logger)
+        /// <param name="loggerFactory">The logger factory.</param>
+        public MqttConfigurationParser(INameResolver nameResolver, ILoggerFactory loggerFactory)
         { 
             _nameResolver = nameResolver;
-            _logger = logger;
+            _logger = loggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
         }
 
         /// <summary>

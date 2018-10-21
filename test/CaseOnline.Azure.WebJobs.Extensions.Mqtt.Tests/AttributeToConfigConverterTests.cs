@@ -12,9 +12,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 {
     public class MqttConfigurationParserTests
     {
-        private readonly Mock<ILogger> _mockLogger = new Mock<ILogger>();
+        private readonly Mock<ILoggerFactory> _mockLoggerFactory;
+
         private readonly MockNameResolver _resolver = new MockNameResolver();
 
+        public MqttConfigurationParserTests()
+        {
+            _mockLoggerFactory = new Mock<ILoggerFactory>();
+            _mockLoggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(new Mock<ILogger>().Object);
+        }
         [Fact]
         public void ValidConfigurationIsMappedCorrect()
         {
@@ -24,7 +30,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 ConnectionString = "Server=ServerName;Port=1883;Username=UserName;Password=Password;ClientId=TestClientId"
             };
 
-            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLogger.Object);
+            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLoggerFactory.Object);
 
             // Act
             var result = mqttConfigurationParser.Parse(mqttTriggerAttribute);
@@ -42,7 +48,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 ConnectionString = "Server=ServerName;Port=ByeWorld;Username=UserName;Password=Password"
             };
 
-            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLogger.Object);
+            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLoggerFactory.Object);
 
             // Act & Assert
             Assert.Throws<FormatException>(() => mqttConfigurationParser.Parse(mqttTriggerAttribute));
@@ -57,7 +63,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 ConnectionString = "Server=ServerName;Port=1883;Username=UserName;Password=Password;ClientId="
             };
 
-            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLogger.Object);
+            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLoggerFactory.Object);
 
             // Act 
             var result = mqttConfigurationParser.Parse(mqttTriggerAttribute);
@@ -76,7 +82,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 ConnectionString = "Server=;Port=1883;Username=UserName;Password=Password;ClientId="
             };
 
-            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLogger.Object);
+            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLoggerFactory.Object);
 
             // Act & Assert
             Assert.Throws<Exception>(() => mqttConfigurationParser.Parse(mqttTriggerAttribute));
@@ -89,7 +95,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange  
             var mqttTriggerAttribute = new MqttTriggerAttribute(typeof(TestMqttConfigProvider));
 
-            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLogger.Object);
+            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLoggerFactory.Object);
 
             // Act 
             var result = mqttConfigurationParser.Parse(mqttTriggerAttribute);
@@ -125,7 +131,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange  
             var mqttTriggerAttribute = new MqttTriggerAttribute(typeof(string));
 
-            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLogger.Object);
+            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLoggerFactory.Object);
 
             // Act & Assert
             Assert.Throws<InvalidCustomConfigCreatorException>(() => mqttConfigurationParser.Parse(mqttTriggerAttribute));
@@ -137,7 +143,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             // Arrange  
             var mqttTriggerAttribute = new MqttTriggerAttribute(typeof(BrokenTestMqttConfigProvider));
 
-            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLogger.Object);
+            var mqttConfigurationParser = new MqttConfigurationParser(_resolver, _mockLoggerFactory.Object);
 
             // Act & Assert
             Assert.Throws<InvalidCustomConfigCreatorException>(() => mqttConfigurationParser.Parse(mqttTriggerAttribute));
