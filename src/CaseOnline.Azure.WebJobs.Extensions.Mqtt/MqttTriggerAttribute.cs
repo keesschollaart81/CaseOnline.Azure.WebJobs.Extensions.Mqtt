@@ -5,24 +5,18 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
 {
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue)]
     [Binding]
-    public class MqttTriggerAttribute : Attribute, IRquireMqttConnection
+    public class MqttTriggerAttribute : MqttBaseAttribute
     {
         public MqttTriggerAttribute(params string[] topics)
         {
             Topics = topics;
         }
 
-        public MqttTriggerAttribute(Type mqttConfigCreatorType, params string[] topics)
+        public MqttTriggerAttribute(Type mqttConfigCreatorType, params string[] topics) : base(mqttConfigCreatorType)
         {
-            MqttConfigCreatorType = mqttConfigCreatorType;
             Topics = topics;
         }
 
-        public Type MqttConfigCreatorType { get; }
-
         public string[] Topics { get; }
-        
-        [AppSetting]
-        public string ConnectionString { get; set; }
     }
 }

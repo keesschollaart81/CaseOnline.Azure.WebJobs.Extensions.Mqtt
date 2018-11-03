@@ -7,6 +7,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
     {
         Task DisconnectAll();
 
-        MqttConnection GetMqttConnection(IRquireMqttConnection attribute);
+        MqttConnection GetMqttConnection(MqttBaseAttribute attribute);
     }
 }

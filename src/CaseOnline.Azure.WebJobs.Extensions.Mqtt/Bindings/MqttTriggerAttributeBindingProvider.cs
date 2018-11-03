@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host.Triggers;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
@@ -45,12 +44,19 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             }
 
             _logger.LogDebug($"Creating binding for parameter '{context.Parameter.Name}'");
+            try
+            {
+                var mqttTriggerBinding = GetMqttTriggerBinding(context.Parameter, mqttTriggerAttribute);
 
-            ITriggerBinding mqttTriggerBinding = GetMqttTriggerBinding(context.Parameter, mqttTriggerAttribute);
+                _logger.LogDebug($"Succesfully created binding for parameter '{context.Parameter.Name}'");
 
-            _logger.LogDebug($"Succesfully created binding for parameter '{context.Parameter.Name}'");
-
-            return Task.FromResult(mqttTriggerBinding);
+                return Task.FromResult(mqttTriggerBinding);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Unhandled exception while binding trigger '{context.Parameter.Name}'");
+                throw;
+            }
         }
 
         private static MqttTriggerAttribute GetMqttTriggerAttribute(ParameterInfo parameter)
@@ -70,7 +76,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             return mqttTriggerAttribute;
         }
 
-        private MqttTriggerBinding GetMqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute)
+        private ITriggerBinding GetMqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute)
         {
             TopicFilter[] topics;
             var mqttConnection = _connectionFactory.GetMqttConnection(mqttTriggerAttribute);

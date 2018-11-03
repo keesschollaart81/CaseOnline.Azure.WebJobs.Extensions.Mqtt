@@ -48,7 +48,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
         [Fact]
         public async Task TriggerAndOutputReuseConnection()
         {
-            var mqttApplicationMessages = new List<MqttApplicationMessage>(); ;
+            var mqttApplicationMessages = new List<MqttApplicationMessage>();
             var counnections = 0;
             var options = new MqttServerOptionsBuilder()
                 .WithConnectionValidator(x =>
@@ -69,7 +69,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await WaitFor(() => TriggerAndOutputWithSameConnectionTestFunction.CallCount >= 2);
+                await WaitFor(() => TriggerAndOutputWithSameConnectionTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, TriggerAndOutputWithSameConnectionTestFunction.CallCount);
