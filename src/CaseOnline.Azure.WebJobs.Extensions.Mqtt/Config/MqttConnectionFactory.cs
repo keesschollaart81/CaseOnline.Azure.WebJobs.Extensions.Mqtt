@@ -54,6 +54,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
                 await connection.Value.MqttConnection.StopAsync().ConfigureAwait(false);
                 connection.Value.MqttConnection.Dispose();
             }
+            _mqttConnections.Clear();
         }
 
         private class MqttConnectionEntry
