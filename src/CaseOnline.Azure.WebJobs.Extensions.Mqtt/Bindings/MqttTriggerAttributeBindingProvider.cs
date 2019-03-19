@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
@@ -79,10 +81,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private ITriggerBinding GetMqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute)
         {
             TopicFilter[] topics;
+            var resolvedTopics = ResolveBindingExpressions(mqttTriggerAttribute.Topics);
             var mqttConnection = _connectionFactory.GetMqttConnection(mqttTriggerAttribute);
+            
             try
             {
-                topics = mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)).ToArray();
+                topics = resolvedTopics.Select(t => new TopicFilter(t, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)).ToArray();
             }
             catch (Exception ex)
             {
@@ -91,6 +95,39 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             }
 
             return new MqttTriggerBinding(parameter, mqttConnection, topics, _logger);
+        }
+
+        private static string[] ResolveBindingExpressions(string[] topics)
+        {
+            var result = new List<string>();
+            var pattern = @"%\D+%";
+            var regex = new Regex(pattern);
+
+            foreach (var topic in topics)
+            {
+                var match = regex.Match(topic);
+
+                if (match.Success)
+                {
+                    var environmentVariableName = match.Value.Replace("%", string.Empty);
+                    var environmentVariableContent = Environment.GetEnvironmentVariable(environmentVariableName);
+
+                    if (environmentVariableContent != null)
+                    {
+                        result.Add(Regex.Replace(topic, pattern, environmentVariableContent));
+                    }
+                    else
+                    {
+                        result.Add(topic);
+                    }
+                }
+                else
+                {
+                    result.Add(topic);
+                }
+            }
+
+            return result.ToArray();
         }
     }
 }
