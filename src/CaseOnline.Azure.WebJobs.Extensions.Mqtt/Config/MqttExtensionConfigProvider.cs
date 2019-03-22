@@ -1,4 +1,5 @@
 ﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Host.Config;
 using Microsoft.Extensions.Logging;
@@ -13,11 +14,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
     {
         private readonly ILoggerFactory _loggerFactory;
         private readonly IMqttConnectionFactory _mqttConnectionFactory;
+        private readonly INameResolver _nameResolver;
 
-        public MqttExtensionConfigProvider(ILoggerFactory loggerFactory, IMqttConnectionFactory mqttConnectionFactory)
+        public MqttExtensionConfigProvider(ILoggerFactory loggerFactory, IMqttConnectionFactory mqttConnectionFactory, INameResolver nameResolver)
         {
             _loggerFactory = loggerFactory;
             _mqttConnectionFactory = mqttConnectionFactory;
+            _nameResolver = nameResolver;
         }
 
         /// <summary>
@@ -32,7 +35,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
                 return new MqttMessageCollector(_mqttConnectionFactory.GetMqttConnection(attr));
             });
 
-            var bindingProvider = new MqttTriggerAttributeBindingProvider(_mqttConnectionFactory, _loggerFactory);
+            var bindingProvider = new MqttTriggerAttributeBindingProvider(_mqttConnectionFactory, _loggerFactory, _nameResolver);
             context.AddBindingRule<MqttTriggerAttribute>()
                 .BindToTrigger(bindingProvider);
         }

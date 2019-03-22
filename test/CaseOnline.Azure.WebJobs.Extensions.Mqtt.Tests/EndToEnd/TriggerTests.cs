@@ -207,7 +207,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             }
         }
 
-
         [Fact]
         public async Task MultipleTriggersReceiveOwnMessages()
         {
@@ -249,6 +248,41 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             {
                 CallCountFunction2++;
                 LastReceivedMessageFunction2 = mqttMessage;
+            }
+        }
+
+        [Fact]
+        public async Task CustomMqttConfigProviderGetsTriggered()
+        {
+            var message = new MqttApplicationMessageBuilder()
+                .WithTopic("TestTopic/random")
+                .WithPayload("{ \"test\":\"case\" }")
+                .WithAtLeastOnceQoS()
+                .Build();
+
+            using (var mqttServer = await MqttServerHelper.Get(_logger))
+            using (var jobHost = await JobHostHelper<CustomMqttConfigProviderTestFunction>.RunFor(_testLoggerProvider))
+            {
+                await mqttServer.PublishAsync(message);
+
+                await WaitFor(() => CustomMqttConfigProviderTestFunction.CallCount >= 1);
+            }
+
+            Assert.Equal(1, CustomMqttConfigProviderTestFunction.CallCount);
+            Assert.Equal("TestTopic/random", CustomMqttConfigProviderTestFunction.LastReceivedMessage.Topic);
+            var messageBody = Encoding.UTF8.GetString(CustomMqttConfigProviderTestFunction.LastReceivedMessage.GetMessage());
+            Assert.Equal("{ \"test\":\"case\" }", messageBody);
+        }
+
+        private class CustomMqttConfigProviderTestFunction
+        {
+            public static int CallCount = 0;
+            public static IMqttMessage LastReceivedMessage;
+             
+            public static void Testert([MqttTrigger(typeof(TestMqttConfigProvider), "%TopicName%/#")] IMqttMessage mqttMessage)
+            {
+                CallCount++;
+                LastReceivedMessage = mqttMessage;
             }
         }
     }
