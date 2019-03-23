@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Azure.WebJobs.Host.Triggers;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
@@ -17,6 +19,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     public class MqttTriggerAttributeBindingProvider : ITriggerBindingProvider
     {
         private readonly IMqttConnectionFactory _connectionFactory;
+        private readonly INameResolver _nameResolver;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -24,9 +27,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// </summary>
         /// <param name="connectionFactory">the connection factory.</param>
         /// <param name="loggerFactory">The loggerFactory.</param>
-        internal MqttTriggerAttributeBindingProvider(IMqttConnectionFactory connectionFactory, ILoggerFactory loggerFactory)
+        /// <param name="nameResolver">The nameResolver.</param>
+        internal MqttTriggerAttributeBindingProvider(IMqttConnectionFactory connectionFactory, ILoggerFactory loggerFactory, INameResolver nameResolver)
         {
             _connectionFactory = connectionFactory;
+            _nameResolver = nameResolver;
             _logger = loggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
         }
 
@@ -82,7 +87,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             var mqttConnection = _connectionFactory.GetMqttConnection(mqttTriggerAttribute);
             try
             {
-                topics = mqttTriggerAttribute.Topics.Select(t => new TopicFilter(t, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)).ToArray();
+                topics = mqttTriggerAttribute.Topics.Select(t =>
+                {
+                    var topicString = (mqttTriggerAttribute.MqttConfigCreatorType != null) ? _nameResolver.ResolveWholeString(t) : t;
+                    return new TopicFilter(topicString, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+                }).ToArray();
             }
             catch (Exception ex)
             {

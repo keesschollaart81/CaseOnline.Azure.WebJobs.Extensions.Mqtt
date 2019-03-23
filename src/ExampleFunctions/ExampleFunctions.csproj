@@ -4,8 +4,8 @@
     <AzureFunctionsVersion>v2</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.23" />
-    <PackageReference Include="MQTTnet" Version="2.8.4" /> 
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.26" />
+    <PackageReference Include="MQTTnet" Version="2.8.5" /> 
   </ItemGroup> 
   <ItemGroup>
     <ProjectReference Include="..\CaseOnline.Azure.WebJobs.Extensions.Mqtt\CaseOnline.Azure.WebJobs.Extensions.Mqtt.csproj" />
