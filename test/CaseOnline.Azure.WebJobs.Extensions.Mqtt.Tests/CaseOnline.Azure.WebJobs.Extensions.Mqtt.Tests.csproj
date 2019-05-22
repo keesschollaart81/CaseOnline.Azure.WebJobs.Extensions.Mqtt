@@ -4,6 +4,7 @@
     <IsPackable>false</IsPackable>
     <DebugType>Full</DebugType>
     <ProjectGuid>{DC968091-3FBF-4B78-A60F-E4818DF0022E}</ProjectGuid>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="appsettings.json" />
