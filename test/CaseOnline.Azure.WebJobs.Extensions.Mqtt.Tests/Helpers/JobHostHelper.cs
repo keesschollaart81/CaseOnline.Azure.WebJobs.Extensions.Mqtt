@@ -62,7 +62,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         public async Task WaitForAllConnectionToBeConnected()
         {
-            var totalMilliseconds = TimeSpan.FromSeconds(5).TotalMilliseconds;
+            var totalMilliseconds = TimeSpan.FromSeconds(10).TotalMilliseconds;
             var sleepDuration = TimeSpan.FromMilliseconds(50); // not long otherwise MQTT Connections are being dropped?!
 
             var mqttExtensionConfigProvider = _host.Services.GetService(typeof(IMqttConnectionFactory)) as MqttConnectionFactory;

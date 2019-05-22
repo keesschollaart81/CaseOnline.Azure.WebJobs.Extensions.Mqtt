@@ -4,6 +4,7 @@ using MQTTnet;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
 using System;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -159,7 +160,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             {
                 await mqttServer.PublishAsync(DefaultMessage);
 
-                await WaitFor(() => FunctionConnectingWithTlsEnabledTestFunction.CallCount >= 1);
+                await WaitFor(() => FunctionConnectingWithTlsEnabledTestFunction.CallCount >= 1, 20);
             }
 
             Assert.Equal(1, FunctionConnectingWithTlsEnabledTestFunction.CallCount);

@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Adapter;
+using MQTTnet.Client.Publishing;
 using MQTTnet.Implementations;
 using MQTTnet.Server;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 {
-    public class MqttServerHelper : IDisposable, IApplicationMessagePublisher
+    public class MqttServerHelper : IApplicationMessagePublisher, IDisposable, IMqttServerStartedHandler, IMqttServerClientConnectedHandler, IMqttServerClientDisconnectedHandler
     {
         private IMqttServer _mqttServer;
         private readonly ILogger _logger;
-        private readonly IMqttServerOptions _options;
-        public event EventHandler<OnMessageEventArgs> OnMessage;
+        private readonly IMqttServerOptions _options; 
         private bool serverStarted = false;
 
         public static async Task<MqttServerHelper> Get(ILogger logger, int port = 1883)
@@ -44,9 +45,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             var logger = new MqttLogger(_logger);
             var factory = new MqttFactory();
             _mqttServer = factory.CreateMqttServer(new List<IMqttServerAdapter> { new MqttTcpServerAdapter(logger.CreateChildLogger()) }, logger);
-            _mqttServer.Started += Started;
-            _mqttServer.ClientConnected += ClientConnected;
-            _mqttServer.ClientDisconnected += ClientDisconnected;
+            _mqttServer.StartedHandler = this;
+            _mqttServer.ClientConnectedHandler = this;
+            _mqttServer.ClientDisconnectedHandler = this;
 
             await _mqttServer.StartAsync(_options);
 
@@ -62,26 +63,25 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             }
             throw new Exception("Mqtt Server did not start?");
         }
-
-        private void ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
+         
+        public Task HandleClientDisconnectedAsync(MqttServerClientDisconnectedEventArgs eventArgs)
         {
-            OnMessage(this, new OnMessageEventArgs(e.ClientId, e.ApplicationMessage));
+            _logger.LogDebug($"_mqttServer_ClientDisconnected: {eventArgs.ClientId}");
+            return Task.CompletedTask;
         }
 
-        private void ClientDisconnected(object sender, MQTTnet.Server.MqttClientDisconnectedEventArgs e)
+        public Task HandleClientConnectedAsync(MqttServerClientConnectedEventArgs eventArgs)
         {
-            _logger.LogDebug($"_mqttServer_ClientDisconnected: {e.ClientId}");
+            _logger.LogDebug($"_mqttServer_ClientConnected: {eventArgs.ClientId}");
+            return Task.CompletedTask;
         }
 
-        private void ClientConnected(object sender, MQTTnet.Server.MqttClientConnectedEventArgs e)
-        {
-            _logger.LogDebug($"_mqttServer_ClientConnected: {e.ClientId}");
-        }
 
-        private void Started(object sender, EventArgs e)
+        public Task HandleServerStartedAsync(EventArgs eventArgs)
         {
             serverStarted = true;
-            _logger.LogDebug($"mqtt server started: {e}");
+            _logger.LogDebug($"mqtt server started: {eventArgs}");
+            return Task.CompletedTask;
         }
 
         public void Dispose()
@@ -98,12 +98,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         public async Task SubscribeAsync(string topic)
         {
-            await _mqttServer.SubscribeAsync("Custom", new List<TopicFilter>() { new TopicFilter(topic, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) });
+            await _mqttServer.SubscribeAsync("Custom", new List<TopicFilter>() { new TopicFilter() { Topic = topic, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } });
         }
 
-        public async Task PublishAsync(MqttApplicationMessage applicationMessage)
+        public async Task<MqttClientPublishResult> PublishAsync(MqttApplicationMessage applicationMessage)
         {
-            await _mqttServer.PublishAsync(applicationMessage);
+            return await PublishAsync(applicationMessage, CancellationToken.None);
+        }
+
+        public async Task<MqttClientPublishResult> PublishAsync(MqttApplicationMessage applicationMessage, CancellationToken cancellationToken)
+        {
+            return await _mqttServer.PublishAsync(applicationMessage);
         }
     }
 }

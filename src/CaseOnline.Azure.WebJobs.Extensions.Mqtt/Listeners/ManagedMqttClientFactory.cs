@@ -1,20 +1,21 @@
-﻿using MQTTnet.Client;
+﻿using MQTTnet;
+using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
     public class ManagedMqttClientFactory : IManagedMqttClientFactory
     {
-        private readonly IMqttClientFactory _mqttClientFactory;
+        private readonly IMqttFactory _mqttFactory;
 
-        public ManagedMqttClientFactory(IMqttClientFactory mqttClientFactory)
+        public ManagedMqttClientFactory(IMqttFactory mqttFactory)
         {
-            _mqttClientFactory = mqttClientFactory;
+            _mqttFactory = mqttFactory;
         }
 
         public IManagedMqttClient CreateManagedMqttClient()
         {
-            return _mqttClientFactory.CreateManagedMqttClient();
+            return _mqttFactory.CreateManagedMqttClient();
         }
     }
 }

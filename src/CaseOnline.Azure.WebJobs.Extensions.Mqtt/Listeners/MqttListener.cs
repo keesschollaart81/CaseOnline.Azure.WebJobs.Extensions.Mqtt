@@ -14,7 +14,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
     /// Listens for MQTT messages.
     /// </summary>
     [Singleton(Mode = SingletonMode.Listener)]
-    public sealed class MqttListener : IListener
+    public sealed class MqttListener : IListener, IProcesMqttMessage
     {
         private readonly ITriggeredFunctionExecutor _executor;
         private readonly ILogger _logger;
@@ -49,13 +49,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             {
                 return;
             }
-            await _mqttConnection.StartAsync().ConfigureAwait(false);
-            _mqttConnection.OnMessageEventHandler += OnMessage;
+            await _mqttConnection.StartAsync(this).ConfigureAwait(false);
 
             await _mqttConnection.SubscribeAsync(_topics).ConfigureAwait(false);
         }
 
-        internal async Task OnMessage(MqttMessageReceivedEventArgs arg)
+        public async Task OnMessage(MqttMessageReceivedEventArgs arg)
         {
             var token = _cancellationTokenSource.Token;
            
@@ -93,8 +92,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             _cancellationTokenSource.Cancel();
 
             await _mqttConnection.UnubscribeAsync(_topics.Select(x => x.Topic).ToArray()).ConfigureAwait(false);
-
-            _mqttConnection.OnMessageEventHandler -= OnMessage;
 
             await _mqttConnection.StopAsync().ConfigureAwait(false);
         }

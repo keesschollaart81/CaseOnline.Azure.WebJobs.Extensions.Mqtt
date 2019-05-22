@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
-using MQTTnet.Client;
+using MQTTnet.Client.Options;
 using MQTTnet.Extensions.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
@@ -74,8 +77,28 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             if (connectionString.Tls)
             {
-                // Need to implement TLS verification sometime
-                mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithTls(true, false, false);
+                var certificates = new List<byte[]>();
+                if (connectionString.Certificate != null)
+                {
+                    var serializedServerCertificate = new X509Certificate(connectionString.Certificate)
+                        .Export(X509ContentType.Cert);
+                    certificates.Add(serializedServerCertificate);
+                }
+
+                mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters
+                {
+                    UseTls = true,
+                    Certificates = certificates,
+#if DEBUG                   
+                    CertificateValidationCallback = (X509Certificate x, X509Chain y, SslPolicyErrors z, IMqttClientOptions o) =>
+                    { 
+                        return true; 
+                    },
+#endif
+                    AllowUntrustedCertificates = false,
+                    IgnoreCertificateChainErrors = false,
+                    IgnoreCertificateRevocationErrors = false
+                });  
             }
 
             return mqttClientOptionsBuilder.Build();

@@ -5,6 +5,9 @@ using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
 using MQTTnet.Client;
+using MQTTnet.Client.Connecting;
+using MQTTnet.Client.Disconnecting;
+using MQTTnet.Client.Receiving;
 using MQTTnet.Extensions.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
@@ -12,13 +15,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
     /// <summary>
     /// Manages the state of the MQTT connection, an wrapper around MQTTNet.IManagedMqttClient. 
     /// </summary>
-    public class MqttConnection : IMqttConnection
+    public class MqttConnection : IMqttConnection, IMqttApplicationMessageReceivedHandler, IApplicationMessageProcessedHandler, IMqttClientConnectedHandler, IMqttClientDisconnectedHandler, IConnectingFailedHandler, ISynchronizingSubscriptionsFailedHandler
     {
         private readonly IManagedMqttClientFactory _mqttClientFactory;
         private readonly MqttConfiguration _config;
         private readonly ILogger _logger;
         private readonly object startupLock = new object();
         private IManagedMqttClient _managedMqttClient;
+        private IProcesMqttMessage _messageHandler;
 
         public MqttConnection(IManagedMqttClientFactory mqttClientFactory, MqttConfiguration config, ILogger logger)
         {
@@ -26,8 +30,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             _config = config;
             _logger = logger;
         }
-
-        public event Func<MqttMessageReceivedEventArgs, Task> OnMessageEventHandler;
 
         /// <summary>
         /// Gets the current status of the connection.
@@ -45,7 +47,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         /// <summary>
         /// Opens the MQTT connection.
         /// </summary>
-        public async Task StartAsync()
+        public async Task StartAsync(IProcesMqttMessage messageHandler)
         {
             try
             {
@@ -55,12 +57,16 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
                     {
                         return;
                     }
+                    _messageHandler = messageHandler;
+
                     ConnectionState = ConnectionState.Connecting;
                     _managedMqttClient = _mqttClientFactory.CreateManagedMqttClient();
-                    _managedMqttClient.ApplicationMessageReceived += ManagedMqttClientApplicationMessageReceived;
-                    _managedMqttClient.ApplicationMessageProcessed += ManagedMqttClientApplicationMessageProcessed;
-                    _managedMqttClient.Connected += ManagedMqttClientConnected;
-                    _managedMqttClient.Disconnected += ManagedMqttClientDisconnected;
+                    _managedMqttClient.ApplicationMessageReceivedHandler = this;
+                    _managedMqttClient.ApplicationMessageProcessedHandler = this;
+                    _managedMqttClient.ConnectedHandler = this;
+                    _managedMqttClient.ConnectingFailedHandler = this;
+                    _managedMqttClient.SynchronizingSubscriptionsFailedHandler = this;
+                    _managedMqttClient.DisconnectedHandler = this;
                 }
                 await _managedMqttClient.StartAsync(_config.Options).ConfigureAwait(false);
             }
@@ -71,40 +77,72 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             }
         }
 
-        private void ManagedMqttClientApplicationMessageProcessed(object sender, ApplicationMessageProcessedEventArgs e)
+        public Task HandleApplicationMessageProcessedAsync(ApplicationMessageProcessedEventArgs eventArgs)
         {
-            if (e.HasFailed)
+            if (eventArgs.HasFailed)
             {
-                _logger.LogError(new EventId(0), e.Exception, $"Message could not be processed for {this}, message: '{e.Exception?.Message}'");
+                _logger.LogError(new EventId(0), eventArgs.Exception, $"Message could not be processed for {this}, message: '{eventArgs.Exception?.Message}'");
             }
+            return Task.CompletedTask;
         }
 
-        private void ManagedMqttClientDisconnected(object sender, MqttClientDisconnectedEventArgs e)
+        public Task HandleDisconnectedAsync(MqttClientDisconnectedEventArgs eventArgs)
         {
             ConnectionState = ConnectionState.Disconnected;
-            _logger.LogWarning(new EventId(0), e.Exception, $"MqttConnection Disconnected, previous connectivity state '{e.ClientWasConnected}' for {this}, message: '{e.Exception?.Message}'");
+            _logger.LogWarning(new EventId(0), eventArgs.Exception, $"MqttConnection Disconnected, previous connectivity state '{eventArgs.ClientWasConnected}' for {this}, message: '{eventArgs.Exception?.Message}'");
+            return Task.CompletedTask;
         }
 
-        private void ManagedMqttClientConnected(object sender, MqttClientConnectedEventArgs e)
+        public Task HandleConnectingFailedAsync(ManagedProcessFailedEventArgs eventArgs)
         {
-            ConnectionState = ConnectionState.Connected;
-            _logger.LogInformation($"MqttConnection Connected for {this}");
+            ConnectionState = ConnectionState.Disconnected;
+            _logger.LogWarning(new EventId(0), eventArgs.Exception, $"MqttConnection could not connect for {this}, message: '{eventArgs.Exception?.Message}'");
+            return Task.CompletedTask;
         }
 
-        private void ManagedMqttClientApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs mqttApplicationMessageReceivedEventArgs)
+        public Task HandleSynchronizingSubscriptionsFailedAsync(ManagedProcessFailedEventArgs eventArgs)
+        {
+            ConnectionState = ConnectionState.Disconnected;
+            _logger.LogWarning(new EventId(0), eventArgs.Exception, $"Subscription synchronization for {this} failed, message: '{eventArgs.Exception?.Message}'");
+            return Task.CompletedTask;
+        }
+
+        public Task HandleConnectedAsync(MqttClientConnectedEventArgs eventArgs)
+        {
+            if (eventArgs.AuthenticateResult.ResultCode == MqttClientConnectResultCode.Success)
+            {
+                ConnectionState = ConnectionState.Connected;
+                _logger.LogInformation($"MqttConnection Connected for {this}");
+            }
+            else
+            {
+                ConnectionState = ConnectionState.Disconnected;
+                _logger.LogWarning($"MqttConnection could not connect, result code: {eventArgs.AuthenticateResult.ResultCode} for {this}");
+            }
+            return Task.CompletedTask;
+        }
+
+        public async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
         {
             _logger.LogDebug($"MqttConnection receiving message for {this}");
             try
             {
-                var qos = (MqttQualityOfServiceLevel)Enum.Parse(typeof(MqttQualityOfServiceLevel), mqttApplicationMessageReceivedEventArgs.ApplicationMessage.QualityOfServiceLevel.ToString());
+                var qos = (MqttQualityOfServiceLevel)Enum.Parse(typeof(MqttQualityOfServiceLevel), eventArgs.ApplicationMessage.QualityOfServiceLevel.ToString());
 
                 var mqttMessage = new MqttMessage(
-                    mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Topic,
-                    mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Payload,
+                    eventArgs.ApplicationMessage.Topic,
+                    eventArgs.ApplicationMessage.Payload,
                     qos,
-                    mqttApplicationMessageReceivedEventArgs.ApplicationMessage.Retain);
+                    eventArgs.ApplicationMessage.Retain);
 
-                OnMessageEventHandler(new MqttMessageReceivedEventArgs(mqttMessage)).Wait();
+                if (_messageHandler == null)
+                {
+                    var errormessage = $"MqttConnection receiving message but there is no handler available to process this message for {this}";
+                    _logger.LogCritical(new EventId(0), errormessage);
+                    throw new MqttConnectionException(errormessage);
+                }
+
+                await _messageHandler.OnMessage(new MqttMessageReceivedEventArgs(mqttMessage)).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -162,9 +200,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
                 return Task.CompletedTask;
             }
 
+            ConnectionState = ConnectionState.Disconnected;
+
             _managedMqttClient.StopAsync().Wait();
             _managedMqttClient.Dispose();
             _managedMqttClient = null;
+
+            _messageHandler = null;
 
             return Task.CompletedTask;
         }
@@ -182,6 +224,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
                 _managedMqttClient.Dispose();
                 _managedMqttClient = null;
             }
-        }
+        } 
     }
 }

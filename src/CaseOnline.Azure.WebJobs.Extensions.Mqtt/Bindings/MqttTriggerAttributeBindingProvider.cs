@@ -90,7 +90,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 topics = mqttTriggerAttribute.Topics.Select(t =>
                 {
                     var topicString = (mqttTriggerAttribute.MqttConfigCreatorType != null) ? _nameResolver.ResolveWholeString(t) : t;
-                    return new TopicFilter(topicString, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+                    return new TopicFilter() { Topic = topicString, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce };
                 }).ToArray();
             }
             catch (Exception ex)

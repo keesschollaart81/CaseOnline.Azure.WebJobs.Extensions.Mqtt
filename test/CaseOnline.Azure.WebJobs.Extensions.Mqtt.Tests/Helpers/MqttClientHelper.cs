@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MQTTnet;
-using MQTTnet.Client;
+using MQTTnet.Client.Connecting;
+using MQTTnet.Client.Disconnecting;
+using MQTTnet.Client.Options;
+using MQTTnet.Client.Receiving;
 using MQTTnet.Extensions.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 {
-    public class MqttClientHelper : IDisposable
+    public class MqttClientHelper : IDisposable, IMqttClientConnectedHandler, IMqttClientDisconnectedHandler, IMqttApplicationMessageReceivedHandler
     {
         static IManagedMqttClient _mqttClient;
         private static ILogger _logger;
         private readonly IManagedMqttClientOptions _options;
-        public event EventHandler<OnMessageEventArgs> OnMessage;
         private bool IsConnected { get; set; }
+
+        private Queue<MqttApplicationMessage> MessagesReceived = new Queue<MqttApplicationMessage>();
 
         public static async Task<MqttClientHelper> Get(ILogger logger, int port = 1883)
         {
@@ -57,27 +62,31 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         {
             var factory = new MqttFactory();
             _mqttClient = factory.CreateManagedMqttClient();
-            _mqttClient.Connected += _mqttClient_Connected;
-            _mqttClient.Disconnected += _mqttClient_Disconnected;
-            _mqttClient.ApplicationMessageReceived += _mqttClient_ApplicationMessageReceived;
+            _mqttClient.ConnectedHandler = this;
+            _mqttClient.DisconnectedHandler = this;
+            _mqttClient.ApplicationMessageReceivedHandler = this;
 
             await _mqttClient.StartAsync(_options);
         }
 
-        private void _mqttClient_ApplicationMessageReceived(object sender, MqttApplicationMessageReceivedEventArgs e)
+        public Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
         {
-            OnMessage(this, new OnMessageEventArgs(e.ClientId, e.ApplicationMessage));
+            MessagesReceived.Enqueue(eventArgs.ApplicationMessage);
+
+            return Task.CompletedTask;
         }
 
-        private void _mqttClient_Disconnected(object sender, MqttClientDisconnectedEventArgs e)
+        public Task HandleDisconnectedAsync(MqttClientDisconnectedEventArgs eventArgs)
         {
-            _logger.LogDebug($"_mqttClient_Disconnected: {e.Exception?.Message}");
+            _logger.LogDebug($"_mqttClient_Disconnected: {eventArgs.Exception?.Message}");
+            return Task.CompletedTask;
         }
 
-        private void _mqttClient_Connected(object sender, MqttClientConnectedEventArgs e)
+        public Task HandleConnectedAsync(MqttClientConnectedEventArgs eventArgs)
         {
             IsConnected = true;
             _logger.LogDebug($"_mqttClient_Connected");
+            return Task.CompletedTask;
         }
         
         public void Dispose()
@@ -88,9 +97,27 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         public async Task SubscribeAsync(string topic)
         { 
-            await _mqttClient.SubscribeAsync(new List<TopicFilter>() { new TopicFilter(topic, MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) });
+            await _mqttClient.SubscribeAsync(new List<TopicFilter>() { new TopicFilter() { Topic = topic, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } });
 
             await Task.Delay(TimeSpan.FromSeconds(1));
+        } 
+
+        public async Task<MqttApplicationMessage> WaitForMessage (int seconds = 10)
+        {
+            var totalMilliseconds = TimeSpan.FromSeconds(seconds).TotalMilliseconds;
+            var sleepDuration = TimeSpan.FromMilliseconds(50); // not long otherwise MQTT Connections are being dropped?!
+
+            for (var i = 0; i < (totalMilliseconds / sleepDuration.TotalMilliseconds); i++)
+            {
+                var hasMessage = MessagesReceived.TryDequeue(out var message);
+                if (hasMessage)
+                {
+                    Debug.WriteLine($"Waited for {i * sleepDuration.TotalMilliseconds}ms");
+                    return message;
+                }
+                await Task.Delay(sleepDuration);
+            }
+            return null;
         }
     }
 }

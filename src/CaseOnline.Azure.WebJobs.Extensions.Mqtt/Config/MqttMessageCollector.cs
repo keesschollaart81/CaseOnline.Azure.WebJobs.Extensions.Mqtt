@@ -17,11 +17,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
             _mqttConnection = mqttConnection;
         }
 
-        public async Task AddAsync(IMqttMessage item, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task AddAsync(IMqttMessage item, CancellationToken cancellationToken = default)
         {
             if (_mqttConnection.ConnectionState != ConnectionState.Connected)
             {
-                await _mqttConnection.StartAsync().ConfigureAwait(false);
+                IProcesMqttMessage messageProcessor = null; // this is only for publising, we dont expect incoming messages
+                await _mqttConnection.StartAsync(messageProcessor).ConfigureAwait(false);
                 for (var i = 0; i < 100; i++)
                 {
                     if (_mqttConnection.ConnectionState != ConnectionState.Connected)
