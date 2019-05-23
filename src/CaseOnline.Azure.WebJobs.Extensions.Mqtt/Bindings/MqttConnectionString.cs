@@ -16,10 +16,13 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private const string KeyForTls = nameof(Tls);
         private const string KeyForCertificate = nameof(Certificate);
 
+        private readonly string _name;
         private readonly DbConnectionStringBuilder _connectionStringBuilder;
 
-        public MqttConnectionString(string connectionString)
+        public MqttConnectionString(string connectionString, string name)
         {
+            _name = name;
+
             _connectionStringBuilder = new DbConnectionStringBuilder()
             {
                 ConnectionString = connectionString
@@ -55,7 +58,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         {
             Server = _connectionStringBuilder.TryGetValue(KeyForServer, out var serverValue)
                 ? serverValue.ToString()
-                : throw new Exception("No server hostname configured, please set the server via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json");
+                : throw new Exception($"No server hostname configured for connection '{_name}', please which connectionstring to use via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json and then include the 'Server=' part in the connectionstring.");
         }
 
         private void ParseAndSetTls()

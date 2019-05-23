@@ -12,7 +12,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
     {
         public CustomMqttConfig Create(INameResolver nameResolver, ILogger logger)
         {
-            var connectionString = new MqttConnectionString(nameResolver.Resolve("MqttConnectionWithCustomClientId"));
+            var connectionString = new MqttConnectionString(nameResolver.Resolve("MqttConnectionWithCustomClientId"), "CustomConfiguration");
 
             var options = new ManagedMqttClientOptionsBuilder()
                    .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))

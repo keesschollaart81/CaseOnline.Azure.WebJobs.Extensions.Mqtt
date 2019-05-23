@@ -12,7 +12,7 @@ namespace ExampleFunction.AdvancedConfig
     {
         public CustomMqttConfig Create(INameResolver nameResolver, ILogger logger)
         {
-            var connectionString = new MqttConnectionString(nameResolver.Resolve("MqttConnection"));
+            var connectionString = new MqttConnectionString(nameResolver.Resolve("MqttConnection"), "CustomConfiguration");
 
             var options = new ManagedMqttClientOptionsBuilder()
                    .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))

@@ -28,7 +28,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// <param name="nameResolver">The name resolver.</param>
         /// <param name="loggerFactory">The logger factory.</param>
         public MqttConfigurationParser(INameResolver nameResolver, ILoggerFactory loggerFactory)
-        { 
+        {
             _nameResolver = nameResolver;
             _logger = loggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
         }
@@ -49,9 +49,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         private MqttConfiguration GetConfigurationViaAttributeValues(MqttBaseAttribute mqttAttribute)
         {
-            var name = mqttAttribute.ConnectionString ?? DefaultAppsettingsKeyForConnectionString;
-            var connectionString = _nameResolver.Resolve(mqttAttribute.ConnectionString) ?? _nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
-            var mqttConnectionString = new MqttConnectionString(connectionString);
+            var name = mqttAttribute.ConnectionString;
+            var connectionString = _nameResolver.Resolve(mqttAttribute.ConnectionString);
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                connectionString = _nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
+                name = DefaultAppsettingsKeyForConnectionString;
+            }
+            var mqttConnectionString = new MqttConnectionString(connectionString, name);
 
             var mqttClientOptions = GetMqttClientOptions(mqttConnectionString);
 
@@ -91,14 +97,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                     Certificates = certificates,
 #if DEBUG                   
                     CertificateValidationCallback = (X509Certificate x, X509Chain y, SslPolicyErrors z, IMqttClientOptions o) =>
-                    { 
-                        return true; 
+                    {
+                        return true;
                     },
 #endif
                     AllowUntrustedCertificates = false,
                     IgnoreCertificateChainErrors = false,
                     IgnoreCertificateRevocationErrors = false
-                });  
+                });
             }
 
             return mqttClientOptionsBuilder.Build();
