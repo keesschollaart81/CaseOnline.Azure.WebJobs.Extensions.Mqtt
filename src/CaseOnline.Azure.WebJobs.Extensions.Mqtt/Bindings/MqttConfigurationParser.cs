@@ -116,14 +116,21 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             try
             {
                 var customConfigCreator = (ICreateMqttConfig)Activator.CreateInstance(mqttAttribute.MqttConfigCreatorType);
-                customConfig = customConfigCreator.Create(_nameResolver, _logger);
+                customConfig = customConfigCreator.Create(_nameResolver, _logger); 
             }
             catch (Exception ex)
             {
                 throw new InvalidCustomConfigCreatorException($"Unexpected exception while getting creating a config via type {mqttAttribute.MqttConfigCreatorType.FullName}", ex);
             }
 
-            return new MqttConfiguration(customConfig.Name, customConfig.Options);
+            string name = customConfig.Name;
+            if (mqttAttribute is MqttTriggerAttribute)
+            {
+                // Make sure that if custom configurations are (re)used over multiple triggers, they all get their own unique name
+                // This makes sure that the actual connection is not reused
+                name = customConfig.Name + $".{Guid.NewGuid()}";
+            }
+            return new MqttConfiguration(name, customConfig.Options);
         }
     }
 }
