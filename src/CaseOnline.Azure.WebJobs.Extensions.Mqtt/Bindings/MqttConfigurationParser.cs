@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Logging;
 using Microsoft.Extensions.Logging;
-using MQTTnet.Client;
+using MQTTnet.Client.Options;
 using MQTTnet.Extensions.ManagedClient;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
@@ -25,7 +28,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// <param name="nameResolver">The name resolver.</param>
         /// <param name="loggerFactory">The logger factory.</param>
         public MqttConfigurationParser(INameResolver nameResolver, ILoggerFactory loggerFactory)
-        { 
+        {
             _nameResolver = nameResolver;
             _logger = loggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
         }
@@ -46,9 +49,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         private MqttConfiguration GetConfigurationViaAttributeValues(MqttBaseAttribute mqttAttribute)
         {
-            var name = mqttAttribute.ConnectionString ?? DefaultAppsettingsKeyForConnectionString;
-            var connectionString = _nameResolver.Resolve(mqttAttribute.ConnectionString) ?? _nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
-            var mqttConnectionString = new MqttConnectionString(connectionString);
+            var name = mqttAttribute.ConnectionString;
+            var connectionString = _nameResolver.Resolve(mqttAttribute.ConnectionString);
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                connectionString = _nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
+                name = DefaultAppsettingsKeyForConnectionString;
+            }
+            var mqttConnectionString = new MqttConnectionString(connectionString, name);
 
             var mqttClientOptions = GetMqttClientOptions(mqttConnectionString);
 
@@ -74,8 +83,28 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             if (connectionString.Tls)
             {
-                // Need to implement TLS verification sometime
-                mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithTls(true, false, false);
+                var certificates = new List<byte[]>();
+                if (connectionString.Certificate != null)
+                {
+                    var serializedServerCertificate = new X509Certificate(connectionString.Certificate)
+                        .Export(X509ContentType.Cert);
+                    certificates.Add(serializedServerCertificate);
+                }
+
+                mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters
+                {
+                    UseTls = true,
+                    Certificates = certificates,
+#if DEBUG                   
+                    CertificateValidationCallback = (X509Certificate x, X509Chain y, SslPolicyErrors z, IMqttClientOptions o) =>
+                    {
+                        return true;
+                    },
+#endif
+                    AllowUntrustedCertificates = false,
+                    IgnoreCertificateChainErrors = false,
+                    IgnoreCertificateRevocationErrors = false
+                });
             }
 
             return mqttClientOptionsBuilder.Build();
@@ -87,14 +116,21 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             try
             {
                 var customConfigCreator = (ICreateMqttConfig)Activator.CreateInstance(mqttAttribute.MqttConfigCreatorType);
-                customConfig = customConfigCreator.Create(_nameResolver, _logger);
+                customConfig = customConfigCreator.Create(_nameResolver, _logger); 
             }
             catch (Exception ex)
             {
                 throw new InvalidCustomConfigCreatorException($"Unexpected exception while getting creating a config via type {mqttAttribute.MqttConfigCreatorType.FullName}", ex);
             }
 
-            return new MqttConfiguration(customConfig.Name, customConfig.Options);
+            string name = customConfig.Name;
+            if (mqttAttribute is MqttTriggerAttribute)
+            {
+                // Make sure that if custom configurations are (re)used over multiple triggers, they all get their own unique name
+                // This makes sure that the actual connection is not reused
+                name = customConfig.Name + $".{Guid.NewGuid()}";
+            }
+            return new MqttConfiguration(name, customConfig.Options);
         }
     }
 }

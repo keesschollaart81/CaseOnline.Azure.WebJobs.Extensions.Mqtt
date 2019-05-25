@@ -23,7 +23,7 @@ namespace ExampleFunctions
             var body = message.GetMessage();
             var bodyString = Encoding.UTF8.GetString(body);
             logger.LogInformation($"Message for topic {message.Topic}: {bodyString}");
-            outMessage = new MqttMessage("testtopic/out", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true);
+            outMessage = new MqttMessage("testtopic/out", Encoding.UTF8.GetBytes("Hi!"), MqttQualityOfServiceLevel.AtLeastOnce, true);
         }
 
         /// <summary>

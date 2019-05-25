@@ -2,11 +2,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using Microsoft.Extensions.Logging;
 using Moq;
 using MQTTnet;
-using MQTTnet.Client;
+using MQTTnet.Client.Connecting;
 using MQTTnet.Extensions.ManagedClient;
 using Xunit;
 
@@ -30,6 +29,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             var mockManagedMqttClient = new Mock<IManagedMqttClient>();
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
             var mockMqttClientFactory = new Mock<IManagedMqttClientFactory>();
+            var messageProcessor = new Mock<IProcesMqttMessage>();
 
             mockMqttClientFactory
                 .Setup(m => m.CreateManagedMqttClient())
@@ -39,13 +39,18 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 .Setup(m => m.StartAsync(It.Is<IManagedMqttClientOptions>(y => y == mockManagedMqttClientOptions.Object)))
                 .Returns(Task.CompletedTask);
 
+            messageProcessor.Setup(x => x.OnMessage(It.IsAny<MqttMessageReceivedEventArgs>())).Returns(Task.CompletedTask);
+
             var config = new MqttConfiguration("CustomConfig", mockManagedMqttClientOptions.Object);
 
             var mqttConnection = new MqttConnection(mockMqttClientFactory.Object, config, _mockLogger.Object);
 
             // Act
-            await mqttConnection.StartAsync();
-            mockManagedMqttClient.Raise(x => x.Connected += null, new MqttClientConnectedEventArgs(true));
+            await mqttConnection.StartAsync(messageProcessor.Object);
+            await mqttConnection.HandleConnectedAsync(new MqttClientConnectedEventArgs(new MqttClientAuthenticateResult {
+                IsSessionPresent = true,
+                ResultCode = MqttClientConnectResultCode.Success
+            })); 
 
             // Assert 
             Assert.Equal(ConnectionState.Connected, mqttConnection.ConnectionState);
@@ -54,37 +59,32 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
         }
 
         [Fact]
-        public async Task NewMessageIsProcessedWell()
+        public async Task NewMessageIsProcessed()
         {
             // Arrange 
             var mockManagedMqttClient = new Mock<IManagedMqttClient>();
             var mockManagedMqttClientOptions = new Mock<IManagedMqttClientOptions>();
             var mockMqttClientFactory = new Mock<IManagedMqttClientFactory>();
+            var messageProcessor = new Mock<IProcesMqttMessage>();
 
             mockMqttClientFactory
                 .Setup(m => m.CreateManagedMqttClient())
                 .Returns(mockManagedMqttClient.Object);
 
+            messageProcessor.Setup(x => x.OnMessage(It.IsAny<MqttMessageReceivedEventArgs>())).Returns(Task.CompletedTask);
+
             var config = new MqttConfiguration("CustomConfig", mockManagedMqttClientOptions.Object);
-            var mqttConnection = new MqttConnection(mockMqttClientFactory.Object, config, _mockLogger.Object);
-
-            IMqttMessage receivedMessage = null;
-            mqttConnection.OnMessageEventHandler += (MqttMessageReceivedEventArgs arg) =>
-            {
-                receivedMessage = arg.Message;
-                return Task.CompletedTask;
-            };
-
+            var mqttConnection = new MqttConnection(mockMqttClientFactory.Object, config, _mockLogger.Object); 
+           
             // Act 
-            await mqttConnection.StartAsync();
-            mockManagedMqttClient.Raise(x => x.ApplicationMessageReceived += null, new MqttApplicationMessageReceivedEventArgs("ClientId", DefaultMessage));
+            await mqttConnection.StartAsync(messageProcessor.Object);
+            await mqttConnection.HandleApplicationMessageReceivedAsync( new MqttApplicationMessageReceivedEventArgs("ClientId", DefaultMessage)); 
 
             // Assert 
-            Assert.NotNull(receivedMessage);
-            Assert.Equal(DefaultMessage.Topic, receivedMessage.Topic);
-            Assert.Equal(DefaultMessage.Retain, receivedMessage.Retain);
-            Assert.Equal(DefaultMessage.QualityOfServiceLevel.ToString(), receivedMessage.QosLevel.ToString());
-            Assert.Equal(DefaultMessage.Payload, receivedMessage.GetMessage());
+            messageProcessor.Verify(x => x.OnMessage(It.Is<MqttMessageReceivedEventArgs>(y => y.Message.Topic == DefaultMessage.Topic)));
+            messageProcessor.Verify(x => x.OnMessage(It.Is<MqttMessageReceivedEventArgs>(y => y.Message.Retain == DefaultMessage.Retain)));
+            messageProcessor.Verify(x => x.OnMessage(It.Is<MqttMessageReceivedEventArgs>(y => y.Message.QosLevel.ToString() == DefaultMessage.QualityOfServiceLevel.ToString())));
+            messageProcessor.Verify(x => x.OnMessage(It.Is<MqttMessageReceivedEventArgs>(y => y.Message.GetMessage() == DefaultMessage.Payload)));
         }
-    }
+    } 
 }

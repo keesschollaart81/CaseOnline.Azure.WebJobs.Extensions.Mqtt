@@ -22,8 +22,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
             if (builder == null)
             {
                 throw new ArgumentNullException(nameof(builder));
-            }
-            builder.Services.AddTransient<IMqttClientFactory, MqttFactory>();
+            } 
+            builder.Services.AddTransient<IMqttFactory>(x => new MqttFactory()); 
             builder.Services.AddTransient<IManagedMqttClientFactory, ManagedMqttClientFactory>();
             builder.Services.AddSingleton<IMqttConnectionFactory, MqttConnectionFactory>();
             builder.Services.AddTransient<IMqttConfigurationParser, MqttConfigurationParser>();

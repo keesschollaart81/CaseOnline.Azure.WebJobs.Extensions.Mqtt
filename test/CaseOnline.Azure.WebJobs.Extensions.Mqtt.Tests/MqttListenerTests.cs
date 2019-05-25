@@ -31,7 +31,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             mockTriggeredFunctionExecutor
                 .Setup(x => x.TryExecuteAsync(It.IsAny<TriggeredFunctionData>(), It.IsAny<CancellationToken>()));
 
-            var topicFilter = new TopicFilter[] { new TopicFilter("test/topic", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) };
+            var topicFilter = new TopicFilter[] { new TopicFilter() { Topic = "test/topic", QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } };
             var mqttListener = new MqttListener(mockMqttConnection.Object, topicFilter, mockTriggeredFunctionExecutor.Object, _mockLogger.Object);
 
             // Act
@@ -58,7 +58,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
                 .Setup(x => x.UnubscribeAsync(It.IsAny<string[]>()))
                 .Returns(Task.CompletedTask);
 
-            var topicFilter = new TopicFilter[] { new TopicFilter("test/topic", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) };
+            var topicFilter = new TopicFilter[] { new TopicFilter() { Topic = "test/topic", QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } };
             var mqttListener = new MqttListener(mockMqttConnection.Object, topicFilter, mockTriggeredFunctionExecutor.Object, _mockLogger.Object);
 
             // Act
@@ -83,7 +83,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
             mockTriggeredFunctionExecutor
                 .Setup(x => x.TryExecuteAsync(It.IsAny<TriggeredFunctionData>(), It.IsAny<CancellationToken>()));
 
-            var topicFilter = new TopicFilter[] { new TopicFilter("test/topic", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) };
+            var topicFilter = new TopicFilter[] { new TopicFilter() { Topic = "test/topic", QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } };
             var mqttListener = new MqttListener(mockMqttConnection.Object, topicFilter, mockTriggeredFunctionExecutor.Object, _mockLogger.Object);
 
             // Act

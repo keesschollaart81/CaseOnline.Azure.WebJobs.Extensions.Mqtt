@@ -81,7 +81,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
                     loggerLogLevel = LogLevel.Warning;
                     break;
             }
-            Logger.Log(loggerLogLevel, new EventId(), message, exception, (x,y) => $"{x}: {y?.Message}");
+            Logger.Log(loggerLogLevel, new EventId(), message, exception, (x,y) => $"{string.Format(x, parameters)}: {y?.Message}");
         }
     }
 }

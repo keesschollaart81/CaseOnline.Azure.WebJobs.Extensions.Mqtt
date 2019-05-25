@@ -12,7 +12,7 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <VersionPrefix>1.2.0</VersionPrefix>
+    <VersionPrefix>2.0.2</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <PackageTags>azure functions mqtt webjobs trigger binding function webjob</PackageTags>
     <AssemblyName>CaseOnline.Azure.WebJobs.Extensions.Mqtt</AssemblyName>
@@ -29,7 +29,8 @@ For more information, please visit https://github.com/keesschollaart81/CaseOnlin
     <PackageIconUrl>https://raw.githubusercontent.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt/master/logo.png</PackageIconUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>analyzers.ruleset</CodeAnalysisRuleSet>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors> 
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>Full</DebugType>
@@ -39,22 +40,22 @@ For more information, please visit https://github.com/keesschollaart81/CaseOnlin
     <AdditionalFiles Include="stylecop.json" Link="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="2.8.5" />
+    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="7.11.0.8083">
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="7.14.0.8411">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta009">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.3">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.2" />
-    <PackageReference Include="MQTTnet" Version="2.8.5" />
+    <PackageReference Include="MQTTnet" Version="3.0.2" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
   </ItemGroup>
 </Project>

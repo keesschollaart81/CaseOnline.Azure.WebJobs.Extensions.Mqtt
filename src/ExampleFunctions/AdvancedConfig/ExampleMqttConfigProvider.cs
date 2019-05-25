@@ -2,9 +2,9 @@ using System;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using MQTTnet.Extensions.ManagedClient;
-using MQTTnet.Client;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
+using MQTTnet.Client.Options;
 
 namespace ExampleFunction.AdvancedConfig
 {
@@ -12,7 +12,7 @@ namespace ExampleFunction.AdvancedConfig
     {
         public CustomMqttConfig Create(INameResolver nameResolver, ILogger logger)
         {
-            var connectionString = new MqttConnectionString(nameResolver.Resolve("MqttConnection"));
+            var connectionString = new MqttConnectionString(nameResolver.Resolve("MqttConnection"), "CustomConfiguration");
 
             var options = new ManagedMqttClientOptionsBuilder()
                    .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))

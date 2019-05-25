@@ -6,11 +6,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 {
     public interface IMqttConnection : IDisposable
     {
-        event Func<MqttMessageReceivedEventArgs, Task> OnMessageEventHandler;
-
         ConnectionState ConnectionState { get; }
 
-        Task StartAsync();
+        Task StartAsync(IProcesMqttMessage messageHandler);
 
         Task PublishAsync(MqttApplicationMessage message);
 

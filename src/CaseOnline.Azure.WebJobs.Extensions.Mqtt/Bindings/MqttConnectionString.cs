@@ -8,17 +8,21 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         private const int DetaultMqttPort = 1883;
         private const int DetaultMqttPortWithTls = 8883;
         private const bool DefaultTls = false; 
-        private const string KeyForPort = "Port";
-        private const string KeyForClientId = "ClientId";
-        private const string KeyForServer = "Server";
-        private const string KeyForUsername = "Username";
-        private const string KeyForPassword = "Password";
-        private const string KeyForTls = "Tls";
+        private const string KeyForPort = nameof(Port);
+        private const string KeyForClientId = nameof(ClientId);
+        private const string KeyForServer = nameof(Server);
+        private const string KeyForUsername = nameof(Username);
+        private const string KeyForPassword = nameof(Password);
+        private const string KeyForTls = nameof(Tls);
+        private const string KeyForCertificate = nameof(Certificate);
 
+        private readonly string _name;
         private readonly DbConnectionStringBuilder _connectionStringBuilder;
 
-        public MqttConnectionString(string connectionString)
+        public MqttConnectionString(string connectionString, string name)
         {
+            _name = name;
+
             _connectionStringBuilder = new DbConnectionStringBuilder()
             {
                 ConnectionString = connectionString
@@ -29,6 +33,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         }
 
         public bool Tls { get; private set; }
+
+        public string Certificate => _connectionStringBuilder.TryGetValue(KeyForCertificate, out var certificateValue) && !string.IsNullOrEmpty(certificateValue as string)
+                ? certificateValue.ToString()
+                : null;
 
         public int Port { get; private set; }
 
@@ -50,7 +58,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         {
             Server = _connectionStringBuilder.TryGetValue(KeyForServer, out var serverValue)
                 ? serverValue.ToString()
-                : throw new Exception("No server hostname configured, please set the server via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json");
+                : throw new Exception($"No server hostname configured for connection '{_name}', please which connectionstring to use via the MqttTriggerAttribute, using the application settings via the Azure Portal or using the local.settings.json and then include the 'Server=' part in the connectionstring.");
         }
 
         private void ParseAndSetTls()
@@ -85,7 +93,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         public override string ToString()
         {
-            return $"Server={Server};Port={Port};Username={Username};ClientId={ClientId};Tls={Tls}";
+            return $"Server={Server};Port={Port};Username={Username};ClientId={ClientId};Tls={Tls};Certificate={Certificate}";
         }
     }
 }

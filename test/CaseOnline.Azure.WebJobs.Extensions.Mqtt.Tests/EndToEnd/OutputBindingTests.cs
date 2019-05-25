@@ -27,11 +27,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             using (var jobHost = await JobHostHelper<SimpleOutputIsPublishedTestFunction>.RunFor(_testLoggerProvider))
             {
                 await mqttClient.SubscribeAsync("test/topic");
-                mqttClient.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessage = e.ApplicationMessage;
 
                 await jobHost.CallAsync(nameof(SimpleOutputIsPublishedTestFunction.Testert));
 
-                await WaitFor(() => mqttApplicationMessage != null);
+                mqttApplicationMessage = await mqttClient.WaitForMessage();
             }
 
             Assert.NotNull(mqttApplicationMessage);
@@ -65,10 +64,19 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             {
                 await mqttClient.SubscribeAsync("test/outtopic");
                 await mqttClient.SubscribeAsync("test/outtopic2");
-                mqttClient.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessages.Add(e.ApplicationMessage);
 
                 await mqttServer.PublishAsync(DefaultMessage);
 
+                var firstMessage = await mqttClient.WaitForMessage();
+                if (firstMessage != null)
+                {
+                    mqttApplicationMessages.Add(firstMessage);
+                    var secondMessage = await mqttClient.WaitForMessage();
+                    if (secondMessage != null)
+                    {
+                        mqttApplicationMessages.Add(secondMessage); 
+                    }
+                }
                 await WaitFor(() => TriggerAndOutputWithSameConnectionTestFunction.CallCount >= 1);
             }
 
@@ -123,11 +131,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             using (var mqttClientForServer2 = await MqttClientHelper.Get(_logger))
             using (var jobHost = await JobHostHelper<TriggerAndOutputWithDifferentConnectionTestFunction>.RunFor(_testLoggerProvider))
             {
-                await mqttClientForServer2.SubscribeAsync("test/outtopic");
-                mqttClientForServer2.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessage = e.ApplicationMessage;
+                await mqttClientForServer2.SubscribeAsync("test/outtopic"); 
 
                 await mqttServer1.PublishAsync(DefaultMessage);
 
+                mqttApplicationMessage = await mqttClientForServer2.WaitForMessage();
                 await WaitFor(() => TriggerAndOutputWithDifferentConnectionTestFunction.CallCount >= 1);
             }
 
@@ -169,14 +177,22 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             using (var jobHost = await JobHostHelper<ICollectorOutputIsPublishedTestFunction>.RunFor(_testLoggerProvider))
             { 
                 await mqttClient.SubscribeAsync("test/outtopic");
-                await mqttClient.SubscribeAsync("test/outtopic2"); 
-                mqttClient.OnMessage += (object sender, OnMessageEventArgs e) => mqttApplicationMessages.Add(e.ApplicationMessage);
+                await mqttClient.SubscribeAsync("test/outtopic2");  
 
                 await jobHost.CallAsync(nameof(ICollectorOutputIsPublishedTestFunction.Testert));
 
-                await WaitFor(() => ICollectorOutputIsPublishedTestFunction.CallCount >= 1);
+                var firstMessage = await mqttClient.WaitForMessage();
+                if (firstMessage != null)
+                {
+                    mqttApplicationMessages.Add(firstMessage);
+                    var secondMessage = await mqttClient.WaitForMessage();
+                    if (secondMessage != null)
+                    {
+                        mqttApplicationMessages.Add(secondMessage);
+                    }
+                }
 
-                await WaitFor(() => mqttApplicationMessages.Count > 0);
+                await WaitFor(() => ICollectorOutputIsPublishedTestFunction.CallCount >= 1); 
             }
 
             Assert.Equal(1, ICollectorOutputIsPublishedTestFunction.CallCount);
@@ -186,7 +202,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             Assert.Contains(mqttApplicationMessages, x => x.Topic == "test/outtopic2");
 
             var bodyString = Encoding.UTF8.GetString(mqttApplicationMessages.First().Payload);
-            Assert.Equal("", bodyString);
+            Assert.Equal("hi!", bodyString);
         }
 
         public class ICollectorOutputIsPublishedTestFunction
@@ -195,8 +211,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
 
             public static void Testert([Mqtt] ICollector<IMqttMessage> mqttMessages)
             {
-                mqttMessages.Add(new MqttMessage("test/outtopic", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true));
-                mqttMessages.Add(new MqttMessage("test/outtopic2", new byte[] { }, MqttQualityOfServiceLevel.AtLeastOnce, true));
+                mqttMessages.Add(new MqttMessage("test/outtopic", Encoding.UTF8.GetBytes("hi!"), MqttQualityOfServiceLevel.AtLeastOnce, true));
+                mqttMessages.Add(new MqttMessage("test/outtopic2", Encoding.UTF8.GetBytes("hi!"), MqttQualityOfServiceLevel.AtLeastOnce, true));
                 Interlocked.Increment(ref CallCount);
             }
         } 
