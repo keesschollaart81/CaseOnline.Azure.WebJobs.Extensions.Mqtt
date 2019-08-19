@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.28" />
-    <PackageReference Include="MQTTnet" Version="3.0.2" /> 
+    <PackageReference Include="MQTTnet" Version="3.0.7" /> 
   </ItemGroup> 
   <ItemGroup>
     <ProjectReference Include="..\CaseOnline.Azure.WebJobs.Extensions.Mqtt\CaseOnline.Azure.WebJobs.Extensions.Mqtt.csproj" />
