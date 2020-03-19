@@ -29,7 +29,7 @@ Are you curious what MQTT is? Check [this page](http://mqtt.org/faq)!
 * [Getting Started](/../../wiki/Getting-started)
 * [Publish via output](/../../wiki/Publish-via-output)
 * [Subscribe via trigger](/../../wiki/Subscribe-via-trigger)
-* [Integrate with Azure IoT Hub](/../../Azure-IoT-Hub)
+* [Integrate with Azure IoT Hub](/../../wiki/Azure-IoT-Hub)
 * [And more in the Wiki](/../../wiki)
 
 ## Where to get
