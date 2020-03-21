@@ -38,6 +38,9 @@ For more information, please visit https://github.com/keesschollaart81/CaseOnlin
     <DebugType>Full</DebugType>
     <NoWarn>1701;1702;1705;1591;S4457</NoWarn>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;1705;1591;S4457</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" Link="stylecop.json" />
   </ItemGroup>
