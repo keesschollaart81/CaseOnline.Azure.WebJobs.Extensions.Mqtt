@@ -78,7 +78,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         public Task HandleApplicationMessageProcessedAsync(ApplicationMessageProcessedEventArgs eventArgs)
         {
-            if (eventArgs.HasFailed)
+            if (eventArgs?.HasFailed ?? throw new ArgumentNullException(nameof(eventArgs)))
             {
                 _logger.LogError(new EventId(0), eventArgs.Exception, $"Message could not be processed for {this}, message: '{eventArgs.Exception?.Message}'");
             }
@@ -88,26 +88,31 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         public Task HandleDisconnectedAsync(MqttClientDisconnectedEventArgs eventArgs)
         {
             ConnectionState = ConnectionState.Disconnected;
-            _logger.LogWarning(new EventId(0), eventArgs.Exception, $"MqttConnection Disconnected, previous connectivity state '{eventArgs.ClientWasConnected}' for {this}, message: '{eventArgs.Exception?.Message}'");
+            _logger.LogWarning(new EventId(0), eventArgs?.Exception, $"MqttConnection Disconnected, previous connectivity state '{eventArgs?.ClientWasConnected}' for {this}, message: '{eventArgs?.Exception?.Message}'");
             return Task.CompletedTask;
         }
 
         public Task HandleConnectingFailedAsync(ManagedProcessFailedEventArgs eventArgs)
         {
             ConnectionState = ConnectionState.Disconnected;
-            _logger.LogWarning(new EventId(0), eventArgs.Exception, $"MqttConnection could not connect for {this}, message: '{eventArgs.Exception?.Message}'");
+            _logger.LogWarning(new EventId(0), eventArgs?.Exception, $"MqttConnection could not connect for {this}, message: '{eventArgs?.Exception?.Message}'");
             return Task.CompletedTask;
         }
 
         public Task HandleSynchronizingSubscriptionsFailedAsync(ManagedProcessFailedEventArgs eventArgs)
         {
             ConnectionState = ConnectionState.Disconnected;
-            _logger.LogWarning(new EventId(0), eventArgs.Exception, $"Subscription synchronization for {this} failed, message: '{eventArgs.Exception?.Message}'");
+            _logger.LogWarning(new EventId(0), eventArgs?.Exception, $"Subscription synchronization for {this} failed, message: '{eventArgs?.Exception?.Message}'");
             return Task.CompletedTask;
         }
 
         public Task HandleConnectedAsync(MqttClientConnectedEventArgs eventArgs)
         {
+            if (eventArgs is null)
+            {
+                throw new ArgumentNullException(nameof(eventArgs));
+            }
+
             if (eventArgs.AuthenticateResult.ResultCode == MqttClientConnectResultCode.Success)
             {
                 ConnectionState = ConnectionState.Connected;
@@ -123,6 +128,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         public async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
         {
+            if (eventArgs is null)
+            {
+                throw new ArgumentNullException(nameof(eventArgs));
+            }
+
             _logger.LogDebug($"MqttConnection receiving message for {this}");
             try
             {

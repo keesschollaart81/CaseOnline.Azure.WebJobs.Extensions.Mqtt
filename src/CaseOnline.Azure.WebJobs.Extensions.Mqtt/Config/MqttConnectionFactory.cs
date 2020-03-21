@@ -21,7 +21,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
         {
             _mqttFactory = mqttFactory;
             _mqttConfigurationParser = mqttConfigurationParser;
-            _logger = loggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
+            _logger = loggerFactory?.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt")) ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         public MqttConnection GetMqttConnection(MqttBaseAttribute attribute)
