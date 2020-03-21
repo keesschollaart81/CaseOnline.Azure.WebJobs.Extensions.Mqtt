@@ -83,10 +83,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 .WithConnectionValidator(x =>
                 {
                     validated = true;
-                    x.ReturnCode = MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                    x.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
                     if (x.Username == "admin" && x.Password == "Welkom123")
                     {
-                        x.ReturnCode = MqttConnectReturnCode.ConnectionAccepted;
+                        x.ReasonCode = MqttConnectReasonCode.Success;
                     }
                 })
                 .Build();
