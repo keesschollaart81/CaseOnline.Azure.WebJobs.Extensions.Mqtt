@@ -24,12 +24,12 @@ Are you curious what MQTT is? Check [this page](http://mqtt.org/faq)!
 
 ## How to use
 
-**Important note:** This extension only works when you use AppService Plan! **Do not use this with Consumption plan!**
+**Important note when using MQTT triggers:** This extension only works when you use AppService Plan! Do not use this with Consumption plan. If you're only using the output binding, using consumption plan is fine!
 
 * [Getting Started](/../../wiki/Getting-started)
 * [Publish via output](/../../wiki/Publish-via-output)
 * [Subscribe via trigger](/../../wiki/Subscribe-via-trigger)
-* [Integrate with Azure IoT Hub](/../../Azure-IoT-Hub)
+* [Integrate with Azure IoT Hub](/../../wiki/Azure-IoT-Hub)
 * [And more in the Wiki](/../../wiki)
 
 ## Where to get
