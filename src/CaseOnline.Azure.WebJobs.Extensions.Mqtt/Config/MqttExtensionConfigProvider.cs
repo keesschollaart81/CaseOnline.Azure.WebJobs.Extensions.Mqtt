@@ -1,4 +1,5 @@
-﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
+﻿using System;
+using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Host.Config;
@@ -29,7 +30,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
         /// <param name="context">The extension configuration context.</param>
         public void Initialize(ExtensionConfigContext context)
         {
-            var mqttAttributeBindingRule = context.AddBindingRule<MqttAttribute>();
+            var mqttAttributeBindingRule = context?.AddBindingRule<MqttAttribute>() ?? throw new ArgumentNullException(nameof(context));
             mqttAttributeBindingRule.BindToCollector((attr) =>
             {
                 return new MqttMessageCollector(_mqttConnectionFactory.GetMqttConnection(attr));

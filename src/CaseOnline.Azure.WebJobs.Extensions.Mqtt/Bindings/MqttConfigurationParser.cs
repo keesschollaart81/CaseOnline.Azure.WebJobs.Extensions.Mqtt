@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+#if DEBUG                
 using System.Net.Security;
+#endif
 using System.Security.Cryptography.X509Certificates;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Azure.WebJobs;
@@ -29,8 +31,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// <param name="loggerFactory">The logger factory.</param>
         public MqttConfigurationParser(INameResolver nameResolver, ILoggerFactory loggerFactory)
         {
-            _nameResolver = nameResolver;
-            _logger = loggerFactory.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt"));
+            _nameResolver = nameResolver ?? throw new ArgumentNullException(nameof(nameResolver));
+            _logger = loggerFactory?.CreateLogger(LogCategories.CreateTriggerCategory("Mqtt")) ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         /// <summary>
@@ -42,6 +44,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// </returns>
         public MqttConfiguration Parse(MqttBaseAttribute mqttAttribute)
         {
+            if (mqttAttribute is null)
+            {
+                throw new ArgumentNullException(nameof(mqttAttribute));
+            }
+
             return mqttAttribute.MqttConfigCreatorType == null
                 ? GetConfigurationViaAttributeValues(mqttAttribute)
                 : GetConfigurationViaCustomConfigCreator(mqttAttribute);
@@ -55,7 +62,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 connectionString = _nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
-                name = DefaultAppsettingsKeyForConnectionString;
+                name = name ?? DefaultAppsettingsKeyForConnectionString;
             }
             var mqttConnectionString = new MqttConnectionString(connectionString, name);
 
@@ -86,9 +93,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 var certificates = new List<byte[]>();
                 if (connectionString.Certificate != null)
                 {
-                    var serializedServerCertificate = new X509Certificate(connectionString.Certificate)
-                        .Export(X509ContentType.Cert);
-                    certificates.Add(serializedServerCertificate);
+                    using (var cert = new X509Certificate(connectionString.Certificate))
+                    {
+                        var serializedServerCertificate = cert.Export(X509ContentType.Cert);
+                        certificates.Add(serializedServerCertificate);
+                    }
                 }
 
                 mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters
@@ -116,7 +125,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             try
             {
                 var customConfigCreator = (ICreateMqttConfig)Activator.CreateInstance(mqttAttribute.MqttConfigCreatorType);
-                customConfig = customConfigCreator.Create(_nameResolver, _logger); 
+                customConfig = customConfigCreator.Create(_nameResolver, _logger);
             }
             catch (Exception ex)
             {

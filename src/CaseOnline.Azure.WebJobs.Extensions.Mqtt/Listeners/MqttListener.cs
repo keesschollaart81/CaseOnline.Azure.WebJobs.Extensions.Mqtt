@@ -60,7 +60,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
            
             var triggeredFunctionData = new TriggeredFunctionData
             {
-                TriggerValue = arg.Message
+                TriggerValue = arg?.Message ?? throw new ArgumentNullException(nameof(arg))
             };
 
             try
@@ -113,6 +113,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             {
                 _mqttConnection.Dispose();
                 _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
                 _disposed = true;
             }
         }

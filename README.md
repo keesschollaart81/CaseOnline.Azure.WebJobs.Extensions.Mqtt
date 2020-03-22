@@ -29,7 +29,7 @@ Are you curious what MQTT is? Check [this page](http://mqtt.org/faq)!
 * [Getting Started](/../../wiki/Getting-started)
 * [Publish via output](/../../wiki/Publish-via-output)
 * [Subscribe via trigger](/../../wiki/Subscribe-via-trigger)
-* [Integrate with Azure IoT Hub](/../../Azure-IoT-Hub)
+* [Integrate with Azure IoT Hub](/../../wiki/Azure-IoT-Hub)
 * [And more in the Wiki](/../../wiki)
 
 ## Where to get
@@ -48,7 +48,7 @@ This is a simple example, receicing messages for topic ```my/topic/in``` and pub
 ``` csharp
 public static class ExampleFunctions
 {
-    [FunctionName("SimpleFunction")]
+    [FunctionName(nameof(SimpleFunction))]
     public static void SimpleFunction(
         [MqttTrigger("my/topic/in")] IMqttMessage message,
         [Mqtt] out IMqttMessage outMessage,
@@ -70,7 +70,7 @@ Please find all working examples in the [sample project](./src/ExampleFunctions/
 - [MQTTnet](https://github.com/chkr1011/MQTTnet)
 
 ## MIT License
-Copyright (c) 2018 Kees Schollaart
+Copyright (c) 2020 Kees Schollaart
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

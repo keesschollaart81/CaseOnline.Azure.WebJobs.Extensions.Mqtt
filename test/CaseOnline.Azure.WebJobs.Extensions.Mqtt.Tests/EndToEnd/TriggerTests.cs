@@ -1,10 +1,9 @@
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
+using Microsoft.Azure.WebJobs.Host.Indexers;
 using MQTTnet;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
-using System;
-using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -83,10 +82,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 .WithConnectionValidator(x =>
                 {
                     validated = true;
-                    x.ReturnCode = MqttConnectReturnCode.ConnectionRefusedBadUsernameOrPassword;
+                    x.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
                     if (x.Username == "admin" && x.Password == "Welkom123")
                     {
-                        x.ReturnCode = MqttConnectReturnCode.ConnectionAccepted;
+                        x.ReasonCode = MqttConnectReasonCode.Success;
                     }
                 })
                 .Build();
@@ -146,7 +145,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
         [Fact]
         public async Task WhenTlsIsSetToTrueASecureConnectionIsMade()
         {
-            var serializedServerCertificate = new X509Certificate(@".\Certificates\myRootCA.pfx", "12345", X509KeyStorageFlags.Exportable)
+            var serializedServerCertificate = new X509Certificate(@"Certificates/myRootCA.pfx", "12345", X509KeyStorageFlags.Exportable)
                 .Export(X509ContentType.Pfx);
 
             var options = new MqttServerOptionsBuilder()
@@ -184,9 +183,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             using (var mqttServer = await MqttServerHelper.Get(_logger))
             {
                 JobHostHelper<MultipleTriggersSameConnectionTestFunction> jobHostHelper = null;
+                try
+                {
+                    var ex = await Assert.ThrowsAsync<FunctionIndexingException>(async () => jobHostHelper = await JobHostHelper<MultipleTriggersSameConnectionTestFunction>.RunFor(_testLoggerProvider));
 
-                var ex = Assert.ThrowsAsync<Exception>(async () => jobHostHelper = await JobHostHelper<MultipleTriggersSameConnectionTestFunction>.RunFor(_testLoggerProvider));
-                jobHostHelper?.Dispose();
+                }
+                finally
+                {
+                    jobHostHelper?.Dispose();
+                }
             }
         }
 
@@ -328,8 +333,39 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
         {
             public static int CallCount = 0;
             public static IMqttMessage LastReceivedMessage;
-             
+
             public static void Testert([MqttTrigger(typeof(TestMqttConfigProvider), "%TopicName%/#")] IMqttMessage mqttMessage)
+            {
+                CallCount++;
+                LastReceivedMessage = mqttMessage;
+            }
+        }
+
+
+        [Fact]
+        public async Task ComplexTopicFilterIsUsed()
+        {
+            using (var mqttServer = await MqttServerHelper.Get(_logger))
+            using (var jobHost = await JobHostHelper<ComplexTopicFilterIsUsedFunction>.RunFor(_testLoggerProvider))
+            {
+                await mqttServer.PublishAsync(DefaultMessage);
+
+                await WaitFor(() => ComplexTopicFilterIsUsedFunction.CallCount >= 1);
+            }
+
+            Assert.Equal(1, ComplexTopicFilterIsUsedFunction.CallCount);
+            Assert.Equal("test/topic", ComplexTopicFilterIsUsedFunction.LastReceivedMessage.Topic);
+            Assert.Equal(Messaging.MqttQualityOfServiceLevel.AtMostOnce, ComplexTopicFilterIsUsedFunction.LastReceivedMessage.QosLevel);
+            var messageBody = Encoding.UTF8.GetString(ComplexTopicFilterIsUsedFunction.LastReceivedMessage.GetMessage());
+            Assert.Equal("{ \"test\":\"case\" }", messageBody);
+        }
+
+        private class ComplexTopicFilterIsUsedFunction
+        {
+            public static int CallCount = 0;
+            public static IMqttMessage LastReceivedMessage;
+
+            public static void Testert([MqttTrigger("test/topic", Messaging.MqttQualityOfServiceLevel.AtMostOnce, Messaging.NoLocal.False, RetainAsPublished.True, Messaging.MqttRetainHandling.SendAtSubscribe)] IMqttMessage mqttMessage)
             {
                 CallCount++;
                 LastReceivedMessage = mqttMessage;

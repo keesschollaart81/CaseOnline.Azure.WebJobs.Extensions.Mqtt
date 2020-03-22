@@ -26,7 +26,7 @@ namespace ExampleFunctions
 
             if (message.Topic.Contains("methods"))
             {
-                response = CloudToDeviceMethodCall(message.Topic, bodyString);
+                response = CloudToDeviceMethodCall(message.Topic);
             }
             else
             {
@@ -34,7 +34,7 @@ namespace ExampleFunctions
             }
         }
 
-        private static IMqttMessage CloudToDeviceMethodCall(string topic, string message)
+        private static IMqttMessage CloudToDeviceMethodCall(string topic)
         {
             var requestId = topic.Split('=').Last();
 

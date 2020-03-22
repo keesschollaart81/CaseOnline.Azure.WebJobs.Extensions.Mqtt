@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -83,15 +84,23 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         private ITriggerBinding GetMqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute)
         {
-            TopicFilter[] topics;
+            var topicFilters = new List<TopicFilter>();
+            
             var mqttConnection = _connectionFactory.GetMqttConnection(mqttTriggerAttribute);
             try
             {
-                topics = mqttTriggerAttribute.Topics.Select(t =>
+                if (mqttTriggerAttribute.TopicFilter != null)
                 {
-                    var topicString = (mqttTriggerAttribute.MqttConfigCreatorType != null) ? _nameResolver.ResolveWholeString(t) : t;
-                    return new TopicFilter() { Topic = topicString, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce };
-                }).ToArray();
+                    topicFilters.Add(mqttTriggerAttribute.TopicFilter);
+                }
+                else
+                {
+                    topicFilters.AddRange(mqttTriggerAttribute.TopicStrings.Select(t =>
+                    {
+                        var topicString = (mqttTriggerAttribute.MqttConfigCreatorType != null) ? _nameResolver.ResolveWholeString(t) : t;
+                        return new TopicFilter() { Topic = topicString, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce };
+                    }));
+                }
             }
             catch (Exception ex)
             {
@@ -99,7 +108,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                 throw;
             }
 
-            return new MqttTriggerBinding(parameter, mqttConnection, topics, _logger);
+            return new MqttTriggerBinding(parameter, mqttConnection, topicFilters.ToArray(), _logger);
         }
     }
 }

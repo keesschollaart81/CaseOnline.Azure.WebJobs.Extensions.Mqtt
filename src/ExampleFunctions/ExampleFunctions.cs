@@ -52,7 +52,7 @@ namespace ExampleFunctions
         {
             var body = Encoding.UTF8.GetBytes($"It is currently {DateTime.UtcNow:g}");
 
-            outMessages.Add(new MqttMessage("topic/one", body, MqttQualityOfServiceLevel.AtLeastOnce, true));
+            outMessages.Add(new MqttMessage("test/one", body, MqttQualityOfServiceLevel.AtLeastOnce, true));
             outMessages.Add(new MqttMessage("topic/two", body, MqttQualityOfServiceLevel.AtLeastOnce, true));
         }
     }
