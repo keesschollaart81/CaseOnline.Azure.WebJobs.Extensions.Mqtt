@@ -22,7 +22,6 @@ namespace ExampleFunction.AdvancedConfig
                         .WithCredentials(connectionString.Username, connectionString.Password)
                         .Build())
                    .Build();
-            
 
             return new MqttConfigExample("CustomConnection", options);
         }

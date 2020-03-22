@@ -62,7 +62,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 connectionString = _nameResolver.Resolve(DefaultAppsettingsKeyForConnectionString);
-                name = DefaultAppsettingsKeyForConnectionString;
+                name = name ?? DefaultAppsettingsKeyForConnectionString;
             }
             var mqttConnectionString = new MqttConnectionString(connectionString, name);
 
