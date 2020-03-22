@@ -340,5 +340,36 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 LastReceivedMessage = mqttMessage;
             }
         }
+
+
+        [Fact]
+        public async Task ComplexTopicFilterIsUsed()
+        {
+            using (var mqttServer = await MqttServerHelper.Get(_logger))
+            using (var jobHost = await JobHostHelper<ComplexTopicFilterIsUsedFunction>.RunFor(_testLoggerProvider))
+            {
+                await mqttServer.PublishAsync(DefaultMessage);
+
+                await WaitFor(() => ComplexTopicFilterIsUsedFunction.CallCount >= 1);
+            }
+
+            Assert.Equal(1, ComplexTopicFilterIsUsedFunction.CallCount);
+            Assert.Equal("test/topic", ComplexTopicFilterIsUsedFunction.LastReceivedMessage.Topic);
+            Assert.Equal(Messaging.MqttQualityOfServiceLevel.AtMostOnce, ComplexTopicFilterIsUsedFunction.LastReceivedMessage.QosLevel);
+            var messageBody = Encoding.UTF8.GetString(ComplexTopicFilterIsUsedFunction.LastReceivedMessage.GetMessage());
+            Assert.Equal("{ \"test\":\"case\" }", messageBody);
+        }
+
+        private class ComplexTopicFilterIsUsedFunction
+        {
+            public static int CallCount = 0;
+            public static IMqttMessage LastReceivedMessage;
+
+            public static void Testert([MqttTrigger("test/topic", Messaging.MqttQualityOfServiceLevel.AtMostOnce, Messaging.NoLocal.False, RetainAsPublished.True, Messaging.MqttRetainHandling.SendAtSubscribe)] IMqttMessage mqttMessage)
+            {
+                CallCount++;
+                LastReceivedMessage = mqttMessage;
+            }
+        }
     }
 }
