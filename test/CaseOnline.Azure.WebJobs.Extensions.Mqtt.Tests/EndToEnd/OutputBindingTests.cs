@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -53,8 +52,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 .WithConnectionValidator(x =>
                 {
                     counnections += (x.ClientId != "IntegrationTest") ? 1 : 0;
-
-                    Debug.WriteLine($"ClientId:{x.ClientId}");
                 })
                 .Build();
 
@@ -74,7 +71,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                     var secondMessage = await mqttClient.WaitForMessage();
                     if (secondMessage != null)
                     {
-                        mqttApplicationMessages.Add(secondMessage); 
+                        mqttApplicationMessages.Add(secondMessage);
                     }
                 }
                 await WaitFor(() => TriggerAndOutputWithSameConnectionTestFunction.CallCount >= 1);
@@ -118,12 +115,18 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             var connectionsCountServer1 = 0;
             var optionsServer1 = new MqttServerOptionsBuilder()
                 .WithDefaultEndpointPort(1337)
-                .WithConnectionValidator(x => connectionsCountServer1 += (x.ClientId != "IntegrationTest") ? 1 : 0)
+                .WithConnectionValidator(x =>
+                {
+                    connectionsCountServer1 += (x.ClientId != "IntegrationTest") ? 1 : 0;
+                })
                 .Build();
 
             var connectionsCountServer2 = 0;
             var optionsServer2 = new MqttServerOptionsBuilder()
-                .WithConnectionValidator(x => connectionsCountServer2 += (x.ClientId != "IntegrationTest") ? 1 : 0)
+                .WithConnectionValidator(x =>
+                {
+                    connectionsCountServer2 += (x.ClientId != "IntegrationTest") ? 1 : 0;
+                })
                 .Build();
 
             using (var mqttServer1 = await MqttServerHelper.Get(_logger, optionsServer1))
@@ -131,7 +134,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             using (var mqttClientForServer2 = await MqttClientHelper.Get(_logger))
             using (var jobHost = await JobHostHelper<TriggerAndOutputWithDifferentConnectionTestFunction>.RunFor(_testLoggerProvider))
             {
-                await mqttClientForServer2.SubscribeAsync("test/outtopic"); 
+                await mqttClientForServer2.SubscribeAsync("test/outtopic");
 
                 await mqttServer1.PublishAsync(DefaultMessage);
 
@@ -175,9 +178,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             using (var mqttServer = await MqttServerHelper.Get(_logger))
             using (var mqttClient = await MqttClientHelper.Get(_logger))
             using (var jobHost = await JobHostHelper<ICollectorOutputIsPublishedTestFunction>.RunFor(_testLoggerProvider))
-            { 
+            {
                 await mqttClient.SubscribeAsync("test/outtopic");
-                await mqttClient.SubscribeAsync("test/outtopic2");  
+                await mqttClient.SubscribeAsync("test/outtopic2");
 
                 await jobHost.CallAsync(nameof(ICollectorOutputIsPublishedTestFunction.Testert));
 
@@ -192,7 +195,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                     }
                 }
 
-                await WaitFor(() => ICollectorOutputIsPublishedTestFunction.CallCount >= 1); 
+                await WaitFor(() => ICollectorOutputIsPublishedTestFunction.CallCount >= 1);
             }
 
             Assert.Equal(1, ICollectorOutputIsPublishedTestFunction.CallCount);
@@ -215,6 +218,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
                 mqttMessages.Add(new MqttMessage("test/outtopic2", Encoding.UTF8.GetBytes("hi!"), MqttQualityOfServiceLevel.AtLeastOnce, true));
                 Interlocked.Increment(ref CallCount);
             }
-        } 
+        }
     }
 }

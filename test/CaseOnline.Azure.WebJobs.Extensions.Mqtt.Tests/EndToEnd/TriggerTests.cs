@@ -1,10 +1,9 @@
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers;
+using Microsoft.Azure.WebJobs.Host.Indexers;
 using MQTTnet;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
-using System;
-using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -184,9 +183,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
             using (var mqttServer = await MqttServerHelper.Get(_logger))
             {
                 JobHostHelper<MultipleTriggersSameConnectionTestFunction> jobHostHelper = null;
+                try
+                {
+                    var ex = await Assert.ThrowsAsync<FunctionIndexingException>(async () => jobHostHelper = await JobHostHelper<MultipleTriggersSameConnectionTestFunction>.RunFor(_testLoggerProvider));
 
-                var ex = Assert.ThrowsAsync<Exception>(async () => jobHostHelper = await JobHostHelper<MultipleTriggersSameConnectionTestFunction>.RunFor(_testLoggerProvider));
-                jobHostHelper?.Dispose();
+                }
+                finally
+                {
+                    jobHostHelper?.Dispose();
+                }
             }
         }
 
@@ -328,7 +333,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
         {
             public static int CallCount = 0;
             public static IMqttMessage LastReceivedMessage;
-             
+
             public static void Testert([MqttTrigger(typeof(TestMqttConfigProvider), "%TopicName%/#")] IMqttMessage mqttMessage)
             {
                 CallCount++;

@@ -27,18 +27,17 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
         public MqttConnection GetMqttConnection(MqttBaseAttribute attribute)
         {
             var mqttConfiguration = _mqttConfigurationParser.Parse(attribute);
-            if (_mqttConnections.ContainsKey(mqttConfiguration.Name) && attribute is MqttTriggerAttribute)
+            if (_mqttConnections.ContainsKey(mqttConfiguration.Name) && attribute is MqttTriggerAttribute && _mqttConnections[mqttConfiguration.Name].UsedByTrigger)
             {
-                if (_mqttConnections[mqttConfiguration.Name].UsedByTrigger)
-                {
-                    throw new InvalidOperationException($"Error setting up listener for this attribute. Connectionstring '{mqttConfiguration.Name}' is already used by another Trigger. Connections can only be reused for output bindings. Each trigger needs it own connectionstring");
-                }
-                else
-                {
-                    _mqttConnections[mqttConfiguration.Name].UsedByTrigger = true;
-                }
+                throw new InvalidOperationException($"Error setting up listener for this attribute. Connectionstring '{mqttConfiguration.Name}' is already used by another Trigger. Connections can only be reused for output bindings. Each trigger needs it own connectionstring");
             }
+
             var connection = _mqttConnections.GetOrAdd(mqttConfiguration.Name, (c) => new MqttConnectionEntry(new MqttConnection(_mqttFactory, mqttConfiguration, _logger)));
+
+            if (attribute is MqttTriggerAttribute)
+            {
+                _mqttConnections[mqttConfiguration.Name].UsedByTrigger = true;
+            }
             return connection.MqttConnection;
         }
 
