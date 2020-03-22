@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+#if DEBUG                
 using System.Net.Security;
+#endif
 using System.Security.Cryptography.X509Certificates;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 using Microsoft.Azure.WebJobs;
