@@ -47,7 +47,7 @@ For more information, please visit https://github.com/keesschollaart81/CaseOnlin
   <ItemGroup>
     <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.5.0.15942">
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.14.0.22654">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
