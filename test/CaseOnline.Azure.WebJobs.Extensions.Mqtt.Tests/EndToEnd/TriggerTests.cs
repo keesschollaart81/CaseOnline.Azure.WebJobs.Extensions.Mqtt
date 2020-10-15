@@ -145,12 +145,10 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.EndToEnd
         [Fact]
         public async Task WhenTlsIsSetToTrueASecureConnectionIsMade()
         {
-            var serializedServerCertificate = new X509Certificate(@"Certificates/myRootCA.pfx", "12345", X509KeyStorageFlags.Exportable)
-                .Export(X509ContentType.Pfx);
 
             var options = new MqttServerOptionsBuilder()
                .WithEncryptedEndpoint()
-               .WithEncryptionCertificate(serializedServerCertificate)
+               .WithEncryptionCertificate(new X509Certificate2(@"Certificates/myRootCA.pfx", "12345", X509KeyStorageFlags.Exportable))
                .WithoutDefaultEndpoint()
                .Build();
 
