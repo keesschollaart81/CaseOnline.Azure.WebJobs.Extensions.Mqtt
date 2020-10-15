@@ -15,8 +15,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
     {
         private IMqttServer _mqttServer;
         private readonly ILogger _logger;
-        private readonly IMqttServerOptions _options; 
+        private readonly IMqttServerOptions _options;
         private bool serverStarted = false;
+        private bool _disposedValue;
 
         public static async Task<MqttServerHelper> Get(ILogger logger, int port = 1883)
         {
@@ -44,7 +45,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         {
             var logger = new MqttLogger(_logger);
             var factory = new MqttFactory();
-            _mqttServer = factory.CreateMqttServer(new List<IMqttServerAdapter> { new MqttTcpServerAdapter(logger.CreateChildLogger()) }, logger);
+            _mqttServer = factory.CreateMqttServer(new List<IMqttServerAdapter> { new MqttTcpServerAdapter(logger) }, logger);
             _mqttServer.StartedHandler = this;
             _mqttServer.ClientConnectedHandler = this;
             _mqttServer.ClientDisconnectedHandler = this;
@@ -63,7 +64,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             }
             throw new Exception("Mqtt Server did not start?");
         }
-         
+
         public Task HandleClientDisconnectedAsync(MqttServerClientDisconnectedEventArgs eventArgs)
         {
             _logger.LogDebug($"_mqttServer_ClientDisconnected: {eventArgs.ClientId}");
@@ -84,12 +85,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             return Task.CompletedTask;
         }
 
-        public void Dispose()
-        {
-            serverStarted = false;
-            _mqttServer.StopAsync().Wait();
-            _mqttServer = null;
-        }
 
         public async Task PublishAsync(IEnumerable<MqttApplicationMessage> applicationMessages)
         {
@@ -98,7 +93,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         public async Task SubscribeAsync(string topic)
         {
-            await _mqttServer.SubscribeAsync("Custom", new List<TopicFilter>() { new TopicFilter() { Topic = topic, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } });
+            await _mqttServer.SubscribeAsync("Custom", new List<MqttTopicFilter>() { new MqttTopicFilter() { Topic = topic, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } });
         }
 
         public async Task<MqttClientPublishResult> PublishAsync(MqttApplicationMessage applicationMessage)
@@ -109,6 +104,25 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         public async Task<MqttClientPublishResult> PublishAsync(MqttApplicationMessage applicationMessage, CancellationToken cancellationToken)
         {
             return await _mqttServer.PublishAsync(applicationMessage);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposedValue) return;
+            if (disposing)
+            {
+                serverStarted = false;
+                _mqttServer.StopAsync().Wait();
+                _mqttServer = null;
+            }
+
+            _disposedValue = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

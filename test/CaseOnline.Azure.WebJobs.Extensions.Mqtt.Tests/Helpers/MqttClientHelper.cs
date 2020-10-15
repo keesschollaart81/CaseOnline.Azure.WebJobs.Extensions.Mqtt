@@ -14,6 +14,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 {
     public class MqttClientHelper : IDisposable, IMqttClientConnectedHandler, IMqttClientDisconnectedHandler, IMqttApplicationMessageReceivedHandler
     {
+        private bool _disposedValue;
+
         static IManagedMqttClient _mqttClient;
         private static ILogger _logger;
         private readonly IManagedMqttClientOptions _options;
@@ -32,7 +34,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
                     .Build())
                 .Build();
 
-            return await Get( defaultClientOptions);
+            return await Get(defaultClientOptions);
         }
 
         public static async Task<MqttClientHelper> Get(IManagedMqttClientOptions clientOptions)
@@ -88,21 +90,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             _logger.LogDebug($"_mqttClient_Connected");
             return Task.CompletedTask;
         }
-        
-        public void Dispose()
-        {
-            _mqttClient.StopAsync().Wait();
-            _mqttClient = null;
-        }
 
         public async Task SubscribeAsync(string topic)
-        { 
-            await _mqttClient.SubscribeAsync(new List<TopicFilter>() { new TopicFilter() { Topic = topic, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } });
+        {
+            await _mqttClient.SubscribeAsync(new List<MqttTopicFilter>() { new MqttTopicFilter() { Topic = topic, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } });
 
             await Task.Delay(TimeSpan.FromSeconds(1));
-        } 
+        }
 
-        public async Task<MqttApplicationMessage> WaitForMessage (int seconds = 10)
+        public async Task<MqttApplicationMessage> WaitForMessage(int seconds = 10)
         {
             var totalMilliseconds = TimeSpan.FromSeconds(seconds).TotalMilliseconds;
             var sleepDuration = TimeSpan.FromMilliseconds(50); // not long otherwise MQTT Connections are being dropped?!
@@ -118,6 +114,24 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
                 await Task.Delay(sleepDuration);
             }
             return null;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposedValue) return;
+            if (disposing)
+            {
+                _mqttClient.StopAsync().Wait();
+                _mqttClient = null;
+            }
+
+            _disposedValue = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

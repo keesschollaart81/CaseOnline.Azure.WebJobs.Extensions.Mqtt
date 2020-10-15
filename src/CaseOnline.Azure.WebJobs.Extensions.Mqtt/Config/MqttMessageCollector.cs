@@ -32,8 +32,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
                 {
                     if (_mqttConnection.ConnectionState != ConnectionState.Connected)
                     {
-                        await Task.Delay(50).ConfigureAwait(false);
-                    } 
+                        await Task.Delay(50, CancellationToken.None).ConfigureAwait(false);
+                    }
                 }
             }
             var qos = (MQTTnet.Protocol.MqttQualityOfServiceLevel)Enum.Parse(typeof(MQTTnet.Protocol.MqttQualityOfServiceLevel), item.QosLevel.ToString());

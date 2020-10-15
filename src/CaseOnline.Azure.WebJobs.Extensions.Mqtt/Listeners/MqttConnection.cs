@@ -164,7 +164,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         /// Subscribe to one or more topics.
         /// </summary>
         /// <param name="topics">The topics to subscribe to.</param>
-        public async Task SubscribeAsync(TopicFilter[] topics)
+        public async Task SubscribeAsync(MqttTopicFilter[] topics)
         {
             if (_managedMqttClient == null)
             {
