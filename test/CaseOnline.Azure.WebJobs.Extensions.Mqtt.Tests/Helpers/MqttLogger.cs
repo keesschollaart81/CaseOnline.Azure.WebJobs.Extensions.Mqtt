@@ -20,7 +20,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         private void MqttLogger_LogMessagePublished(object sender, MqttNetLogMessagePublishedEventArgs e)
         {
-            Logger.LogTrace($"{e.TraceMessage.Level}:{e.TraceMessage.Message}");
+            Logger.LogTrace($"{e.LogMessage.Level}:{e.LogMessage.Message}");
         }
 
         public void Error<TSource>(Exception exception, string message, params object[] parameters)
@@ -58,11 +58,6 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             Logger.LogTrace(message, parameters);
         }
 
-        public IMqttNetChildLogger CreateChildLogger(string source = null)
-        {
-            return new MqttNetChildLogger(this, source);
-        }
-
         public void Publish(MqttNetLogLevel logLevel, string source, string message, object[] parameters, Exception exception)
         {
             LogLevel loggerLogLevel = LogLevel.None;
@@ -81,7 +76,12 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
                     loggerLogLevel = LogLevel.Warning;
                     break;
             }
-            Logger.Log(loggerLogLevel, new EventId(), message, exception, (x,y) => $"{string.Format(x, parameters)}: {y?.Message}");
+            Logger.Log(loggerLogLevel, new EventId(), message, exception, (x, y) => $"{string.Format(x, parameters)}: {y?.Message}");
         }
+
+        public IMqttNetScopedLogger CreateScopedLogger(string source = null) => new MqttNetScopedLogger(this, source);
+
+        //public IMqttNetLogger CreateChildLogger(string source = null) => CreateScopedLogger(source);
+
     }
 }
