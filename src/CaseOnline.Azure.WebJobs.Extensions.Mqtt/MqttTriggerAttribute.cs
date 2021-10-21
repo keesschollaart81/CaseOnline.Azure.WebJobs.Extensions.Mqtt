@@ -9,7 +9,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
     [Binding]
     public class MqttTriggerAttribute : MqttBaseAttribute
     {
-        internal MqttTriggerAttribute()
+        public MqttTriggerAttribute()
         {
         }
 
