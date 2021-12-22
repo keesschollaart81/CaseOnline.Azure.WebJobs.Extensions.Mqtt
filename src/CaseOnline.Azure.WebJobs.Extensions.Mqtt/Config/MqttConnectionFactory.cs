@@ -48,15 +48,15 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
 
         public async Task DisconnectAll()
         {
-            foreach (var connection in _mqttConnections)
+            foreach (var mqttConnection in _mqttConnections.Select(connection => connection.Value.MqttConnection))
             {
-                await connection.Value.MqttConnection.StopAsync().ConfigureAwait(false);
-                connection.Value.MqttConnection.Dispose();
+                await mqttConnection.StopAsync().ConfigureAwait(false);
+                mqttConnection.Dispose();
             }
             _mqttConnections.Clear();
         }
 
-        private class MqttConnectionEntry
+        private sealed class MqttConnectionEntry
         {
             public MqttConnectionEntry(MqttConnection mqttConnection)
             {

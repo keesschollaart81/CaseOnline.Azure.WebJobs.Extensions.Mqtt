@@ -14,7 +14,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
 
         Task StopAsync();
 
-        Task SubscribeAsync(TopicFilter[] topics);
+        Task SubscribeAsync(MqttTopicFilter[] topics);
 
         Task UnubscribeAsync(string[] topics);
     }

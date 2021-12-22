@@ -98,7 +98,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         public async Task SubscribeAsync(string topic)
         {
-            await _mqttServer.SubscribeAsync("Custom", new List<TopicFilter>() { new TopicFilter() { Topic = topic, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } });
+            await _mqttServer.SubscribeAsync("Custom", new List<MqttTopicFilter>() { new MqttTopicFilter() { Topic = topic, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce } });
         }
 
         public async Task<MqttClientPublishResult> PublishAsync(MqttApplicationMessage applicationMessage)
