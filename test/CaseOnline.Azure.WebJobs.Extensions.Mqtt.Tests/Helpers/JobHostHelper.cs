@@ -71,7 +71,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
                 if (mqttExtensionConfigProvider.AllConnectionsConnected())
                 {
                     Debug.WriteLine($"JobHost boot, waited for {i * sleepDuration.TotalMilliseconds}ms to be connected");
-                    await Task.Delay(sleepDuration); //wait for another second to realy become connected
+                    await Task.Delay(sleepDuration); //wait for another second to really become connected
                     break;
                 }
                 await Task.Delay(sleepDuration);

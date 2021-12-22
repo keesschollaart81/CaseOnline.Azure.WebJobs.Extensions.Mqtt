@@ -20,7 +20,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         private readonly ILogger _logger;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly IMqttConnection _mqttConnection;
-        private readonly TopicFilter[] _topics;
+        private readonly MqttTopicFilter[] _topics;
         private bool _disposed;
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         /// <param name="topics">The topics to subscribe to.</param> 
         /// <param name="executor">Allows the function to be executed.</param>
         /// <param name="logger">The logger.</param>
-        public MqttListener(IMqttConnection connection, TopicFilter[] topics, ITriggeredFunctionExecutor executor, ILogger logger)
+        public MqttListener(IMqttConnection connection, MqttTopicFilter[] topics, ITriggeredFunctionExecutor executor, ILogger logger)
         {
             _executor = executor;
             _logger = logger;
