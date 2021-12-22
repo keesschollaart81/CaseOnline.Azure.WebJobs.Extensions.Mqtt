@@ -84,7 +84,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
         private ITriggerBinding GetMqttTriggerBinding(ParameterInfo parameter, MqttTriggerAttribute mqttTriggerAttribute)
         {
-            var topicFilters = new List<TopicFilter>();
+            var topicFilters = new List<MqttTopicFilter>();
             
             var mqttConnection = _connectionFactory.GetMqttConnection(mqttTriggerAttribute);
             try
@@ -98,7 +98,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
                     topicFilters.AddRange(mqttTriggerAttribute.TopicStrings.Select(t =>
                     {
                         var topicString = (mqttTriggerAttribute.MqttConfigCreatorType != null) ? _nameResolver.ResolveWholeString(t) : t;
-                        return new TopicFilter() { Topic = topicString, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce };
+                        return new MqttTopicFilter() { Topic = topicString, QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce };
                     }));
                 }
             }

@@ -90,19 +90,19 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
 
             if (connectionString.Tls)
             {
-                var certificates = new List<byte[]>();
+                var certificates = new List<X509Certificate2>();
                 if (connectionString.Certificate != null)
                 {
-                    using (var cert = new X509Certificate(connectionString.Certificate))
+                    using (var cert = new X509Certificate2(connectionString.Certificate))
                     {
-                        var serializedServerCertificate = cert.Export(X509ContentType.Cert);
-                        certificates.Add(serializedServerCertificate);
+                        certificates.Add(cert);
                     }
                 }
 
                 mqttClientOptionsBuilder = mqttClientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters
                 {
                     UseTls = true,
+                    SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
                     Certificates = certificates,
 #if DEBUG                   
                     CertificateValidationCallback = (X509Certificate x, X509Chain y, SslPolicyErrors z, IMqttClientOptions o) =>

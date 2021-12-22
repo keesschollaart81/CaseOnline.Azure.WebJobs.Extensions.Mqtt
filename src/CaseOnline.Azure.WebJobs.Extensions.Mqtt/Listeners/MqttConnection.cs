@@ -112,8 +112,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             {
                 throw new ArgumentNullException(nameof(eventArgs));
             }
-
-            if (eventArgs.AuthenticateResult.ResultCode == MqttClientConnectResultCode.Success)
+            
+            if (eventArgs.ConnectResult.ResultCode == MqttClientConnectResultCode.Success)
             {
                 ConnectionState = ConnectionState.Connected;
                 _logger.LogInformation($"MqttConnection Connected for {this}");
@@ -121,7 +121,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
             else
             {
                 ConnectionState = ConnectionState.Disconnected;
-                _logger.LogWarning($"MqttConnection could not connect, result code: {eventArgs.AuthenticateResult.ResultCode} for {this}");
+                _logger.LogWarning($"MqttConnection could not connect, result code: {eventArgs.ConnectResult.ResultCode} for {this}");
             }
             return Task.CompletedTask;
         }
@@ -164,7 +164,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
         /// Subscribe to one or more topics.
         /// </summary>
         /// <param name="topics">The topics to subscribe to.</param>
-        public async Task SubscribeAsync(TopicFilter[] topics)
+        public async Task SubscribeAsync(MqttTopicFilter[] topics)
         {
             if (_managedMqttClient == null)
             {

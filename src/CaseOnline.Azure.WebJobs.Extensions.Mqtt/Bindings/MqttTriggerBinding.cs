@@ -20,7 +20,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
     {
         private readonly ParameterInfo _parameter;
         private readonly MqttConnection _connection;
-        private readonly TopicFilter[] _topics;
+        private readonly MqttTopicFilter[] _topics;
         private readonly ILogger _logger;
         private readonly IReadOnlyDictionary<string, object> _emptyBindingData = new Dictionary<string, object>();
 
@@ -31,7 +31,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
         /// <param name="connection">The MQTT connection.</param>
         /// <param name="topics">The topics to subscribe to.</param>
         /// <param name="logger">The logger.</param>
-        public MqttTriggerBinding(ParameterInfo parameter, MqttConnection connection, TopicFilter[] topics, ILogger logger)
+        public MqttTriggerBinding(ParameterInfo parameter, MqttConnection connection, MqttTopicFilter[] topics, ILogger logger)
         {
             _parameter = parameter;
             _connection = connection;
@@ -82,7 +82,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             return descriptor;
         }
 
-        private class MqttTriggerParameterDescriptor : TriggerParameterDescriptor
+        private sealed class MqttTriggerParameterDescriptor : TriggerParameterDescriptor
         {
             public override string GetTriggerReason(IDictionary<string, string> arguments)
             {
@@ -90,7 +90,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Bindings
             }
         }
 
-        private class ValueProvider : IValueProvider
+        private sealed class ValueProvider : IValueProvider
         {
             private readonly object _value;
 

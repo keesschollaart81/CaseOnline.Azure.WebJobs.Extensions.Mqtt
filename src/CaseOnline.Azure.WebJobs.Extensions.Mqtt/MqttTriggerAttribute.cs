@@ -20,15 +20,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
 
         public MqttTriggerAttribute(string topic, Messaging.MqttQualityOfServiceLevel qos = Messaging.MqttQualityOfServiceLevel.AtLeastOnce, Messaging.NoLocal noLocal = Messaging.NoLocal.NotSet, Messaging.RetainAsPublished retainAsPublished = Messaging.RetainAsPublished.NotSet, Messaging.MqttRetainHandling retainHandling = Messaging.MqttRetainHandling.NotSet)
         {
-            TopicFilter = new TopicFilter
+            TopicFilter = new MqttTopicFilter
             {
                 Topic = topic,
                 NoLocal = noLocal switch
                 {
                     Messaging.NoLocal.True => true,
                     Messaging.NoLocal.False => false,
-                    Messaging.NoLocal.NotSet => null,
-                    _ => null
+                    _ => false
                 },
                 QualityOfServiceLevel = qos switch
                 {
@@ -41,16 +40,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
                 {
                     Messaging.RetainAsPublished.True => true,
                     Messaging.RetainAsPublished.False => false,
-                    Messaging.RetainAsPublished.NotSet => null,
-                    _ => null
+                    _ => false
                 },
                 RetainHandling = retainHandling switch
                 {
                     Messaging.MqttRetainHandling.DoNotSendOnSubscribe => MqttRetainHandling.DoNotSendOnSubscribe,
                     Messaging.MqttRetainHandling.SendAtSubscribe => MqttRetainHandling.SendAtSubscribe,
                     Messaging.MqttRetainHandling.SendAtSubscribeIfNewSubscriptionOnly => MqttRetainHandling.SendAtSubscribeIfNewSubscriptionOnly,
-                    Messaging.MqttRetainHandling.NotSet => null,
-                    _ => null,
+                    _ => MqttRetainHandling.DoNotSendOnSubscribe,
                 }
             };
         }
@@ -60,7 +57,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
             TopicStrings = topics;
         }
 
-        public TopicFilter TopicFilter { get; }
+        public MqttTopicFilter TopicFilter { get; }
 
         internal string[] TopicStrings { get; }
     }
