@@ -1,68 +1,77 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <Authors>Kees Schollaart</Authors>
-    <Company>Case Online</Company>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <ProjectGuid>{02D92D5F-E9FA-4816-9271-B07545DD083F}</ProjectGuid>
-    <Product>Mqtt Trigger Binding for Azure Functions</Product>
-    <PackageProjectUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <VersionPrefix>2.1.0</VersionPrefix>
-    <VersionSuffix></VersionSuffix>
-    <PackageTags>azure functions mqtt webjobs trigger binding function webjob</PackageTags>
-    <AssemblyName>CaseOnline.Azure.WebJobs.Extensions.Mqtt</AssemblyName>
-    <RootNamespace>CaseOnline.Azure.WebJobs.Extensions.Mqtt</RootNamespace>
-    <PackageId>CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageId>
-    <Description>Connect your Azure Function to your Mqtt broker!
+	<PropertyGroup>
 
-This package enables you to:
+		<TargetFramework>net6.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<Authors>Kees Schollaart</Authors>
+		<Company>Case Online</Company>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<ProjectGuid>{02D92D5F-E9FA-4816-9271-B07545DD083F}</ProjectGuid>
+		<Product>Mqtt Trigger Binding for Azure Functions</Product>
+		<PackageProjectUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<VersionPrefix>2.1.0</VersionPrefix>
+		<VersionSuffix></VersionSuffix>
+		<PackageTags>azure functions mqtt webjobs trigger binding function webjob</PackageTags>
+		<AssemblyName>CaseOnline.Azure.WebJobs.Extensions.Mqtt</AssemblyName>
+		<RootNamespace>CaseOnline.Azure.WebJobs.Extensions.Mqtt</RootNamespace>
+		<PackageId>CaseOnline.Azure.WebJobs.Extensions.Mqtt</PackageId>
+		<Description>
+			Connect your Azure Function to your Mqtt broker!
 
-* Trigger an Azure Function based on a MQTT Subscription
-* Publish a message to a MQTT topic as a result of an Azure Function.
+			This package enables you to:
 
-For more information, please visit https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt.</Description>
-    <PackageIcon>logo.png</PackageIcon>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <CodeAnalysisRuleSet>analyzers.ruleset</CodeAnalysisRuleSet>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors> 
-    <LangVersion>latest</LangVersion>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>Full</DebugType>
-    <NoWarn>1701;1702;1705;1591;S4457</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>1701;1702;1705;1591;S4457</NoWarn>
-  </PropertyGroup>
-  <ItemGroup>
-    <AdditionalFiles Include="stylecop.json" Link="stylecop.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.1.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.33.0.40503">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="4.0.1" />
-    <PackageReference Include="MQTTnet" Version="3.1.1" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-  </ItemGroup>
-  <ItemGroup> 
-    <None Update="logo.png" Pack="true" PackagePath="">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+			* Trigger an Azure Function based on a MQTT Subscription
+			* Publish a message to a MQTT topic as a result of an Azure Function.
+
+			For more information, please visit https://github.com/keesschollaart81/CaseOnline.Azure.WebJobs.Extensions.Mqtt.
+		</Description>
+		<PackageIcon>logo.png</PackageIcon>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<CodeAnalysisRuleSet>analyzers.ruleset</CodeAnalysisRuleSet>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<LangVersion>latest</LangVersion>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>Full</DebugType>
+		<NoWarn>1701;1702;1705;1591;S4457</NoWarn>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<NoWarn>1701;1702;1705;1591;S4457</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="stylecop.json" Link="stylecop.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.1.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354">
+			<PrivateAssets>All</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="4.0.1" />
+		<PackageReference Include="MQTTnet" Version="3.1.2" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="logo.png" Pack="true" PackagePath="">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>

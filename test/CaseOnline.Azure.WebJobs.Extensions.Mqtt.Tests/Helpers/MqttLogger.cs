@@ -13,6 +13,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             LogMessagePublished += MqttLogger_LogMessagePublished;
         }
 
+
+        public bool IsEnabled { get; } = true;
         public ILogger Logger { get; }
 
 #pragma warning disable 67
