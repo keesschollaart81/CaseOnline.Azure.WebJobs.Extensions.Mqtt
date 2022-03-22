@@ -1,9 +1,8 @@
-﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
+
+public enum ConnectionState
 {
-    public enum ConnectionState
-    {
-        Disconnected,
-        Connecting,
-        Connected
-    }
+    Disconnected,
+    Connecting,
+    Connected
 }

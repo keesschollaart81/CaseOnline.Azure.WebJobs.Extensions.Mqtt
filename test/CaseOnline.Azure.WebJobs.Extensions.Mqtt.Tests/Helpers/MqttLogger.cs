@@ -14,8 +14,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
         }
 
 
-        public bool IsEnabled { get; } = true;
         public ILogger Logger { get; }
+        public bool IsEnabled => Logger != null;
 
 #pragma warning disable 67
         public event EventHandler<MqttNetLogMessagePublishedEventArgs> LogMessagePublished;

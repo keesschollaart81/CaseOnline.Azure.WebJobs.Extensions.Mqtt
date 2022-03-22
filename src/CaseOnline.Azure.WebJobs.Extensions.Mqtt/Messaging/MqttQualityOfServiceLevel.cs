@@ -1,9 +1,8 @@
-﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
+
+public enum MqttQualityOfServiceLevel
 {
-    public enum MqttQualityOfServiceLevel
-    {
-        AtMostOnce = 0,
-        AtLeastOnce = 1,
-        ExactlyOnce = 2
-    }
+    AtMostOnce = 0,
+    AtLeastOnce = 1,
+    ExactlyOnce = 2
 }

@@ -1,9 +1,8 @@
-﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
+
+public enum NoLocal
 {
-    public enum NoLocal
-    {
-        True,
-        False,
-        NotSet
-    }
+    True,
+    False,
+    NotSet
 }
