@@ -1,19 +1,15 @@
-using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
 
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
+/// <summary>
+/// Allows custom configuration to be used for the MQTT binding.
+/// </summary>
+public interface ICreateMqttConfig
 {
     /// <summary>
-    /// Allows custom configuration to be used for the MQTT binding.
+    /// Creates the <see cref="MqttConfiguration"/>.
     /// </summary>
-    public interface ICreateMqttConfig
-    {
-        /// <summary>
-        /// Creates the <see cref="MqttConfiguration"/>.
-        /// </summary>
-        /// <param name="nameResolver">The name resolver.</param>
-        /// <param name="logger">The logger.</param>
-        /// <returns>The MQTT configuration.</returns>
-        CustomMqttConfig Create(INameResolver nameResolver, ILogger logger);
-    } 
+    /// <param name="nameResolver">The name resolver.</param>
+    /// <param name="logger">The logger.</param>
+    /// <returns>The MQTT configuration.</returns>
+    CustomMqttConfig Create(INameResolver nameResolver, ILogger logger);
 }

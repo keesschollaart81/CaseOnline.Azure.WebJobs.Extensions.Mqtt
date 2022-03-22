@@ -1,21 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
-using MQTTnet;
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
+public interface IMqttConnection : IDisposable
 {
-    public interface IMqttConnection : IDisposable
-    {
-        ConnectionState ConnectionState { get; }
+    ConnectionState ConnectionState { get; }
 
-        Task StartAsync(IProcesMqttMessage messageHandler);
+    Task StartAsync(IProcesMqttMessage messageHandler);
 
-        Task PublishAsync(MqttApplicationMessage message);
+    Task PublishAsync(MqttApplicationMessage message);
 
-        Task StopAsync();
+    Task StopAsync();
 
-        Task SubscribeAsync(TopicFilter[] topics);
+    Task SubscribeAsync(MqttTopicFilter[] topics);
 
-        Task UnubscribeAsync(string[] topics);
-    }
+    Task UnubscribeAsync(string[] topics);
 }

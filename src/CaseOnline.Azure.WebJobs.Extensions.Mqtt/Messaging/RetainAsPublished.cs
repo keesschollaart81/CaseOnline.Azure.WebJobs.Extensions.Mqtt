@@ -1,9 +1,8 @@
-﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
+
+public enum RetainAsPublished
 {
-    public enum RetainAsPublished
-    {
-        True,
-        False,
-        NotSet
-    }
+    True,
+    False,
+    NotSet
 }

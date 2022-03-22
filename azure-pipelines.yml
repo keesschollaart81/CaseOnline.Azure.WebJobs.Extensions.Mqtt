@@ -1,0 +1,64 @@
+name: 1.0$(rev:.r)
+
+trigger:
+- master
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+stages:
+- stage: PublishPackage
+  displayName: Test and publish package
+  variables:
+  - group: variables-devops
+  jobs:
+  - job:
+    displayName: Test and publish package
+    steps:
+    - checkout: self
+      path: s
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restoring packages'
+      inputs:
+        command: 'restore'
+        projects: '**/**/*.csproj'
+        feedsToUse: 'select'
+        vstsFeed: '$(vstsFeed)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Building the assemblies'
+      inputs:
+        command: 'build'
+        projects: '**/**/*.csproj'
+        versioningScheme: 'byBuildNumber'
+        arguments: '--configuration $(BuildConfiguration)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Testing the assemblies'
+      inputs:
+        command: 'test'
+        projects: '**/**/CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.csproj'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Creating the package'
+      inputs:
+        command: 'pack'
+        packagesToPack: '**/**/*.csproj'
+        packDirectory: 'dist'
+        nobuild: true
+        versioningScheme: 'byBuildNumber'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Staging the package'
+      inputs:
+        command: 'push'
+        packagesToPush: 'dist/*.nupkg'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: '$(vstsFeed)'

@@ -1,12 +1,10 @@
-﻿using System.Threading.Tasks;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
+﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
+
+public interface IMqttConnectionFactory
 {
-    public interface IMqttConnectionFactory
-    {
-        Task DisconnectAll();
+    Task DisconnectAll();
 
-        MqttConnection GetMqttConnection(MqttBaseAttribute attribute);
-    }
+    MqttConnection GetMqttConnection(MqttBaseAttribute attribute);
 }

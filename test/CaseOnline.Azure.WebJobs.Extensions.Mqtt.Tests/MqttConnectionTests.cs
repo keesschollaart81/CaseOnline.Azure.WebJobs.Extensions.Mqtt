@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Config;
@@ -47,10 +48,8 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 
             // Act
             await mqttConnection.StartAsync(messageProcessor.Object);
-            await mqttConnection.HandleConnectedAsync(new MqttClientConnectedEventArgs(new MqttClientAuthenticateResult {
-                IsSessionPresent = true,
-                ResultCode = MqttClientConnectResultCode.Success
-            })); 
+            var mqttClientConnectResult = new MqttClientConnectResult();
+            await mqttConnection.HandleConnectedAsync(new MqttClientConnectedEventArgs(new MqttClientConnectResult())); 
 
             // Assert 
             Assert.Equal(ConnectionState.Connected, mqttConnection.ConnectionState);
@@ -75,10 +74,11 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests
 
             var config = new MqttConfiguration("CustomConfig", mockManagedMqttClientOptions.Object);
             var mqttConnection = new MqttConnection(mockMqttClientFactory.Object, config, _mockLogger.Object); 
-           
+            Func<MqttApplicationMessageReceivedEventArgs, CancellationToken, Task> acknowledgeHandler = (MqttApplicationMessageReceivedEventArgs eventArgs, CancellationToken cancellationToken) => Task.CompletedTask;
+
             // Act 
             await mqttConnection.StartAsync(messageProcessor.Object);
-            await mqttConnection.HandleApplicationMessageReceivedAsync( new MqttApplicationMessageReceivedEventArgs("ClientId", DefaultMessage)); 
+            await mqttConnection.HandleApplicationMessageReceivedAsync(new MqttApplicationMessageReceivedEventArgs("ClientId", DefaultMessage, new MQTTnet.Packets.MqttPublishPacket(), acknowledgeHandler)); 
 
             // Assert 
             messageProcessor.Verify(x => x.OnMessage(It.Is<MqttMessageReceivedEventArgs>(y => y.Message.Topic == DefaultMessage.Topic)));

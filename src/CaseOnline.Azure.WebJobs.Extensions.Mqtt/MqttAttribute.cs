@@ -1,18 +1,16 @@
-﻿using System;
-using Microsoft.Azure.WebJobs.Description;
+﻿using Microsoft.Azure.WebJobs.Description;
 
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt;
+
+[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue)]
+[Binding]
+public class MqttAttribute : MqttBaseAttribute
 {
-    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue)]
-    [Binding]
-    public class MqttAttribute : MqttBaseAttribute
+    public MqttAttribute()
     {
-        public MqttAttribute()
-        {
-        }
+    }
 
-        public MqttAttribute(Type mqttConfigCreatorType) : base(mqttConfigCreatorType)
-        {
-        }
+    public MqttAttribute(Type mqttConfigCreatorType) : base(mqttConfigCreatorType)
+    {
     }
 }

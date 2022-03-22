@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 using MQTTnet.Diagnostics;
+using MQTTnet.Diagnostics.Logger;
 
 namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 {
@@ -12,7 +13,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             LogMessagePublished += MqttLogger_LogMessagePublished;
         }
 
+
         public ILogger Logger { get; }
+        public bool IsEnabled => Logger != null;
 
 #pragma warning disable 67
         public event EventHandler<MqttNetLogMessagePublishedEventArgs> LogMessagePublished;
@@ -20,7 +23,7 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
 
         private void MqttLogger_LogMessagePublished(object sender, MqttNetLogMessagePublishedEventArgs e)
         {
-            Logger.LogTrace($"{e.TraceMessage.Level}:{e.TraceMessage.Message}");
+            Logger.LogTrace($"{e.LogMessage.Level}:{e.LogMessage.Message}");
         }
 
         public void Error<TSource>(Exception exception, string message, params object[] parameters)
@@ -58,9 +61,9 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
             Logger.LogTrace(message, parameters);
         }
 
-        public IMqttNetChildLogger CreateChildLogger(string source = null)
+        public IMqttNetLogger CreateChildLogger(string source = null)
         {
-            return new MqttNetChildLogger(this, source);
+            return new MqttNetEventLogger(source);
         }
 
         public void Publish(MqttNetLogLevel logLevel, string source, string message, object[] parameters, Exception exception)
@@ -81,7 +84,14 @@ namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Tests.Helpers
                     loggerLogLevel = LogLevel.Warning;
                     break;
             }
-            Logger.Log(loggerLogLevel, new EventId(), message, exception, (x,y) => $"{string.Format(x, parameters)}: {y?.Message}");
+            if (parameters is not null && parameters.Length > 0)
+            {
+                Logger.Log(loggerLogLevel, new EventId(), message, exception, (x, y) => $"{string.Format(x, parameters)}: {y?.Message}");
+            }
+            else
+            {
+                Logger.Log(loggerLogLevel, new EventId(), message, exception, (x, y) => $"{string.Format(x)}: {y?.Message}");
+            }
         }
     }
 }

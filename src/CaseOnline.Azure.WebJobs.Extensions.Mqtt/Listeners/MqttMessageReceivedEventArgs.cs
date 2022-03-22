@@ -1,15 +1,13 @@
-﻿using System;
-using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
+﻿using CaseOnline.Azure.WebJobs.Extensions.Mqtt.Messaging;
 
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
+namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
+
+public sealed class MqttMessageReceivedEventArgs : EventArgs
 {
-    public sealed class MqttMessageReceivedEventArgs : EventArgs
+    public MqttMessageReceivedEventArgs(IMqttMessage message)
     {
-        public MqttMessageReceivedEventArgs(IMqttMessage message)
-        {
-            Message = message;
-        }
-
-        public IMqttMessage Message { get; }
+        Message = message;
     }
+
+    public IMqttMessage Message { get; }
 }

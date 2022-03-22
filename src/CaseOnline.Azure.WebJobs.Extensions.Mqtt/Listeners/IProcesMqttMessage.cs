@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners;
 
-namespace CaseOnline.Azure.WebJobs.Extensions.Mqtt.Listeners
+public interface IProcesMqttMessage
 {
-    public interface IProcesMqttMessage
-    {
-        Task OnMessage(MqttMessageReceivedEventArgs arg);
-    }
+    Task OnMessage(MqttMessageReceivedEventArgs arg);
 }
